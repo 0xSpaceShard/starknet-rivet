@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 
 import './Screen1.css'
+import { useNetwork } from '@starknet-react/core'
 
 export const Screen1 = () => {
   const getTime = () => {
@@ -12,6 +13,7 @@ export const Screen1 = () => {
 
   const [time, setTime] = useState(getTime())
   const link = 'https://github.com/guocaoyi/create-chrome-ext'
+  const { chain } = useNetwork()
 
   useEffect(() => {
     let intervalId = setInterval(() => {
@@ -27,6 +29,7 @@ export const Screen1 = () => {
     <section>
       <span></span>
       <h1>Demo Screen1</h1>
+      <h2>{chain.name}</h2>
     </section>
   )
 }
