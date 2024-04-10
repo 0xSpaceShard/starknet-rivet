@@ -1,19 +1,9 @@
-import { useState, useEffect, useContext } from 'react'
+import { useEffect, useContext } from 'react'
 
-import './Screen1.css'
-import { Context } from '../components/context/context'
-import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
+import { Context } from '../context/context';
 
-export const Screen1 = () => {
-  const getTime = () => {
-    const date = new Date()
-    const hour = String(date.getHours()).padStart(2, '0')
-    const minute = String(date.getMinutes()).padStart(2, '0')
-    return `${hour}:${minute}`
-  }
 
-  const [time, setTime] = useState(getTime())
-  const link = 'https://github.com/guocaoyi/create-chrome-ext'
+export const PredeployedAccounts = () => {
   const context = useContext(Context);
   if (!context) {
     throw new Error('Context value is undefined');
@@ -44,16 +34,6 @@ export const Screen1 = () => {
   }
 
   useEffect(() => {
-    let intervalId = setInterval(() => {
-      setTime(getTime())
-    }, 1000)
-
-    return () => {
-      clearInterval(intervalId)
-    }
-  }, [])
-
-  useEffect(() => {
     async function fetchData() {
       try {
         const data = await fetchContainerLogs();
@@ -67,12 +47,14 @@ export const Screen1 = () => {
   }, []);
   return (
     <section>
-      <span></span>
-      <h1>Demo Screen1</h1>
-      <title>Display Accounts</title>
-      <PredeployedAccounts />
+        <h1 className="section-heading">Accounts</h1>
+            <ul>
+            {accounts.map((account, index) => (
+                <li key={index} style={{ width: '100%', textAlign: 'left' }}>{account}</li>
+                ))}
+        </ul>
     </section>
   )
 }
 
-export default Screen1
+export default PredeployedAccounts
