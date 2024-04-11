@@ -1,6 +1,7 @@
 import { useEffect, useContext } from 'react'
 
 import { Context } from '../context/context';
+import './predeployedAccounts.css'
 
 
 export const PredeployedAccounts = () => {

@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react'
 import './Screen1.css'
 import { Context } from '../components/context/context'
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
+import DockerCommandGenerator from '../components/dockerCommand/dockerCommand'
 
 export const Screen1 = () => {
   const getTime = () => {
@@ -69,6 +70,7 @@ export const Screen1 = () => {
     <section>
       <span></span>
       <h1>Demo Screen1</h1>
+      <DockerCommandGenerator />
       <title>Display Accounts</title>
       <PredeployedAccounts />
     </section>
