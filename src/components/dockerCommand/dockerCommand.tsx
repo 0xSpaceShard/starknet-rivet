@@ -151,18 +151,42 @@ const DockerCommandGenerator: React.FC = () => {
     if (options.accountClass && options.accountClass != 'cairo1') {
         command += ` --account-class ${options.accountClass}`;
     }
-    // --initial-balance
-    // --seed 
-    // --start-time
-    // --timeout
-    // --gas-price
-    // --data-gas-price
-    // --chain-id
-    // --dump-on
-    // --dump-path 
-    // --state-archive-capacity
-    // --fork-network
-    // --fork-block
+    if (options.initialBalance && options.initialBalance != '') {
+        command += ` --initial-balance ${options.initialBalance}`;
+    }
+    if (options.seed && options.seed != '') {
+        command += ` --seed ${options.seed}`;
+    }
+    if (options.startTime && options.startTime != 0) {
+        command += ` --start-time ${options.startTime}`;
+    }
+    if (options.timeOut && options.timeOut != 0) {
+        command += ` --timeout ${options.timeOut}`;
+    }
+    if (options.gasPrice && options.gasPrice != 0) {
+        command += ` --gas-price ${options.gasPrice}`;
+    }
+    if (options.dataGasPrice && options.dataGasPrice != 0) {
+        command += ` --data-gas-price ${options.dataGasPrice}`;
+    }
+    if (options.chainId && options.chainId != '') {
+        command += ` --chain-id ${options.chainId}`;
+    }
+    if (options.dumpOn && options.dumpOn != '') {
+        command += ` --dump-on ${options.dumpOn}`;
+    }
+    if (options.dumpPath && options.dumpPath != '') {
+        command += ` --dump-path ${options.dumpPath}`;
+    }
+    if (options.stateArchiveCapacity && options.stateArchiveCapacity != '') {
+        command += ` --state-archive-capacity ${options.stateArchiveCapacity}`;
+    }
+    if (options.forkNetwork && options.forkNetwork != '') {
+        command += ` --fork-network ${options.forkNetwork}`;
+    }
+    if (options.forkBlock && options.forkBlock != 0) {
+        command += ` --fork-block ${options.forkBlock}`;
+    }
 
     // Add other options to the command
     // Example: command += ` --accounts ${options.accounts}`;
