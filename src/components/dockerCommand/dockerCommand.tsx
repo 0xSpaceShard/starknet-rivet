@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent } from 'react';
 import './dockerCommand.css'
 import InfoIcon from '../infoIcon/infoIcon';
+import {ACCOUNT_INFO, ACCOUNT_CLASS_INFO, ACCOUNT_CLASS_CUSTOM_INFO, SEED_INFO, START_TIME_INFO, DUMP_ON_INFO, DUMP_PATH_INFO, STATE_ARCHIVE_CAPACITY_INFO, FORK_NETWORK_INFO, FORK_BLOCK_INFO} from "../../info";
 
 interface Options {
     accounts: number;
@@ -20,181 +21,138 @@ interface Options {
     stateArchiveCapacity: string,
     forkNetwork: string,
     forkBlock: number,
-  // Add other options with default values here
 }
 
 
 const DockerCommandGenerator: React.FC = () => {
-  const [options, setOptions] = useState<Options>({
-    accounts: 10,
-    accountClass: 'cairo1',  // [possible values: cairo1, cairo0]
-    accountClassCustom: '',
-    initialBalance: "1000000000000000000000",
-    seed: '',
-    host: '127.0.0.1',
-    port: 5050,
-    startTime: 0,
-    timeOut: 120,
-    gasPrice: 100000000000,
-    dataGasPrice: 100000000000,
-    chainId: 'TESTNET', // [possible values: MAINNET, TESTNET]
-    dumpOn: '', // [possible values: exit, transaction]
-    dumpPath: '',
-    stateArchiveCapacity: 'none', // [possible values: none, full]
-    forkNetwork: '',
-    forkBlock: 0,
-  });
-
-  const [initialBalanceError, setInitialBalanceError] = useState('');
-  const [seedError, setSeedError] = useState('');
-  const [startTimeError, setStartTimeError] = useState('');
-  const [timeOutError, setTimeOutError] = useState('');
-  const [generalError, setGeneralError] = useState(false);
-  const [tooltipVisible, setTooltipVisible] = useState(false);
-
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setOptions((prevOptions) => ({
-        ...prevOptions,
-        [name]: value,
-      }));
-    if (name === 'initialBalance' && !Number.isNaN(Number(value))) {
-        // Convert the decimal value to hexadecimal
-        const hexValue = Number(value).toString(16);
-        const newValue = `0x${hexValue}`;
-        if (Number(value) < 0) {
-            setInitialBalanceError('Initial balance cannot be negative');
-            setGeneralError(true);
-            return;
-        } 
-        else if (!/^0x[0-9a-fA-F]{64}$/.test(newValue)) {
-            setInitialBalanceError('Invalid initial balance');
-            setGeneralError(true);
-            return;
-        }
-        else {
-            setInitialBalanceError('');
-        }
-    }
-    if (name === 'seed') {
-        // Validate if the value is a number and within the specified range
-        if (!Number.isNaN(Number(value))) {
-          const seedValue = parseInt(value);
-          if (seedValue < 0 || seedValue > 4294967295) {
-            // If the value is outside the valid range, set an error message
-            setSeedError('Seed value must be between 0 and 4294967295');
-            setGeneralError(true);
-            return;
-          } else {
-            // If the value is within the valid range, clear the error message
-            setSeedError('');
-          }
-        } else {
-          // If the value is not a number, set an error message
-          setSeedError('Invalid seed value');
-          setGeneralError(true);
-          return;
-        }
-    }
-    if (name === 'startTime') {
-        // Validate if the value is a number and within the specified range
-        if (!Number.isNaN(Number(value))) {
-          const startTimeValue = BigInt(value);
-          if (startTimeValue < 0 || startTimeValue > 18446744073709551615n ) {
-            // If the value is outside the valid range, set an error message
-            setStartTimeError('StartTime value must be between 0 and 18446744073709551615 ');
-            setGeneralError(true);
-            return;
-          } else {
-            // If the value is within the valid range, clear the error message
-            setStartTimeError('');
-          }
-        } else {
-          // If the value is not a number, set an error message
-          setStartTimeError('Invalid StartTime value');
-          setGeneralError(true);
-          return;
-        }
-    }
-    if (name === 'timeOut') {
-        // Validate if the value is a number and within the specified range
-        if (!Number.isNaN(Number(value))) {
-          const startTimeValue = parseInt(value);
-          if (startTimeValue < 0 || startTimeValue > 65535 ) {
-            // If the value is outside the valid range, set an error message
-            setTimeOutError('TimeOut value must be between 0 and 65535 ');
-            setGeneralError(true);
-            return;
-          } else {
-            // If the value is within the valid range, clear the error message
-            setTimeOutError('');
-          }
-        } else {
-          // If the value is not a number, set an error message
-          setTimeOutError('Invalid TimeOut value');
-          setGeneralError(true);
-          return;
-        }
-    }
-    setGeneralError(false);
+    const defaultOptions: Options = {
+        accounts: 10,
+        accountClass: 'cairo1',
+        accountClassCustom: '',
+        initialBalance: "1000000000000000000000",
+        seed: '',
+        host: '127.0.0.1',
+        port: 5050,
+        startTime: 0,
+        timeOut: 120,
+        gasPrice: 100000000000,
+        dataGasPrice: 100000000000,
+        chainId: 'TESTNET',
+        dumpOn: '',
+        dumpPath: '',
+        stateArchiveCapacity: 'none',
+        forkNetwork: '',
+        forkBlock: 0,
+    };
     
-  };
+    const [options, setOptions] = useState<Options>(defaultOptions);
 
-  const generateDockerCommand = () => {
-    // Generate the Docker command based on the options
+    const [initialBalanceError, setInitialBalanceError] = useState('');
+    const [seedError, setSeedError] = useState('');
+    const [startTimeError, setStartTimeError] = useState('');
+    const [timeOutError, setTimeOutError] = useState('');
+    const [generalError, setGeneralError] = useState(false);
+    const [tooltipVisible, setTooltipVisible] = useState(false);
+
+    const isValidInitialBalance = (value: string): boolean => {
+        // Expression régulière pour correspondre à une chaîne hexadécimale valide de 64 caractères ou moins
+        const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
+        return regex.test(value);
+    };
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setOptions((prevOptions) => ({
+            ...prevOptions,
+            [name]: value,
+        }));
+        if (name === 'initialBalance' && !Number.isNaN(Number(value))) {
+            // Convert the decimal value to hexadecimal
+            if (!isValidInitialBalance(value)) {
+                setInitialBalanceError('Invalid initial balance');
+                setGeneralError(true);
+                return;
+            }
+            const hexValue = Number(value).toString(16);
+            const newValue = `0x${hexValue}`;
+            if (Number(value) < 0) {
+                setInitialBalanceError('Initial balance cannot be negative');
+                setGeneralError(true);
+                return;
+            } 
+            else {
+                setInitialBalanceError('');
+            }
+        }
+        if (name === 'seed') {
+            if (!Number.isNaN(Number(value))) {
+            const seedValue = parseInt(value);
+            if (seedValue < 0 || seedValue > 4294967295) {
+                setSeedError('Seed value must be between 0 and 4294967295');
+                setGeneralError(true);
+                return;
+            } else {
+                setSeedError('');
+            }
+            } else {
+            setSeedError('Invalid seed value');
+            setGeneralError(true);
+            return;
+            }
+        }
+        if (name === 'startTime') {
+            if (!Number.isNaN(Number(value))) {
+            const startTimeValue = BigInt(value);
+            if (startTimeValue < 0 || startTimeValue > 18446744073709551615n ) {
+                setStartTimeError('StartTime value must be between 0 and 18446744073709551615 ');
+                setGeneralError(true);
+                return;
+            } else {
+                setStartTimeError('');
+            }
+            } else {
+            setStartTimeError('Invalid StartTime value');
+            setGeneralError(true);
+            return;
+            }
+        }
+        if (name === 'timeOut') {
+            if (!Number.isNaN(Number(value))) {
+            const startTimeValue = parseInt(value);
+            if (startTimeValue < 0 || startTimeValue > 65535 ) {
+                setTimeOutError('TimeOut value must be between 0 and 65535 ');
+                setGeneralError(true);
+                return;
+            } else {
+                setTimeOutError('');
+            }
+            } else {
+            setTimeOutError('Invalid TimeOut value');
+            setGeneralError(true);
+            return;
+            }
+        }
+        setGeneralError(false);
+        
+    };
+
+const generateDockerCommand = (options: Options) => {
     let command = 'docker run -p ';
-    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
-    if (options.accounts && options.accounts > 0 && options.accounts < 10) {
-        command += ` --accounts ${options.accounts}`;
-    }
-    if (options.accountClass && options.accountClass != 'cairo1') {
-        command += ` --account-class ${options.accountClass}`;
-    }
-    if (options.initialBalance && options.initialBalance != '') {
-        command += ` --initial-balance ${options.initialBalance}`;
-    }
-    if (options.seed && options.seed != '') {
-        command += ` --seed ${options.seed}`;
-    }
-    if (options.startTime && options.startTime != 0) {
-        command += ` --start-time ${options.startTime}`;
-    }
-    if (options.timeOut && options.timeOut != 0) {
-        command += ` --timeout ${options.timeOut}`;
-    }
-    if (options.gasPrice && options.gasPrice != 0) {
-        command += ` --gas-price ${options.gasPrice}`;
-    }
-    if (options.dataGasPrice && options.dataGasPrice != 0) {
-        command += ` --data-gas-price ${options.dataGasPrice}`;
-    }
-    if (options.chainId && options.chainId != '') {
-        command += ` --chain-id ${options.chainId}`;
-    }
-    if (options.dumpOn && options.dumpOn != '') {
-        command += ` --dump-on ${options.dumpOn}`;
-    }
-    if (options.dumpPath && options.dumpPath != '') {
-        command += ` --dump-path ${options.dumpPath}`;
-    }
-    if (options.stateArchiveCapacity && options.stateArchiveCapacity != '') {
-        command += ` --state-archive-capacity ${options.stateArchiveCapacity}`;
-    }
-    if (options.forkNetwork && options.forkNetwork != '') {
-        command += ` --fork-network ${options.forkNetwork}`;
-    }
-    if (options.forkBlock && options.forkBlock != 0) {
-        command += ` --fork-block ${options.forkBlock}`;
-    }
 
-    // Add other options to the command
-    // Example: command += ` --accounts ${options.accounts}`;
-    // Example: command += ` --account-class ${options.accountClass}`;
-    // Add more options as needed
+    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
+
+    Object.keys(options).forEach(option => {
+        if (options[option as keyof Options] !== defaultOptions[option as keyof Options]) {
+            if (typeof options[option as keyof Options] === 'boolean' && options[option as keyof Options]) {
+                command += ` --${option}`;
+            } else {
+                command += ` --${option} ${options[option as keyof Options]}`;
+            }
+        }
+    });
 
     return command;
-  };
+};
 
   const handleTooltipToggle = () => {
     setTooltipVisible(!tooltipVisible);
@@ -206,20 +164,20 @@ const DockerCommandGenerator: React.FC = () => {
       <form className="docker-form">
         <div className="form-group">
         <label htmlFor="account">Account:</label>
-            <InfoIcon content="Devnet predeploys a UDC, an ERC20 (fee token) contract and a set of predeployed funded accounts." />
+            <InfoIcon content={ACCOUNT_INFO} />
             <input
                 type="text"
                 name="accounts"
-                value={options.accounts}
+                value={options.accounts || ''}
                 onChange={handleInputChange}
-                className={options.accounts > 255 ? 'error-message' : 'Max predeployed accounts is 255'}
+                className={options.accounts  && options.accounts > 255 ? 'error-message' : 'Max predeployed accounts is 255'}
             />
-             {options.accounts > 255 && <p className="error-message">Max predeployed accounts is 255.</p>}
+             {options.accounts  && options.accounts > 255 && <p className="error-message">Max predeployed accounts is 255.</p>}
         </div>
 
         <div className="form-group">
           <label htmlFor="accountClass">Account Class:</label>
-          <InfoIcon content="Choose between predeploying Cairo 0 (OpenZeppelin 0.5.1) or Cairo 1 (default: OpenZeppelin 0.8.1) accounts" />
+          <InfoIcon content={ACCOUNT_CLASS_INFO} />
           <select
             name="accountClass"
             id="accountClass"
@@ -233,7 +191,7 @@ const DockerCommandGenerator: React.FC = () => {
         </div>
         <div className="form-group">
           <label htmlFor="accountClassCustom">Account Class Custom:</label>
-          <InfoIcon content="Provide a path to the Sierra artifact of your custom account" />
+          <InfoIcon content={ACCOUNT_CLASS_CUSTOM_INFO} />
           <input
                 type="text"
                 name="accountClassCustom"
@@ -255,7 +213,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="seed">Seed:</label>
-            <InfoIcon content="By appending the `-seed0` suffix, you can use images which predeploy funded accounts with `--seed 0`, thus always predeploying the same set of accounts:" />
+            <InfoIcon content={SEED_INFO} />
             <input
                 type="text"
                 name="seed"
@@ -288,7 +246,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="start-time">Start time:</label>
-            <InfoIcon content="Devnet can be started with the `--start-time` argument, where `START_TIME_IN_SECONDS` should be greater than 0." />
+            <InfoIcon content={START_TIME_INFO} />
             <input
                 type="text"
                 name="startTime"
@@ -300,7 +258,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="timeout">TimeOut:</label>
-            <InfoIcon content="Timeout can be passed to Devnet's HTTP server. This makes it easier to deploy and manage large contracts that take longer to execute." />
+            <InfoIcon content={START_TIME_INFO} />
             <input
                 type="text"
                 name="timeOut"
@@ -347,7 +305,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="dump-on">Dump On:</label>
-            <InfoIcon content="Specify when to dump the state of Devnet; [possible values: exit, transaction]" />
+            <InfoIcon content={DUMP_ON_INFO} />
             <input
                 type="text"
                 name="dumpOn"
@@ -358,7 +316,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="dump-path">Dump Path:</label>
-            <InfoIcon content="Specify the path to dump to" />
+            <InfoIcon content={DUMP_PATH_INFO} />
             <input
                 type="text"
                 name="dumpPath"
@@ -369,8 +327,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="state-archive-capacity">State archive capacity:</label>
-        <InfoIcon content="With state archive capacity set to <strong>full</strong>, Devnet will store full state history.
-                  The default mode is <strong>none</strong>, where no old states are stored." />
+        <InfoIcon content={STATE_ARCHIVE_CAPACITY_INFO} />
         <select
                 name="stateArchiveCapacity"
                 id="stateArchiveCapacity"
@@ -385,7 +342,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="fork-network">Fork network:</label>
-                <InfoIcon content="To interact with contracts deployed on mainnet or testnet, you can use the forking to simulate the origin and experiment with it locally, making no changes to the origin itself." />
+                <InfoIcon content={FORK_NETWORK_INFO} />
             <input
                 type="text"
                 name="forkNetwork"
@@ -397,7 +354,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <div className="form-group">
         <label htmlFor="fork-block">Fork block:</label>
-            <InfoIcon content="Specify the number of the block to fork at" />
+            <InfoIcon content={FORK_BLOCK_INFO} />
             <input
                 type="text"
                 name="forkBlock"
@@ -408,7 +365,7 @@ const DockerCommandGenerator: React.FC = () => {
 
         <button 
             type="button" 
-            onClick={() => alert(generateDockerCommand())}
+            onClick={() => alert(generateDockerCommand(options))}
             disabled={generalError}
         >
             Generate Docker Command
