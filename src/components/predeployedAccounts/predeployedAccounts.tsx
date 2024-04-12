@@ -1,61 +1,73 @@
-import { useEffect, useContext } from 'react'
-
+import React, { useEffect, useContext } from 'react';
 import { Context } from '../context/context';
-import './predeployedAccounts.css'
+import './predeployedAccounts.css';
 
+interface AccountData {
+  address: string;
+}
 
-export const PredeployedAccounts = () => {
+export const PredeployedAccounts: React.FC = () => {
   const context = useContext(Context);
+
   if (!context) {
     throw new Error('Context value is undefined');
   }
 
-  const { accounts, setAccounts } = context;
-  
-  async function fetchContainerLogs(): Promise<string | null> {
+  const { accounts, setAccounts, url } = context;
+
+  async function fetchContainerLogs(): Promise<AccountData[] | null> {
+    if (!url) {
+      return null;
+    }
+
     try {
-      const response = await fetch('http://127.0.0.1:5050/predeployed_accounts');
-      const data = await response.json();
+      const response = await fetch(`http://${url}/predeployed_accounts`);
+      const data: AccountData[] = await response.json();
       return data;
     } catch (error) {
       console.error('Error fetching container logs:', error);
       return null;
     }
   }
-  
-  function parseAccounts(data: any): string[] {
+
+  function parseAccounts(data: AccountData[] | null): string[] {
     if (data === null) {
       return [];
     }
-    let address = [];
-    for (let index = 0; index < data.length; index++) {
-     address.push(data[index].address);
+
+    return data.map((item: AccountData) => item.address);
+  }
+
+  async function fetchDataAndPrintAccounts() {
+    try {
+      const data = await fetchContainerLogs();
+      const accounts = parseAccounts(data);
+      setAccounts(accounts);
+    } catch (error) {
+      console.error('Error fetching container logs:', error);
     }
-    return address;
   }
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const data = await fetchContainerLogs();
-        const accounts = parseAccounts(data);
-        setAccounts(accounts);
-      } catch (error) {
-        console.error('Error fetching container logs:', error);
-      }
-    }
-    fetchData();
-  }, []);
+    fetchDataAndPrintAccounts();
+  }, [url]);
+
   return (
-    <section>
-        <h1 className="section-heading">Accounts</h1>
-            <ul>
+    <>
+      {accounts.length > 0 && (
+        <section>
+          <h1 className="section-heading">Accounts</h1>
+          <ul>
             {accounts.map((account, index) => (
-                <li key={index} style={{ width: '100%', textAlign: 'left' }}>{account}</li>
-                ))}
-        </ul>
-    </section>
-  )
+              <li key={index} style={{ width: '100%', textAlign: 'left' }}>
+                {account}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </>
+  );
 }
 
-export default PredeployedAccounts
+export default PredeployedAccounts;

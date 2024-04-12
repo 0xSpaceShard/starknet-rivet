@@ -20,11 +20,14 @@ export const Screen1 = () => {
     throw new Error('Context value is undefined');
   }
 
-  const { accounts, setAccounts } = context;
+  const { accounts, setAccounts, url } = context;
   
   async function fetchContainerLogs(): Promise<string | null> {
+    if (!url) {
+      return null;
+    }
     try {
-      const response = await fetch('http://127.0.0.1:5050/predeployed_accounts');
+      const response = await fetch(`http://${url}/predeployed_accounts`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -56,6 +59,9 @@ export const Screen1 = () => {
 
   useEffect(() => {
     async function fetchData() {
+      if (!url) {
+      return null;
+    }
       try {
         const data = await fetchContainerLogs();
         const accounts = parseAccounts(data);
