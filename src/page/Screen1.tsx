@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 
 import './Screen1.css'
-import { Context } from '../components/context/context'
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand'
 
@@ -15,37 +14,6 @@ export const Screen1 = () => {
 
   const [time, setTime] = useState(getTime())
   const link = 'https://github.com/guocaoyi/create-chrome-ext'
-  const context = useContext(Context);
-  if (!context) {
-    throw new Error('Context value is undefined');
-  }
-
-  const { accounts, setAccounts, url } = context;
-  
-  async function fetchContainerLogs(): Promise<string | null> {
-    if (!url) {
-      return null;
-    }
-    try {
-      const response = await fetch(`http://${url}/predeployed_accounts`);
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching container logs:', error);
-      return null;
-    }
-  }
-  
-  function parseAccounts(data: any): string[] {
-    if (data === null) {
-      return [];
-    }
-    let address = [];
-    for (let index = 0; index < data.length; index++) {
-     address.push(data[index].address);
-    }
-    return address;
-  }
 
   useEffect(() => {
     let intervalId = setInterval(() => {
@@ -57,21 +25,6 @@ export const Screen1 = () => {
     }
   }, [])
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!url) {
-      return null;
-    }
-      try {
-        const data = await fetchContainerLogs();
-        const accounts = parseAccounts(data);
-        setAccounts(accounts);
-      } catch (error) {
-        console.error('Error fetching container logs:', error);
-      }
-    }
-    fetchData();
-  }, []);
   return (
     <section>
       <span></span>

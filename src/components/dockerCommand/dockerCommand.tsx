@@ -2,27 +2,8 @@ import React, { useState, ChangeEvent, useContext } from 'react';
 import './dockerCommand.css'
 import InfoIcon from '../infoIcon/infoIcon';
 import {ACCOUNT_INFO, ACCOUNT_CLASS_INFO, ACCOUNT_CLASS_CUSTOM_INFO, SEED_INFO, START_TIME_INFO, DUMP_ON_INFO, DUMP_PATH_INFO, STATE_ARCHIVE_CAPACITY_INFO, FORK_NETWORK_INFO, FORK_BLOCK_INFO} from "../../info";
-import { Context } from '../context/context';
+import { Context, Options } from '../context/context';
 
-interface Options {
-    accounts: number;
-    accountClass: string;
-    accountClassCustom: string;
-    initialBalance: string;
-    seed: string;
-    host: string;
-    port: number;
-    startTime: number,
-    timeOut: number,
-    gasPrice: number,
-    dataGasPrice: number,
-    chainId: string,
-    dumpOn: string,
-    dumpPath: string,
-    stateArchiveCapacity: string,
-    forkNetwork: string,
-    forkBlock: number,
-}
 
 const DockerCommandGenerator: React.FC = () => {
     const context = useContext(Context);
@@ -56,10 +37,10 @@ const DockerCommandGenerator: React.FC = () => {
     const [startTimeError, setStartTimeError] = useState('');
     const [timeOutError, setTimeOutError] = useState('');
     const [generalError, setGeneralError] = useState(false);
-    const [tooltipVisible, setTooltipVisible] = useState(false);
     const [generateCommand, setGenerateCommand] = useState(false);
     const [toContinue, setToContinue] = useState(false)
-    const { url, setUrl } = context;
+    const [msg, setMsg] = useState("");
+    const { url, setUrl, devnetIsAlive, setDevnetIsAlive, commandOptions, setCommandOptions} = context;
 
     const isValidInitialBalance = (value: string): boolean => {
         const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
@@ -147,7 +128,9 @@ const generateDockerCommand = (options: Options) => {
 
     setUrl(`${options.host}:${options.port}`);
     command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
-
+ 
+    const commandOptionsCopy = { ...options };
+    setCommandOptions(commandOptionsCopy);
     Object.keys(options).forEach(option => {
         if (options[option as keyof Options] !== defaultOptions[option as keyof Options]) {
             if (typeof options[option as keyof Options] === 'boolean' && options[option as keyof Options]) {
@@ -161,9 +144,43 @@ const generateDockerCommand = (options: Options) => {
     return command;
 };
 
-const handleContinue = () => {
-    setToContinue(true);
-  };
+async function checkDevnetIsAlive(): Promise<boolean> {
+    if (!url) {
+        return false;
+    }
+    try {
+        const response = await fetch(`http://${url}/is_alive`);
+        if (response.ok) {
+            setDevnetIsAlive(true);
+            setMsg("");
+            return true;
+        } else {
+            setDevnetIsAlive(false);
+            setMsg("Devnet is not started. Please start it first.");
+            alert(generateDockerCommand(options));
+            return false;
+        }
+    } catch (error) {
+        setDevnetIsAlive(false);
+        setMsg("Devnet is not started. Please start it first.");
+        alert(generateDockerCommand(options))
+        return false;
+    }
+}
+
+const handleContinue = async () => {
+    try {
+        const data = await checkDevnetIsAlive();
+        if (data) {
+            setToContinue(true);
+        } else {
+            setToContinue(false);
+        }
+    } catch (error) {
+        setToContinue(false);
+    }
+};
+
 
   return (
     <>
@@ -382,9 +399,12 @@ const handleContinue = () => {
                 </button> 
             )}
             {generateCommand && (
-                <button type="button" onClick={handleContinue}>
-                    Continue
-                </button>
+                 <div style={{ textAlign: 'center' }}>
+                    <button type="button" onClick={handleContinue}>
+                        Continue
+                    </button>
+                    <p className="error-message">{msg}</p>
+                </div>
             )}
         </form>
         </div>
