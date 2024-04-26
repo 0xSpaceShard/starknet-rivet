@@ -1,7 +1,8 @@
 import React, { useEffect, useContext } from 'react';
 import { AccountData, Context } from '../context/context';
 import './predeployedAccounts.css';
-import { arrayToBigInt } from '../../utils';
+import SingletonContext from '../../services/contextService';
+import UrlContext from '../../services/urlService';
 
 export const PredeployedAccounts: React.FC = () => {
     const context = useContext(Context);
@@ -25,12 +26,15 @@ export const PredeployedAccounts: React.FC = () => {
         }
 
         try {
-        const response = await fetch(`http://${url}/predeployed_accounts`);
-        const data: AccountData[] = await response.json();
-        return data;
+            const configResponse = await fetch(`http://${url}/config`);
+            const configData = await configResponse.json();
+            console.log('Config data:', configData);
+            const response = await fetch(`http://${url}/predeployed_accounts`);
+            const data: AccountData[] = await response.json();
+            return data;
         } catch (error) {
-        console.error('Error fetching container logs:', error);
-        return null;
+            console.error('Error fetching container logs:', error);
+            return null;
         }
     }
 
@@ -48,6 +52,10 @@ export const PredeployedAccounts: React.FC = () => {
 
     useEffect(() => {
         fetchDataAndPrintAccounts();
+        const context = UrlContext.getInstance();
+        if (url) {
+            context.setSelectedUrl(url);
+        }
     }, [url, devnetIsAlive]);
 
 
@@ -65,8 +73,7 @@ export const PredeployedAccounts: React.FC = () => {
         try {
             const response = await fetch(`http://${url}/account_balance?address=${address}`);
             const array = await response.json();
-            const currentBalance = arrayToBigInt(array.amount);
-            setCurrentBalance(currentBalance);
+            setCurrentBalance(array.amount);
         } catch (error) {
             console.error('Error fetching container logs:', error); 
         }
@@ -74,12 +81,17 @@ export const PredeployedAccounts: React.FC = () => {
 
     useEffect(() => {
         fetchCurrentBalance(selectedAccount?.address);
+        const context = SingletonContext.getInstance();
+        if (selectedAccount?.address) {
+            context.setSelectedAccount(selectedAccount?.address);
+        }
+        
     }, [selectedAccount]);
 
 
     return (
         <>
-            {accounts.length > 0 && (
+            {devnetIsAlive && accounts.length > 0 && (
                 <section>
                     <h1 className="section-heading">Accounts</h1>
                     {accounts.map((account, index) => (

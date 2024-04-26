@@ -1,9 +1,8 @@
 import React, { useState, ChangeEvent, useContext } from 'react';
 import './dockerCommand.css'
 import InfoIcon from '../infoIcon/infoIcon';
-import {ACCOUNT_INFO, ACCOUNT_CLASS_INFO, ACCOUNT_CLASS_CUSTOM_INFO, SEED_INFO, START_TIME_INFO, DUMP_ON_INFO, DUMP_PATH_INFO, STATE_ARCHIVE_CAPACITY_INFO, FORK_NETWORK_INFO, FORK_BLOCK_INFO} from "../../info";
+import {ACCOUNT_INFO, ACCOUNT_CLASS_INFO, ACCOUNT_CLASS_CUSTOM_INFO, SEED_INFO, START_TIME_INFO, DUMP_ON_INFO, DUMP_PATH_INFO, STATE_ARCHIVE_CAPACITY_INFO, FORK_NETWORK_INFO, FORK_BLOCK_INFO, REQUEST_BODY_SIZE_LIMIT} from "../../info";
 import { Context, Options } from '../context/context';
-
 
 const DockerCommandGenerator: React.FC = () => {
     const context = useContext(Context);
@@ -20,7 +19,7 @@ const DockerCommandGenerator: React.FC = () => {
         host: '127.0.0.1',
         port: 5050,
         startTime: 0,
-        timeOut: 120,
+        timeout: 120,
         gasPrice: 100000000000,
         dataGasPrice: 100000000000,
         chainId: 'TESTNET',
@@ -29,6 +28,7 @@ const DockerCommandGenerator: React.FC = () => {
         stateArchiveCapacity: 'none',
         forkNetwork: '',
         forkBlock: 0,
+        requestBodySizeLimit: 2000000
     };
     
     const [options, setOptions] = useState<Options>(defaultOptions);
@@ -103,18 +103,18 @@ const DockerCommandGenerator: React.FC = () => {
             return;
             }
         }
-        if (name === 'timeOut') {
+        if (name === 'timeout') {
             if (!Number.isNaN(Number(value))) {
             const startTimeValue = parseInt(value);
             if (startTimeValue < 0 || startTimeValue > 65535 ) {
-                setTimeOutError('TimeOut value must be between 0 and 65535 ');
+                setTimeOutError('Timeout value must be between 0 and 65535 ');
                 setGeneralError(true);
                 return;
             } else {
                 setTimeOutError('');
             }
             } else {
-            setTimeOutError('Invalid TimeOut value');
+            setTimeOutError('Invalid Timeout value');
             setGeneralError(true);
             return;
             }
@@ -123,26 +123,41 @@ const DockerCommandGenerator: React.FC = () => {
         
     };
 
-const generateDockerCommand = (options: Options) => {
-    let command = 'docker run -p ';
-
-    setUrl(`${options.host}:${options.port}`);
-    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
- 
-    const commandOptionsCopy = { ...options };
-    setCommandOptions(commandOptionsCopy);
-    Object.keys(options).forEach(option => {
-        if (options[option as keyof Options] !== defaultOptions[option as keyof Options]) {
-            if (typeof options[option as keyof Options] === 'boolean' && options[option as keyof Options]) {
-                command += ` --${option}`;
-            } else {
-                command += ` --${option} ${options[option as keyof Options]}`;
+    function convertCamelToKebab(obj: any): any {
+        const newObj: any = {};
+        for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                const kebabKey = key.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+                newObj[kebabKey] = obj[key];
             }
         }
-    });
-    setGenerateCommand(true);
-    return command;
-};
+        return newObj;
+    }
+    
+    const generateDockerCommand = (options: Options) => {
+        let command = 'docker run -p ';
+    
+        setUrl(`${options.host}:${options.port}`);
+        command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
+    
+        const kebabCaseOptions = convertCamelToKebab(options);
+        const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
+        const commandOptionsCopy = { ...kebabCaseOptions };
+        setCommandOptions(commandOptionsCopy);
+    
+        Object.keys(kebabCaseOptions).forEach(option => {
+            if (kebabCaseOptions[option as keyof Options] !== kebabCaseDefaultOptions[option as keyof Options]) {
+                if (typeof kebabCaseOptions[option as keyof Options] === 'boolean' && kebabCaseOptions[option as keyof Options]) {
+                    command += ` --${option}`;
+                } else {
+                    command += ` --${option} ${kebabCaseOptions[option as keyof Options]}`;
+                }
+            }
+        });
+    
+        setGenerateCommand(true);
+        return command;
+    };
 
 async function checkDevnetIsAlive(): Promise<boolean> {
     if (!url) {
@@ -184,7 +199,7 @@ const handleContinue = async () => {
 
   return (
     <>
-    {!toContinue && (
+    {!toContinue && !devnetIsAlive && (
         <div>
         <h2>Docker Command Generator</h2>
         <form className="docker-form">
@@ -283,12 +298,12 @@ const handleContinue = async () => {
             </div>
 
             <div className="form-group">
-            <label htmlFor="timeout">TimeOut:</label>
+            <label htmlFor="timeout">Timeout:</label>
                 <InfoIcon content={START_TIME_INFO} />
                 <input
                     type="text"
-                    name="timeOut"
-                    value={options.timeOut}
+                    name="timeout"
+                    value={options.timeout}
                     onChange={handleInputChange}
                 />
                 {timeOutError && <div className="error-message">{timeOutError}</div>}
@@ -385,6 +400,17 @@ const handleContinue = async () => {
                     type="text"
                     name="forkBlock"
                     value={options.forkBlock}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            <div className="form-group">
+            <label htmlFor="fork-block">Request Body Size Limit:</label>
+                <InfoIcon content={REQUEST_BODY_SIZE_LIMIT} />
+                <input
+                    type="text"
+                    name="requestBodySizeLimit"
+                    value={options.requestBodySizeLimit}
                     onChange={handleInputChange}
                 />
             </div>

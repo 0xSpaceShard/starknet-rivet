@@ -1,6 +1,6 @@
 {
-  "name": "starknet-rivet",
-  "displayName": "starknet-rivet",
+  "name": "starknet_rivet",
+  "displayName": "starknet_rivet",
   "version": "0.0.0",
   "author": "Toni Tabak",
   "description": "",
@@ -23,13 +23,16 @@
     "zip": "npm run build && node src/zip.js"
   },
   "dependencies": {
+    "@extend-chrome/messages": "^1.2.2",
     "@starknet-react/chains": "^0.1.7",
     "@starknet-react/core": "^2.6.0",
+    "get-starknet": "^3.0.1",
     "get-starknet-core": "^3.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
-    "starknet": "^5.29.0"
+    "starknet": "^5.29.0",
+    "starknet-types": "^0.0.5"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.19",

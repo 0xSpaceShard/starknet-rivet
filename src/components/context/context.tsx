@@ -18,7 +18,7 @@ export interface Options {
     host: string;
     port: number;
     startTime: number,
-    timeOut: number,
+    timeout: number,
     gasPrice: number,
     dataGasPrice: number,
     chainId: string,
@@ -27,6 +27,7 @@ export interface Options {
     stateArchiveCapacity: string,
     forkNetwork: string,
     forkBlock: number,
+    requestBodySizeLimit: number,
 }
 
 interface MyContextValue {
