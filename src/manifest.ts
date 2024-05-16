@@ -22,13 +22,15 @@ export default defineManifest({
   options_page: 'options.html',
   devtools_page: 'devtools.html',
   background: {
-    service_worker: 'src/background/index.ts',
+    service_worker: 'build/src/background/index.js',
     type: 'module',
   },
   content_scripts: [
     {
-      matches: ['http://*/*', 'https://*/*'],
-      js: ['src/contentScript/index.ts'],
+      matches: ['<all_urls>'],
+      js: ['build/src/contentScript/index.js', 'build/src/contentScript/inpage.js'],
+      run_at: "document_start",
+      all_frames: true,
     },
   ],
   side_panel: {
@@ -36,12 +38,15 @@ export default defineManifest({
   },
   web_accessible_resources: [
     {
-      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png'],
-      matches: [],
+      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'contentScript.js', 'inpage.js'],
+      matches: ["<all_urls>"],
     },
   ],
-  permissions: ['sidePanel', 'storage'],
+  permissions: ['storage', 'activeTab', 'tabs', 'scripting', 'http://localhost:3000/*', 'http://localhost:3000/referral/'],
   chrome_url_overrides: {
     newtab: 'newtab.html',
+  },
+  content_security_policy: {
+    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
 })

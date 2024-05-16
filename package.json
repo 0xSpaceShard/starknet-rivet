@@ -3,7 +3,7 @@
   "displayName": "starknet_rivet",
   "version": "0.0.0",
   "author": "Toni Tabak",
-  "description": "",
+  "description": "the first wallet for developer",
   "type": "module",
   "license": "MIT",
   "keywords": [
@@ -23,16 +23,24 @@
     "zip": "npm run build && node src/zip.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
     "@extend-chrome/messages": "^1.2.2",
+    "@fontsource/roboto": "^5.0.13",
+    "@mui/icons-material": "^5.15.16",
+    "@mui/material": "^5.15.16",
     "@starknet-react/chains": "^0.1.7",
     "@starknet-react/core": "^2.6.0",
+    "@types/webextension-polyfill": "^0.10.7",
+    "chrome": "^0.1.0",
     "get-starknet": "^3.0.1",
     "get-starknet-core": "^3.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
     "starknet": "^5.29.0",
-    "starknet-types": "^0.0.5"
+    "starknet-types": "^0.0.5",
+    "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.19",
