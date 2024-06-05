@@ -1,86 +1,12 @@
-// import { starknetWindowObject } from "../components/contractInteraction/starknetWindowObject";
-
-// const INJECT_NAMES = ["starknet_rivet"];
-
-// function attach() {
-//   console.log("HDGGHDGHDSFT")
-//   INJECT_NAMES.forEach((name) => {
-//     // we need 2 different try catch blocks because we want to execute both even if one of them fails
-//     try {
-//       delete (window as any)[name]
-//       console.log("try 1")
-//     } catch (e) {
-//       console.log("catch 1: ", e)
-//     }
-//     try {
-//       // set read only property to window
-//       Object.defineProperty(window, name, {
-//         value: starknetWindowObject,
-//         writable: false,
-//       })
-//       console.log("try 2")
-//     } catch (e) {
-//       console.log("catch 2: ", e)
-//     }
-//     try {
-//       (window as any)[name] = starknetWindowObject;
-//       console.log("try 3")
-//     } catch (e) {
-//       console.log("catch 3: ", e)
-//     }
-//   })
-//   console.log("end attached: ", window.starknet_rivet)
-// }
-
-
-// function attachHandler() {
-//   attach()
-//   setTimeout(attach, 1000)
-// }
-
-// window.addEventListener("load", () => attachHandler())
-// document.addEventListener("DOMContentLoaded", () => attachHandler())
-// document.addEventListener("readystatechange", () => attachHandler())
+import { RivetAccount } from "../components/contractInteraction/rivetAccount";
+import { RpcProvider } from "starknet";
+import { assertNever, userEventHandlers } from "../components/contractInteraction/starknetWindowObject";
 
 async function loadModules() {
   const { starknetWindowObject } = await import("../components/contractInteraction/starknetWindowObject");
+  const { sendMessage, waitForMessage } = await import("../components/contractInteraction/messageActions");
   const INJECT_NAMES = ["starknet_rivet"];
-  // function attach() {
-  //     console.log("HDGGHDGHDSFT");
-  //     INJECT_NAMES.forEach((name) => {
-  //         try {
-  //           if (Object.getOwnPropertyDescriptor(window, name)) {
-  //             Object.defineProperty(window, name, {
-  //                 writable: true,
-  //                 configurable: true // Ensure it's configurable to change it again
-  //             });
-  //             delete window[name as any]; // Now delete it safely
-  //         }
-  //             console.log("try 1");
-  //         } catch (e) {
-  //             console.log("catch 1: ", e);
-  //         }
-  //         try {
-  //           Object.defineProperty(window, name, {
-  //             value: starknetWindowObject,
-  //             writable: false,
-  //             configurable: true // Keep it configurable in case you need to modify it again
-  //         });
-  //             console.log("try 2");
-  //         } catch (e) {
-  //             console.log("catch 2: ", e);
-  //         }
-  //         try {
-  //           (window as any)[name] = starknetWindowObject;
-  //             console.log("try 3");
-  //         } catch (e) {
-  //             console.log("catch 3: ", e);
-  //         }
-  //     });
-  //     console.log("end attached: ", window.starknet_rivet);
-  // }
   function attach() {
-    console.log("HDGGHDGHDSFT");
     INJECT_NAMES.forEach((name) => {
         // Check if the property exists and modify it if it's configurable
         const descriptor = Object.getOwnPropertyDescriptor(window, name);
@@ -93,7 +19,6 @@ async function loadModules() {
                     writable: true,  // Now making it writable
                     configurable: true  // Keep it configurable
                 });
-                console.log("Updated read-only property:", name);
             } else {
                 // If it's not configurable, log an error or handle it accordingly
                 console.error("Cannot modify read-only and non-configurable property:", name);
@@ -101,7 +26,6 @@ async function loadModules() {
         } else {
             // If it doesn't exist or is already writable, assign directly
             (window as any)[name]  = starknetWindowObject;
-            console.log("Assigned property:", name);
         }
     });
     console.log("end attached: ", window.starknet_rivet);
@@ -110,6 +34,80 @@ async function loadModules() {
   window.addEventListener("load", attach);
   document.addEventListener("DOMContentLoaded", attach);
   document.addEventListener("readystatechange", attach);
+
+  window.addEventListener(
+    "message",
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    async ({ data }: MessageEvent<any>) => {
+      if (!window.starknet) {
+        return
+      }
+  
+      const starknet = window.starknet
+  
+      if (
+        data.type === "CONNECT_ACCOUNT_RES" ||
+        data.type === "RIVET_APPROVE_REQUEST_SWITCH_CUSTOM_NETWORK"
+      ) {
+            const account =
+            data.type === "CONNECT_ACCOUNT_RES"
+                ? data.data
+                : data.data.selectedAccount
+    
+            if (
+            account &&
+            (account.address !== starknet.selectedAddress ||
+                account.network.chainId !== starknet.chainId)
+            ) {
+            sendMessage({
+                type: "CONNECT_RIVET_DAPP",
+            })
+            const walletAccountP = Promise.race([
+                waitForMessage("CONNECT_RIVET_DAPP_RES", 10 * 60 * 1000),
+                waitForMessage("REJECT_RIVET_PREAUTHORIZATION", 10 * 60 * 1000).then(
+                () => "USER_RIVET_ABORTED" as const,
+                ),
+            ])
+            const walletAccount = await walletAccountP
+          if (!walletAccount || walletAccount === "USER_ABORTED") {
+            return sendMessage({ type: "DISCONNECT_RIVET_ACCOUNT" })
+          }
+  
+          const { address, private_key } = walletAccount.data
+          const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
+
+  
+          starknet.selectedAddress = address
+          starknet.chainId = await provider.getChainId();
+          starknet.provider = provider
+          starknet.account = new RivetAccount(address, private_key, provider)
+          for (const userEvent of userEventHandlers) {
+            if (userEvent.type === "accountsChanged") {
+              userEvent.handler([address])
+            } else if (userEvent.type === "networkChanged") {
+              userEvent.handler(starknet.chainId as any)
+            } else {
+              assertNever(userEvent)
+            }
+          }
+        }
+      } else if (data.type === "DISCONNECT_ACCOUNT") {
+        starknet.selectedAddress = undefined
+        starknet.account = undefined
+        starknet.isConnected = false
+        for (const userEvent of userEventHandlers) {
+          if (userEvent.type === "accountsChanged") {
+            userEvent.handler([])
+          } else if (userEvent.type === "networkChanged") {
+            userEvent.handler(undefined)
+          } else {
+            assertNever(userEvent)
+          }
+        }
+      }
+    }
+  )
 }
+
 
 loadModules();

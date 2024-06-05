@@ -1,60 +1,46 @@
-import { useState, useEffect, useContext } from 'react'
+import { useEffect } from 'react'
 
 import './Screen1.css'
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand'
-import { connect } from 'get-starknet'
-import { starknetWindowObject } from '../components/contractInteraction/starknetWindowObject'
-// import { connect, disconnect } from "get-starknet"
+import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker'
+import { useSharedState } from '../components/context/context'
 
 export const Screen1 = () => {
-  const getTime = () => {
-    const date = new Date()
-    const hour = String(date.getHours()).padStart(2, '0')
-    const minute = String(date.getMinutes()).padStart(2, '0')
-    return `${hour}:${minute}`
+  const context = useSharedState();
+  const { selectedComponent, setSelectedComponent } = context;
+
+
+  interface SelectedComponentMessage {
+    type: 'SELECTED_COMPONENT_CHANGED';
+    selectedComponent: string;
   }
-
-  const [time, setTime] = useState(getTime())
-  const link = 'https://github.com/guocaoyi/create-chrome-ext'
-  const INJECT_NAMES = ["starknet_rivet"]
-
-  useEffect(() => {
-    console.error('start');
-    INJECT_NAMES.forEach((name) => {
-      try {
-        delete (window as any)[name]
-      } catch (e) {
-      }
-      try {
-        Object.defineProperty(window, name, {
-          value: starknetWindowObject,
-          writable: false,
-        })
-      } catch {
-      }
-      try {
-        ;(window as any)[name] = starknetWindowObject
-      } catch {
-      }
-    })
-    console.error('start: ', window.starknet_rivet);
-    let intervalId = setInterval(() => {
-      setTime(getTime())
-    }, 1000)
-
-    return () => {
-      clearInterval(intervalId)
+  
+  window.addEventListener('message', (event) => {
+    if (event.data.type === 'CHANGE_SELECTED_COMPONENT') {
+      const selectedComponent = event.data.selectedComponent; 
+      setSelectedComponent(selectedComponent);
     }
-  }, [])
+  });
 
   return (
     <section>
-      <span></span>
-      <h1>Demo Screen1</h1>
-      <DockerCommandGenerator />
+      {selectedComponent === '' && (
+        <div>
+              <button
+                  style={{ marginRight: '10px' }}
+                  onClick={() => setSelectedComponent('DockerCommandGenerator')}
+              >
+                  Docker Command Generator
+              </button>
+              <button onClick={() => setSelectedComponent('RegisterRunningDocker')}>
+                  Register Running Docker
+              </button>
+        </div>
+      )} 
+      {selectedComponent === 'DockerCommandGenerator' && <DockerCommandGenerator />}
+      {selectedComponent === 'RegisterRunningDocker' && <RegisterRunningDocker />}
       <title>Display Accounts</title>
-      <button onClick={() => connect()}>Connect wallet</button>
       <PredeployedAccounts />
     </section>
   )

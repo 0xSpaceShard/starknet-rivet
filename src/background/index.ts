@@ -1,188 +1,89 @@
-import { starknetWindowObject } from "../components/contractInteraction/starknetWindowObject";
+import { Account, RpcProvider } from "starknet";
 
-console.log('background is running')
-
-// chrome.runtime.onInstalled.addListener(() => {
-//   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//     const tab = tabs[0];
-//     if (tab) {
-//       chrome.scripting.executeScript({
-//         target: { tabId: tab.id as number},
-//         func: () => {
-//           const INJECT_NAMES: string[] = ["starknet_rivet"];
-//           const starknetWindowObject: Record<string, unknown> = {}; // Your starknetWindowObject
-
-//           INJECT_NAMES.forEach((name) => {
-//             try {
-//               // Check if the property exists before trying to delete it
-//               if (name in window) {
-//                 delete (window as any)[name];
-//               }
-//             } catch (e) {
-//               console.error('ERROR deleting property', e);
-//             }
-
-//             try {
-//               // Assign the property directly to the window object
-//               (window as any)[name] = starknetWindowObject;
-//               console.log('window:', window.starknet_rivet);
-//             } catch (error) {
-//               console.error('ERROR assigning property', error);
-//             }
-//           });
-//         },
-//       });
-//     } else {
-//       console.error('No active tab found.');
-//     }
-//   });
-// });
-
-// chrome.runtime.onInstalled.addListener(() => {
-//   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//       if (tabs[0]) {
-//           chrome.scripting.executeScript({
-//               target: { tabId: tabs[0].id as number },
-//               function: () => {
-//                   const INJECT_NAMES = ["starknet_rivet"];
-
-//                   INJECT_NAMES.forEach((name) => {
-//                       try {
-//                           // Check if the property exists before trying to delete it
-//                           if (name in window) {
-//                               delete (window as any)[name];
-//                           }
-//                       } catch (e) {
-//                           console.log('ERROR deleting property', e);
-//                       }
-                    
-//                       try {
-//                           // Assign the property directly to the window object
-//                           (window as any)[name] = starknetWindowObject;
-//                           console.log('window:', window.starknet_rivet);
-//                       } catch (error) {
-//                           console.log('ERROR assigning property', error);
-//                       }
-//                   });
-//               },
-//           });
-//       }
-//   });
-// });
-
-// function getTabID() {
-//   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//     if (tabs[0]) {
-//       const tabId = tabs[0].id;
-//       console.log("Tab ID:", tabId);
-//       return tabId;
-//     } else {
-//       console.error("No active tab found.");
-//     }
-//   });
-// }
-
-// chrome.runtime.onInstalled.addListener(() => {
-//   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//     if (tabs[0]) {
-//       chrome.scripting.executeScript({
-//         target: { tabId: getTabID(), allFrames : true },
-//         func: () => {
-//           const INJECT_NAMES = ["starknet_rivet"];
-//           INJECT_NAMES.forEach((name) => {
-//             try {
-//               if (name in window) {
-//                 delete (window as any)[name];
-//               }
-//             } catch (e) {
-//               console.log('ERROR deleting property', e);
-//             }
-          
-//             try {
-//               (window as any)[name] = starknetWindowObject;
-//               console.log('window:', window.starknet_rivet);
-//             } catch (error) {
-//               console.log('ERROR assigning property', error);
-//             }
-//           });
-//         },
-//       }).then(() => console.log("injected a function"));;
-//     }
-//   });
-// });
-
-function getTabID(): Promise<number> {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs.length > 0 && tabs[0].id !== undefined) {
-        const tabId = tabs[0].id;
-        console.log("Tab ID:", tabId);
-        resolve(tabId);
-      } else {
-        console.error("No active tab found.");
-        reject(new Error("No active tab found."));
-      }
-    });
-  });
-}
-
-chrome.runtime.onInstalled.addListener(() => {
-  getTabID()
-    .then((tabId) => {
-      chrome.scripting.executeScript({
-        target: { tabId: tabId, allFrames: true },
-        world: 'MAIN',
-        func: () => {
-          const INJECT_NAMES = ["starknet_rivet"];
-          INJECT_NAMES.forEach((name) => {
-            try {
-              if (name in window) {
-                delete (window as any)[name];
-              }
-            } catch (e) {
-              console.log('ERROR deleting property', e);
-            }
-          
-            try {
-              (window as any)[name] = starknetWindowObject;
-              console.log('window:', window.starknet_rivet);
-            } catch (error) {
-              console.log('ERROR assigning property', error);
-            }
-          });
-        },
-      }).then(() => console.log("Injected a function"));
-    })
-    .catch((error) => {
-      console.error("Error:", error.message);
-    });
-});
+console.log('background is running');
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('background message: ', message)
-  if (message.type === 'GET_SELECTED_COMPONENT') {
-    chrome.storage.sync.get(['selectedComponent'], (result) => {
-      const selectedComponent = result.selectedComponent || '';
-      sendResponse({ selectedComponent });
-    });
-    return true;
-  } else if (message.type === 'SET_SELECTED_COMPONENT') {
-    chrome.storage.sync.set({ selectedComponent: message.selectedComponent });
+  console.log("Message received:", message);
+
+  switch (message.type) {
+    case 'CONNECT_RIVET_DAPP':
+      chrome.storage.sync.get(['selectedAccount'], (result) => {
+        const selectedAccount = result.selectedAccount || '';
+        if (selectedAccount === '') {
+          chrome.tabs.create({
+            url: chrome.runtime.getURL('popup.html')
+          });
+        }
+        sendResponse({
+          type: "CONNECT_RIVET_DAPP_RES",
+          data: { data: selectedAccount }
+        });
+      });
+      return true;
+
+    case 'EXECUTE_RIVET_TRANSACTION':
+      chrome.windows.create({
+        url: chrome.runtime.getURL('popup.html'),
+        type: 'popup',
+        width: 400,
+        height: 600
+      }, (window) => {
+        if (window && window.tabs && window.tabs[0]) {
+          const tabId = window.tabs[0].id;
+          if (tabId) {
+            chrome.runtime.onMessage.hasListener(function onResponseListener(responseMessage) {
+              if (responseMessage.type === 'EXECUTE_RIVET_TRANSACTION_RES') {
+                if (sender.tab && sender.tab.id !== undefined) {
+                  chrome.tabs.sendMessage(sender.tab.id, responseMessage);
+                }
+                chrome.runtime.onMessage.removeListener(onResponseListener);
+              }
+            });
+            setTimeout(() => {
+              chrome.tabs.sendMessage(tabId, { type: "EXECUTE_RIVET_TRANSACTION", data: message.data });
+            }, 1000);
+          }
+        }
+      });
+      return true;
+
+      case 'EXECUTE_RIVET_TRANSACTION_RES':  
+        (async () => {
+          try {
+            const result = await chrome.storage.sync.get(['selectedAccount']);
+            const selectedAccount = result.selectedAccount;
+  
+            if (selectedAccount) {
+              const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
+              const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
+             
+              const tx = await acc.execute(message.data.transactions);
+              const res = await provider.waitForTransaction(tx.transaction_hash)
+              sendResponse({
+                type: "EXECUTE_RIVET_TRANSACTION_RES",
+                data: tx
+              });
+            } else {
+              console.error('No selected account found in storage.');
+            }
+          } catch (error) {
+            console.error('Error executing transaction:', error);
+          }
+        })();
+  
+        return true;
+
+    case 'SET_SELECTED_ACCOUNT':
+      chrome.storage.sync.set({ selectedAccount: message.selectedAccount });
+      chrome.tabs.query({}, function (tabs) {
+        for (let i = 0; i < tabs.length; i++) {
+          chrome.tabs.sendMessage(tabs[i].id as number, { type: 'UPDATE_SELECTED_ACCOUNT', data: { data: message.selectedAccount } });
+        }
+      });
+      return true;
+
+    default:
+      return true;
   }
 });
 
-// chrome.tabs.onActivated.addListener(function(tab) {
-//   chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-//     console.error("TABS Background: ", tabs[8].id)
-//     chrome.tabs.sendMessage(tabs[8].id as number, {message: "SELECTED_COMPONENT_CHANGED"}, function(response){
-//       console.error("Respo: ", response)
-//     })
-//   })
-// })
-
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  const tab = tabs[0];
-  if (tab) {
-    chrome.tabs.sendMessage(tab.id as number, { type: 'SELECTED_COMPONENT_CHANGED', data: 'someData' });
-  }
-});

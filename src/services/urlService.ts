@@ -1,5 +1,3 @@
-import { Account } from "starknet";
-
 class UrlContext {
     private static instance: UrlContext;
     private url: string | null = null;
@@ -13,8 +11,8 @@ class UrlContext {
       return UrlContext.instance;
     }
   
-    setSelectedUrl(account: string | null) {
-      this.url = account;
+    setSelectedUrl(url: string | null) {
+      this.url = url;
     }
   
     getSelectedUrl(): string | null {

@@ -5,7 +5,7 @@ import packageData from '../package.json'
 const isDev = process.env.NODE_ENV == 'development'
 
 export default defineManifest({
-  name: `${packageData.displayName || packageData.name}${isDev ? ` ➡️ Dev` : 'starknet-revet'}`,
+  name: 'starknet_rivet',
   description: packageData.description,
   version: packageData.version,
   manifest_version: 3,
@@ -38,11 +38,11 @@ export default defineManifest({
   },
   web_accessible_resources: [
     {
-      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'contentScript.js', 'inpage.js'],
+      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'contentScript.js', 'inpage.js', 'assets/*' ],
       matches: ["<all_urls>"],
     },
   ],
-  permissions: ['storage', 'activeTab', 'tabs', 'scripting', 'http://localhost:3000/*', 'http://localhost:3000/referral/'],
+  permissions: ['storage', 'activeTab', 'tabs', 'scripting', 'http://localhost:3000/*', 'http://localhost:3000/referral/', 'http://localhost:3000'],
   chrome_url_overrides: {
     newtab: 'newtab.html',
   },

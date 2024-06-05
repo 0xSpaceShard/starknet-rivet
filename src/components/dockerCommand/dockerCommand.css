@@ -12,41 +12,41 @@
 }
 
 label {
-    margin-right: 10px;
+  display: block;
+  margin-bottom: 5px;
+}
+input,
+select {
+  width: 100%;
 }
 
-.error-message {
-    color: red;
+  .docker-heading {
+    margin-top: 40px; 
   }
 
-  .tooltip-icon {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-  }
-  
-  .tooltip-content {
-    position: absolute;
-    top: calc(100% + 10px);
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #f9f9f9;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  .popup-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     padding: 10px;
-    z-index: 999;
-    width: 250px;
-    font-size: 14px;
-    line-height: 1.5;
   }
   
-  .tooltip-content p {
-    margin: 0;
-    color: #333;
+  .back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
   }
   
-  .tooltip-content strong {
-    font-weight: bold;
-    color: #555;
+  .popup-content {
+    width: 100%;
+    max-width: 300px; 
+  }
+  
+  .button-group {
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    color: red;
   }

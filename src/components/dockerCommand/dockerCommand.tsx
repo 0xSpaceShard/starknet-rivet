@@ -1,14 +1,12 @@
-import React, { useState, ChangeEvent, useContext } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import './dockerCommand.css'
 import InfoIcon from '../infoIcon/infoIcon';
 import {ACCOUNT_INFO, ACCOUNT_CLASS_INFO, ACCOUNT_CLASS_CUSTOM_INFO, SEED_INFO, START_TIME_INFO, DUMP_ON_INFO, DUMP_PATH_INFO, STATE_ARCHIVE_CAPACITY_INFO, FORK_NETWORK_INFO, FORK_BLOCK_INFO, REQUEST_BODY_SIZE_LIMIT} from "../../info";
-import { Context, Options } from '../context/context';
+import { Options, useSharedState } from '../context/context';
+import { Button } from '@mui/material';
 
 const DockerCommandGenerator: React.FC = () => {
-    const context = useContext(Context);
-    if (!context) {
-      throw new Error('Context value is undefined');
-    }
+    const context = useSharedState()
 
     const defaultOptions: Options = {
         accounts: 10,
@@ -40,7 +38,7 @@ const DockerCommandGenerator: React.FC = () => {
     const [generateCommand, setGenerateCommand] = useState(false);
     const [toContinue, setToContinue] = useState(false)
     const [msg, setMsg] = useState("");
-    const { url, setUrl, devnetIsAlive, setDevnetIsAlive, commandOptions, setCommandOptions} = context;
+    const { url, setUrl, devnetIsAlive, setDevnetIsAlive, commandOptions, setCommandOptions, setSelectedComponent} = context;
 
     const isValidInitialBalance = (value: string): boolean => {
         const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
@@ -54,7 +52,6 @@ const DockerCommandGenerator: React.FC = () => {
             [name]: value,
         }));
         if (name === 'initialBalance' && !Number.isNaN(Number(value))) {
-            // Convert the decimal value to hexadecimal
             if (!isValidInitialBalance(value)) {
                 setInitialBalanceError('Invalid initial balance');
                 setGeneralError(true);
@@ -159,280 +156,254 @@ const DockerCommandGenerator: React.FC = () => {
         return command;
     };
 
-async function checkDevnetIsAlive(): Promise<boolean> {
-    if (!url) {
-        return false;
-    }
-    try {
-        const response = await fetch(`http://${url}/is_alive`);
-        if (response.ok) {
-            setDevnetIsAlive(true);
-            setMsg("");
-            return true;
-        } else {
-            setDevnetIsAlive(false);
-            setMsg("Devnet is not started. Please start it first.");
-            alert(generateDockerCommand(options));
-            return false;
-        }
-    } catch (error) {
-        setDevnetIsAlive(false);
-        setMsg("Devnet is not started. Please start it first.");
-        alert(generateDockerCommand(options))
-        return false;
-    }
-}
-
 const handleContinue = async () => {
-    try {
-        const data = await checkDevnetIsAlive();
-        if (data) {
-            setToContinue(true);
-        } else {
-            setToContinue(false);
-        }
-    } catch (error) {
-        setToContinue(false);
-    }
+    setToContinue(true);
+    setSelectedComponent('');
 };
 
+const handleBack = () => {
+    setSelectedComponent('')
+};
 
   return (
     <>
-    {!toContinue && !devnetIsAlive && (
-        <div>
-        <h2>Docker Command Generator</h2>
-        <form className="docker-form">
-            <div className="form-group">
-            <label htmlFor="account">Account:</label>
-                <InfoIcon content={ACCOUNT_INFO} />
-                <input
-                    type="text"
-                    name="accounts"
-                    value={options.accounts || ''}
-                    onChange={handleInputChange}
-                    className={options.accounts  && options.accounts > 255 ? 'error-message' : 'Max predeployed accounts is 255'}
-                />
-                {options.accounts  && options.accounts > 255 && <p className="error-message">Max predeployed accounts is 255.</p>}
+    {!toContinue && (
+        <div className="popup-container">
+            <div className="back-button">
+            <Button variant="outlined" onClick={handleBack}>Back</Button>
             </div>
+            <div className="popup-content">
+                <h2 className='docker-heading'> Docker Command Generator</h2>
+                <form className="docker-form">
+                    <div className="form-group">
+                    <label htmlFor="account">Account:</label>
+                        <InfoIcon content={ACCOUNT_INFO} />
+                        <input
+                            type="text"
+                            name="accounts"
+                            value={options.accounts || ''}
+                            onChange={handleInputChange}
+                            className={options.accounts  && options.accounts > 255 ? 'error-message' : 'Max predeployed accounts is 255'}
+                        />
+                        {options.accounts  && options.accounts > 255 && <p className="error-message">Max predeployed accounts is 255.</p>}
+                    </div>
 
-            <div className="form-group">
-            <label htmlFor="accountClass">Account Class:</label>
-            <InfoIcon content={ACCOUNT_CLASS_INFO} />
-            <select
-                name="accountClass"
-                id="accountClass"
-                value={options.accountClass}
-                onChange={handleInputChange}
-            >
-                <option value="">Select the account class</option>
-                <option value="cairo1">cairo1</option>
-                <option value="cairo0">cairo0</option>
-            </select>
+                    <div className="form-group">
+                    <label htmlFor="accountClass">Account Class:</label>
+                    <InfoIcon content={ACCOUNT_CLASS_INFO} />
+                    <select
+                        name="accountClass"
+                        id="accountClass"
+                        value={options.accountClass}
+                        onChange={handleInputChange}
+                    >
+                        <option value="">Select the account class</option>
+                        <option value="cairo1">cairo1</option>
+                        <option value="cairo0">cairo0</option>
+                    </select>
+                    </div>
+                    <div className="form-group">
+                    <label htmlFor="accountClassCustom">Account Class Custom:</label>
+                    <InfoIcon content={ACCOUNT_CLASS_CUSTOM_INFO} />
+                    <input
+                            type="text"
+                            name="accountClassCustom"
+                            value={options.accountClassCustom}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="initialBalance">initial Balance:</label>
+                        <input
+                            type="text"
+                            name="initialBalance"
+                            value={options.initialBalance}
+                            onChange={handleInputChange}
+                        />
+                        {initialBalanceError && <div className="error-message">{initialBalanceError}</div>}
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="seed">Seed:</label>
+                        <InfoIcon content={SEED_INFO} />
+                        <input
+                            type="text"
+                            name="seed"
+                            value={options.seed}
+                            onChange={handleInputChange}
+                        />
+                        {seedError && <div className="error-message">{seedError}</div>}
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="host">Host:</label>
+                        <input
+                            type="text"
+                            name="host"
+                            value={options.host}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="port">Port:</label>
+                    <input
+                        type="text"
+                        name="port"
+                        id="port"
+                        value={options.port}
+                        onChange={handleInputChange}
+                    />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="start-time">Start time:</label>
+                        <InfoIcon content={START_TIME_INFO} />
+                        <input
+                            type="text"
+                            name="startTime"
+                            value={options.startTime}
+                            onChange={handleInputChange}
+                        />
+                        {startTimeError && <div className="error-message">{startTimeError}</div>}
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="timeout">Timeout:</label>
+                        <InfoIcon content={START_TIME_INFO} />
+                        <input
+                            type="text"
+                            name="timeout"
+                            value={options.timeout}
+                            onChange={handleInputChange}
+                        />
+                        {timeOutError && <div className="error-message">{timeOutError}</div>}
+
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="gas-price">Gas Price:</label>
+                        <input
+                            type="text"
+                            name="gasPrice"
+                            value={options.gasPrice}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="data-gas-price">Data Gas Price:</label>
+                        <input
+                            type="text"
+                            name="dataGasPrice"
+                            value={options.dataGasPrice}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="chain-id">Chain ID:</label>
+                        <select
+                            name="chainId"
+                            id="chainId"
+                            value={options.chainId}
+                            onChange={handleInputChange}
+                        >
+                            <option value="">Select the chainId</option>
+                            <option value="TESTNET">TESTNET</option>
+                            <option value="MAINNET">MAINNET</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="dump-on">Dump On:</label>
+                        <InfoIcon content={DUMP_ON_INFO} />
+                        <input
+                            type="text"
+                            name="dumpOn"
+                            value={options.dumpOn}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="dump-path">Dump Path:</label>
+                        <InfoIcon content={DUMP_PATH_INFO} />
+                        <input
+                            type="text"
+                            name="dumpPath"
+                            value={options.dumpPath}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="state-archive-capacity">State archive capacity:</label>
+                    <InfoIcon content={STATE_ARCHIVE_CAPACITY_INFO} />
+                    <select
+                            name="stateArchiveCapacity"
+                            id="stateArchiveCapacity"
+                            value={options.stateArchiveCapacity}
+                            onChange={handleInputChange}
+                        >
+                            <option value="">Select the state archive capacity</option>
+                            <option value="none">none</option>
+                            <option value="full">full</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="fork-network">Fork network:</label>
+                            <InfoIcon content={FORK_NETWORK_INFO} />
+                        <input
+                            type="text"
+                            name="forkNetwork"
+                            value={options.forkNetwork}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+
+                    <div className="form-group">
+                    <label htmlFor="fork-block">Fork block:</label>
+                        <InfoIcon content={FORK_BLOCK_INFO} />
+                        <input
+                            type="text"
+                            name="forkBlock"
+                            value={options.forkBlock}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                    <label htmlFor="fork-block">Request Body Size Limit:</label>
+                        <InfoIcon content={REQUEST_BODY_SIZE_LIMIT} />
+                        <input
+                            type="text"
+                            name="requestBodySizeLimit"
+                            value={options.requestBodySizeLimit}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="button-group">
+                        {!generateCommand && (
+                            <Button variant="contained" color="primary" onClick={() => alert(generateDockerCommand(options))} disabled={generalError}>
+                                Generate Docker Command
+                            </Button>
+                        )}
+                        {generateCommand && (
+                            <div style={{ textAlign: 'center' }}>
+                                <Button variant="contained" color="primary" onClick={handleContinue}>
+                                    Continue
+                                </Button>
+                                <p className="error-message">{msg}</p>
+                            </div>
+                        )}
+                    </div>
+                </form>
             </div>
-            <div className="form-group">
-            <label htmlFor="accountClassCustom">Account Class Custom:</label>
-            <InfoIcon content={ACCOUNT_CLASS_CUSTOM_INFO} />
-            <input
-                    type="text"
-                    name="accountClassCustom"
-                    value={options.accountClassCustom}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="initialBalance">initial Balance:</label>
-                <input
-                    type="text"
-                    name="initialBalance"
-                    value={options.initialBalance}
-                    onChange={handleInputChange}
-                />
-                {initialBalanceError && <div className="error-message">{initialBalanceError}</div>}
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="seed">Seed:</label>
-                <InfoIcon content={SEED_INFO} />
-                <input
-                    type="text"
-                    name="seed"
-                    value={options.seed}
-                    onChange={handleInputChange}
-                />
-                {seedError && <div className="error-message">{seedError}</div>}
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="host">Host:</label>
-                <input
-                    type="text"
-                    name="host"
-                    value={options.host}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="port">Port:</label>
-            <input
-                type="text"
-                name="port"
-                id="port"
-                value={options.port}
-                onChange={handleInputChange}
-            />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="start-time">Start time:</label>
-                <InfoIcon content={START_TIME_INFO} />
-                <input
-                    type="text"
-                    name="startTime"
-                    value={options.startTime}
-                    onChange={handleInputChange}
-                />
-                {startTimeError && <div className="error-message">{startTimeError}</div>}
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="timeout">Timeout:</label>
-                <InfoIcon content={START_TIME_INFO} />
-                <input
-                    type="text"
-                    name="timeout"
-                    value={options.timeout}
-                    onChange={handleInputChange}
-                />
-                {timeOutError && <div className="error-message">{timeOutError}</div>}
-
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="gas-price">Gas Price:</label>
-                <input
-                    type="text"
-                    name="gasPrice"
-                    value={options.gasPrice}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="data-gas-price">Data Gas Price:</label>
-                <input
-                    type="text"
-                    name="dataGasPrice"
-                    value={options.dataGasPrice}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="chain-id">Chain ID:</label>
-                <select
-                    name="chainId"
-                    id="chainId"
-                    value={options.chainId}
-                    onChange={handleInputChange}
-                >
-                    <option value="">Select the chainId</option>
-                    <option value="TESTNET">TESTNET</option>
-                    <option value="MAINNET">MAINNET</option>
-                </select>
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="dump-on">Dump On:</label>
-                <InfoIcon content={DUMP_ON_INFO} />
-                <input
-                    type="text"
-                    name="dumpOn"
-                    value={options.dumpOn}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="dump-path">Dump Path:</label>
-                <InfoIcon content={DUMP_PATH_INFO} />
-                <input
-                    type="text"
-                    name="dumpPath"
-                    value={options.dumpPath}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="state-archive-capacity">State archive capacity:</label>
-            <InfoIcon content={STATE_ARCHIVE_CAPACITY_INFO} />
-            <select
-                    name="stateArchiveCapacity"
-                    id="stateArchiveCapacity"
-                    value={options.stateArchiveCapacity}
-                    onChange={handleInputChange}
-                >
-                    <option value="">Select the state archive capacity</option>
-                    <option value="none">none</option>
-                    <option value="full">full</option>
-                </select>
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="fork-network">Fork network:</label>
-                    <InfoIcon content={FORK_NETWORK_INFO} />
-                <input
-                    type="text"
-                    name="forkNetwork"
-                    value={options.forkNetwork}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-
-            <div className="form-group">
-            <label htmlFor="fork-block">Fork block:</label>
-                <InfoIcon content={FORK_BLOCK_INFO} />
-                <input
-                    type="text"
-                    name="forkBlock"
-                    value={options.forkBlock}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            <div className="form-group">
-            <label htmlFor="fork-block">Request Body Size Limit:</label>
-                <InfoIcon content={REQUEST_BODY_SIZE_LIMIT} />
-                <input
-                    type="text"
-                    name="requestBodySizeLimit"
-                    value={options.requestBodySizeLimit}
-                    onChange={handleInputChange}
-                />
-            </div>
-
-            {!generateCommand && (
-                <button 
-                    type="button" 
-                    onClick={() => alert(generateDockerCommand(options))}
-                    disabled={generalError}
-                >
-                    Generate Docker Command
-                </button> 
-            )}
-            {generateCommand && (
-                 <div style={{ textAlign: 'center' }}>
-                    <button type="button" onClick={handleContinue}>
-                        Continue
-                    </button>
-                    <p className="error-message">{msg}</p>
-                </div>
-            )}
-        </form>
         </div>
     )}
     </>

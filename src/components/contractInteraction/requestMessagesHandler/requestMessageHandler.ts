@@ -7,8 +7,8 @@ import { switchStarknetChainHandler } from "./switchStarknetChainHandler"
 import { getPermissionsHandler } from "./getPermissionsHandler"
 import { deploymentDataHandler } from "./deploymentDataHandler"
 import { requestChainIdHandler } from "./requestChainIdHandler"
-// import { requestAccountsHandler } from "./requestAccounts"
 
+// NEED TO IMPLEMENT EVERY FUNCTION
 export async function requestMessageHandler<T extends RpcMessage>(
   call: Omit<T, "result">,
 ): Promise<T["result"]> {
@@ -22,10 +22,10 @@ export async function requestMessageHandler<T extends RpcMessage>(
     wallet_requestChainId: requestChainIdHandler,
     wallet_deploymentData: deploymentDataHandler,
     // Starknet requests
-    // starknet_addDeclareTransaction: addDeclareTransactionHandler,
-    // starknet_addInvokeTransaction: addInvokeTransactionHandler,
-    // starknet_signTypedData: signTypedDataHandler,
-    // starknet_supportedSpecs: supportedSpecsHandler,
+    starknet_addDeclareTransaction: deploymentDataHandler,
+    starknet_addInvokeTransaction: deploymentDataHandler,
+    starknet_signTypedData: deploymentDataHandler,
+    starknet_supportedSpecs: deploymentDataHandler,
   }
 
   const notImplementedTypes = new Set(["starknet_addDeployAccountTransaction"])
