@@ -1,0 +1,14 @@
+**/*.tgz
+**/Dockerfile
+.DS_Store
+.env
+.eslintcache
+.vscode
+.idea
+coverage
+dist
+build
+node_modules
+npm-debug.log
+package
+yarn.lock
