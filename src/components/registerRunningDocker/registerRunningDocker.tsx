@@ -110,7 +110,7 @@ const RegisterRunningDocker: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
-                            <p onClick={handleBack} style={{ cursor: 'pointer', margin: 0 }}>Back 1</p>
+                            <p onClick={handleBack} style={{ cursor: 'pointer', margin: 0 }}>Back</p>
                         </div>
                     </div>
                 </div>

@@ -65,24 +65,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               });
             } else {
               console.error('No selected account found in storage.');
+              sendResponse({ error: 'No selected account found in storage.' });
             }
           } catch (error) {
             console.error('Error executing transaction:', error);
+            sendResponse({ error: 'Error executing transaction.' });
           }
         })();
   
         return true;
 
     case 'SET_SELECTED_ACCOUNT':
-      chrome.storage.sync.set({ selectedAccount: message.selectedAccount });
-      chrome.tabs.query({}, function (tabs) {
-        for (let i = 0; i < tabs.length; i++) {
-          chrome.tabs.sendMessage(tabs[i].id as number, { type: 'UPDATE_SELECTED_ACCOUNT', data: { data: message.selectedAccount } });
-        }
+      chrome.storage.sync.set({ selectedAccount: message.selectedAccount }, () => {
+        chrome.tabs.query({}, function (tabs) {
+          for (let i = 0; i < tabs.length; i++) {
+            chrome.tabs.sendMessage(tabs[i].id as number, { type: 'UPDATE_SELECTED_ACCOUNT', data: { data: message.selectedAccount } });
+          }
+        });
+        sendResponse({ success: true });
       });
       return true;
 
+
     default:
+      sendResponse({ error: 'Unknown message type.' });
       return true;
   }
 });

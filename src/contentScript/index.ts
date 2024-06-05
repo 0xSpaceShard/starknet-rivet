@@ -40,7 +40,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         let res = await chrome.runtime.sendMessage({ type: message.type });
         window.postMessage({ type: "CONNECT_RIVET_DAPP_RES", selectedAccount: message.selectedAccount }, "*");
-        sendResponse(res);
+        sendResponse(res); 
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("Error in handling message:", error.message);
@@ -51,6 +51,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       }
     })();
+    return true;  
   }
 
   if (message.type === 'EXECUTE_RIVET_TRANSACTION_RES') {   
@@ -69,7 +70,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       }
     })();
-
     return true;
   }
 });

@@ -127,11 +127,6 @@ export const PredeployedAccounts: React.FC = () => {
                     </div>
                 </section>
             )}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
-                    <p onClick={handleBack}> Back</p>
-                </div>
-            </div>
         </>
     );
 }

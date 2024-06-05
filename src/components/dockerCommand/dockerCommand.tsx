@@ -157,7 +157,6 @@ const DockerCommandGenerator: React.FC = () => {
     };
 
 const handleContinue = async () => {
-    setToContinue(true);
     setSelectedComponent('');
 };
 

@@ -98,13 +98,6 @@ export const SelectedAccountInfo: React.FC = () => {
                 </section>
                 </>
             )}
-            {/* {transactionData && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh' }}>
-                    <div style={{ marginTop: 'auto', border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
-                        <p onClick={() => handleConfirm(transactionData)}>Confirm</p>
-                    </div>
-                </div>
-            )} */}
             {transactionData && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh' }}>
                     <div style={{ marginTop: 'auto', border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
