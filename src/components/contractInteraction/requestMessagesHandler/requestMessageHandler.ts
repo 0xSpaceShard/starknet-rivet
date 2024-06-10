@@ -7,6 +7,7 @@ import { switchStarknetChainHandler } from "./switchStarknetChainHandler"
 import { getPermissionsHandler } from "./getPermissionsHandler"
 import { deploymentDataHandler } from "./deploymentDataHandler"
 import { requestChainIdHandler } from "./requestChainIdHandler"
+import { signTypedDataHandler } from "./signTypedData"
 
 // NEED TO IMPLEMENT EVERY FUNCTION
 export async function requestMessageHandler<T extends RpcMessage>(
@@ -24,7 +25,7 @@ export async function requestMessageHandler<T extends RpcMessage>(
     // Starknet requests
     starknet_addDeclareTransaction: deploymentDataHandler,
     starknet_addInvokeTransaction: deploymentDataHandler,
-    starknet_signTypedData: deploymentDataHandler,
+    starknet_signTypedData: signTypedDataHandler,
     starknet_supportedSpecs: deploymentDataHandler,
   }
 
