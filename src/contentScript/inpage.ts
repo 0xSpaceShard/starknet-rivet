@@ -1,6 +1,7 @@
 import { RivetAccount } from "../components/contractInteraction/rivetAccount";
 import { RpcProvider } from "starknet";
 import { assertNever, userEventHandlers } from "../components/contractInteraction/starknetWindowObject";
+import { WindowMessageType } from "../components/contractInteraction/messageActions";
 
 async function loadModules() {
   const { starknetWindowObject } = await import("../components/contractInteraction/starknetWindowObject");
@@ -38,27 +39,24 @@ async function loadModules() {
   window.addEventListener(
     "message",
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    async ({ data }: MessageEvent<any>) => {
-      if (!window.starknet) {
+    async ({ data }: MessageEvent<WindowMessageType>) => {
+      if (!window.starknet_rivet) {
         return
       }
   
-      const starknet = window.starknet
-  
+      const starknet = window.starknet_rivet
       if (
-        data.type === "CONNECT_ACCOUNT_RES" ||
+        data.type === "CONNECT_RIVET_ACCOUNT_RES" ||
         data.type === "RIVET_APPROVE_REQUEST_SWITCH_CUSTOM_NETWORK"
       ) {
             const account =
-            data.type === "CONNECT_ACCOUNT_RES"
+            data.type === "CONNECT_RIVET_ACCOUNT_RES"
                 ? data.data
                 : data.data.selectedAccount
-    
             if (
             account &&
-            (account.address !== starknet.selectedAddress ||
-                account.network.chainId !== starknet.chainId)
-            ) {
+            (account.address !== starknet.selectedAddress) 
+            ){
             sendMessage({
                 type: "CONNECT_RIVET_DAPP",
             })
