@@ -1,4 +1,4 @@
-import { Account, RpcProvider } from "starknet";
+import { Account, RpcProvider, stark } from "starknet";
 
 console.log('background is running');
 
@@ -83,6 +83,55 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         });
         sendResponse({ success: true });
+      });
+      return true;
+    
+    case 'SIGN_RIVET_MESSAGE':
+      chrome.windows.create({
+        url: chrome.runtime.getURL('popup.html'),
+        type: 'popup',
+        width: 400,
+        height: 600
+      }, (window) => {
+        if (window && window.tabs && window.tabs[0]) {
+          const tabId = window.tabs[0].id;
+          if (tabId) {
+            const onResponseListener = (responseMessage: any) => {
+              if (responseMessage.type === 'SIGN_RIVET_MESSAGE_RES') {
+                (async () => {
+                  try {
+                    const result = await chrome.storage.sync.get(['selectedAccount']);
+                    const selectedAccount = result.selectedAccount;
+
+                    if (selectedAccount) {
+                      const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
+                      const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
+
+                      const signature = await acc.signMessage(responseMessage.data.typedData);
+                      const formattedSignature = stark.signatureToDecimalArray(signature)
+
+                      sendResponse({ type: "SIGN_RIVET_MESSAGE_RES", data: formattedSignature});
+                    } 
+                    else {
+                      console.error('No selected account found in storage.');
+                      sendResponse({ type: "SIGNATURE_RIVET_FAILURE", error: 'No selected account found in storage.' });
+                    }
+                  }
+                  catch (error) {
+                    sendResponse({  type: "SIGNATURE_RIVET_FAILURE", data: {error: 'Error executing transaction.'}});
+                  }
+                })();
+              }
+              if (responseMessage.type === 'SIGNATURE_RIVET_FAILURE') {
+                sendResponse({  type: "SIGNATURE_RIVET_FAILURE", data: {error: 'User abort'}});
+              }
+            };
+            chrome.runtime.onMessage.addListener(onResponseListener);
+            setTimeout(() => {
+              chrome.tabs.sendMessage(tabId, { type: "SIGN_RIVET_MESSAGE", data: message.data });
+            }, 1000);
+          }
+        }
       });
       return true;
 

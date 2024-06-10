@@ -1,3 +1,4 @@
+import { messages } from "@extend-chrome/messages";
 import browser from "webextension-polyfill";
 
 console.info('contentScript is running')
@@ -31,6 +32,13 @@ window.addEventListener('message', async function(event) {
       });
       return true; 
     } 
+    else if (event.data.type === 'SIGN_RIVET_MESSAGE') {
+      chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE", data: event.data.data }, (response) => {
+      });
+      let res = await chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE", data: event.data.data })
+      window.postMessage({ ...res, type: res.type }, window.location.origin);
+      return true; 
+    } 
   }
 });
 
@@ -59,6 +67,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         let res = await chrome.runtime.sendMessage({ type: message.type, data: message.data  });
         window.postMessage({ type: "EXECUTE_RIVET_TRANSACTION_RES", data: res }, "*");
+        sendResponse(res);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Error in handling message:", error.message);
+          sendResponse({ success: false, error: error.message });
+        } else {
+          console.error("An unknown error occurred", error);
+          sendResponse({ success: false, error: "An unknown error occurred" });
+        }
+      }
+    })();
+    return true;
+  }
+
+  if (message.type === 'SIGN_RIVET_MESSAGE_RES') {   
+    (async () => {
+      try {
+        let res = await chrome.runtime.sendMessage({ type: message.type, data: message.data  });
+        window.postMessage({ type: "SIGN_RIVET_MESSAGE_RES", data: res }, "*");
         sendResponse(res);
       } catch (error: unknown) {
         if (error instanceof Error) {

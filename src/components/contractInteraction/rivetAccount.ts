@@ -10,13 +10,14 @@ import {
     ProviderInterface,
     RpcProvider,
     Signature,
+    TypedData,
     UniversalDetails,
     defaultProvider,
     ec,
     typedData,
   } from "starknet"
   
-  import { sendMessage, waitForMessage } from "./messageActions"
+  import { sendMessage, SignMessageOptions, waitForMessage } from "./messageActions"
 
   export class RivetAccount extends Account {
     constructor(address: string, pk: string, provider?: ProviderInterface) {
@@ -43,4 +44,27 @@ import {
             transaction_hash: response.transaction_hash,
         }
     }
+
+
+    public async signMessage(
+      typedData: TypedData,
+      options: SignMessageOptions = { skipDeploy: false },
+    ): Promise<Signature> {
+      sendMessage({ type: "SIGN_RIVET_MESSAGE", data: { typedData, options } })
+      
+      const response = await Promise.race([
+        waitForMessage("SIGN_RIVET_MESSAGE_RES", 10 * 60 * 1000),
+        waitForMessage(
+          "SIGNATURE_RIVET_FAILURE",
+          10 * 60 * 1000,
+        )
+      ])
+      
+      if (response.error) {
+          throw Error("User abort")
+      }
+  
+      return response.signature
+    }
+
   }

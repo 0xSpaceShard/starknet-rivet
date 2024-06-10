@@ -1,4 +1,4 @@
-import { Abi, Call, InvocationsDetails } from "starknet";
+import { Abi, ArraySignatureType, Call, InvocationsDetails, TypedData } from "starknet";
 
 export interface ExecuteTransactionRequest {
   transactions: Call | Call[]
@@ -32,9 +32,27 @@ export type PreAuthorisationMessage =
       data: { actionHash: string; error?: string }
     }
 
+
+export interface SignMessageOptions {
+  skipDeploy: boolean
+}
+
+export type ActionMessage =
+  | {
+      type: "SIGN_RIVET_MESSAGE"
+      data: { typedData: TypedData; options: SignMessageOptions }
+    }
+  | { type: "SIGN_RIVET_MESSAGE_RES"; data: any }
+  | { type: "SIGNATURE_RIVET_FAILURE"; data: { error: string } }
+  | {
+      type: "SIGNATURE_RIVET_SUCCESS"
+      data: { signature: ArraySignatureType; data: any }
+    }
+
 export type MessageType =
     | PreAuthorisationMessage
-    | TransactionMessage;
+    | TransactionMessage
+    | ActionMessage;
 
 export type WindowMessageType = MessageType & {
     forwarded?: boolean
