@@ -42,7 +42,6 @@ export const SelectedAccountInfo: React.FC = () => {
         setSelectedAccount(null)
     };
 
-
     const handleConfirm = (message: any) => {
         if (selectedAccount) {
             if (transactionData) {
@@ -53,6 +52,18 @@ export const SelectedAccountInfo: React.FC = () => {
                 chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE_RES", data: message });
                 setSignatureData(null);
             }
+            chrome.windows.getCurrent((window) => {
+                if (window && window.id) {
+                    chrome.windows.remove(window.id);
+                }
+            });
+        }
+    };
+
+    const handleDecline = (message: any) => {
+        if (selectedAccount) {
+            chrome.runtime.sendMessage({ type: "RIVET_TRANSACTION_FAILED", data: message });
+            setTransactionData(null);
             chrome.windows.getCurrent((window) => {
                 if (window && window.id) {
                     chrome.windows.remove(window.id);
@@ -117,6 +128,7 @@ export const SelectedAccountInfo: React.FC = () => {
                         <p>Transaction Details:</p>
                         <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{JSON.stringify(transactionData, null, 2)}</pre>
                         <p  onClick={() => handleConfirm(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Confirm</p>
+                        <p  onClick={() => handleDecline(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Decline</p>
                     </div>
                 </div>
             )}
