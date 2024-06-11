@@ -27,8 +27,8 @@ window.addEventListener('message', async function(event) {
       return true; 
     }
     else if (event.data.type === 'EXECUTE_RIVET_TRANSACTION') {
-      chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION", data: event.data.data }, (response) => {
-      });
+      let res = await chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION", data: event.data.data })
+      window.postMessage({ ...res, type: res.type }, window.location.origin);
       return true; 
     } 
   }
@@ -38,9 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'UPDATE_SELECTED_ACCOUNT') {    
     (async () => {
       try {
-        let res = await chrome.runtime.sendMessage({ type: message.type });
-        window.postMessage({ type: "CONNECT_RIVET_DAPP_RES", selectedAccount: message.selectedAccount }, "*");
-        sendResponse(res); 
+        window.postMessage({ type: "CONNECT_RIVET_ACCOUNT_RES", data: message.data }, "*");
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("Error in handling message:", error.message);
@@ -59,6 +57,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         let res = await chrome.runtime.sendMessage({ type: message.type, data: message.data  });
         window.postMessage({ type: "EXECUTE_RIVET_TRANSACTION_RES", data: res }, "*");
+        sendResponse(res);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Error in handling message:", error.message);
+          sendResponse({ success: false, error: error.message });
+        } else {
+          console.error("An unknown error occurred", error);
+          sendResponse({ success: false, error: "An unknown error occurred" });
+        }
+      }
+    })();
+    return true;
+  }
+
+  if (message.type === 'RIVET_TRANSACTION_FAILED') {   
+    (async () => {
+      try {
+        console.log("ERROR MSG: ", message)
+        let res = await chrome.runtime.sendMessage({ type: message.type, data: message.error  });
+        console.log("ERROR RES: ", res)
+        window.postMessage({ type: "RIVET_TRANSACTION_FAILED", error: res }, "*");
         sendResponse(res);
       } catch (error: unknown) {
         if (error instanceof Error) {

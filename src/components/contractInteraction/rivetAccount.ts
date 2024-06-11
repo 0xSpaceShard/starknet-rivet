@@ -37,7 +37,17 @@ import {
             },
         })
 
-        const response = await waitForMessage("EXECUTE_RIVET_TRANSACTION_RES", 10 * 60 * 1000)
+        const response = await Promise.race([
+            waitForMessage("EXECUTE_RIVET_TRANSACTION_RES", 10 * 60 * 1000),
+            waitForMessage(
+              "RIVET_TRANSACTION_FAILED",
+              10 * 60 * 1000,
+            )
+          ])
+
+        if (response.error) {
+            throw Error("User abort")
+        }
     
         return {
             transaction_hash: response.transaction_hash,

@@ -1,4 +1,4 @@
-import { Abi, Call, InvocationsDetails } from "starknet";
+import { Abi, Call, InvocationsDetails, WalletAccount } from "starknet";
 
 export interface ExecuteTransactionRequest {
   transactions: Call | Call[]
@@ -15,7 +15,8 @@ export type PreAuthorisationMessage =
       type: "REJECT_RIVET_PREAUTHORIZATION"
       data?: { host: string; actionHash: string }
     }
-  | { type: "CONNECT_ACCOUNT_RES"; data: any }
+  | { type: "CONNECT_RIVET_ACCOUNT_RES"; data: any }
+  | { type: "DISCONNECT_ACCOUNT" }
 
   export type TransactionMessage =
   | {
@@ -29,12 +30,19 @@ export type PreAuthorisationMessage =
     }
   | {
       type: "RIVET_TRANSACTION_FAILED"
-      data: { actionHash: string; error?: string }
+      data: any
     }
+  
+  export type NetworkMessage =
+  {
+    type: "RIVET_APPROVE_REQUEST_SWITCH_CUSTOM_NETWORK"
+    data: { actionHash: string; selectedAccount: WalletAccount }
+  }
 
 export type MessageType =
     | PreAuthorisationMessage
-    | TransactionMessage;
+    | TransactionMessage
+    | NetworkMessage;
 
 export type WindowMessageType = MessageType & {
     forwarded?: boolean

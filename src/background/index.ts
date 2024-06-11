@@ -31,14 +31,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (window && window.tabs && window.tabs[0]) {
           const tabId = window.tabs[0].id;
           if (tabId) {
-            chrome.runtime.onMessage.hasListener(function onResponseListener(responseMessage) {
+            const onResponseListener = (responseMessage: any) => {
               if (responseMessage.type === 'EXECUTE_RIVET_TRANSACTION_RES') {
-                if (sender.tab && sender.tab.id !== undefined) {
-                  chrome.tabs.sendMessage(sender.tab.id, responseMessage);
-                }
-                chrome.runtime.onMessage.removeListener(onResponseListener);
+                (async () => {
+                  try {
+                    const result = await chrome.storage.sync.get(['selectedAccount']);
+                    const selectedAccount = result.selectedAccount;
+          
+                    if (selectedAccount) {
+                      const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
+                      const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
+                     
+                      const tx = await acc.execute(message.data.transactions);
+                      const res = await provider.waitForTransaction(tx.transaction_hash)
+        
+                      sendResponse({ type: "EXECUTE_RIVET_TRANSACTION_RES", data: tx});
+                    } 
+                    else {
+                      console.error('No selected account found in storage.');
+                      sendResponse({ error: 'No selected account found in storage.' });
+                    }
+                  }
+                  catch (error) {
+                    console.log("HERE BACK FAILED AFTER EXEC: ", error)
+                    sendResponse({  type: "RIVET_TRANSACTION_FAILED", data: {error: 'Error executing transaction.'}});
+                  }
+                })();
               }
-            });
+              if (responseMessage.type === 'RIVET_TRANSACTION_FAILED') {
+                console.log("BACKGROUND FAILL USER ABORT")
+                sendResponse({  type: "RIVET_TRANSACTION_FAILED", data: {error: 'User abort'}});
+              }
+            };
+            chrome.runtime.onMessage.addListener(onResponseListener);
             setTimeout(() => {
               chrome.tabs.sendMessage(tabId, { type: "EXECUTE_RIVET_TRANSACTION", data: message.data });
             }, 1000);
@@ -46,34 +71,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       });
       return true;
-
-      case 'EXECUTE_RIVET_TRANSACTION_RES':  
-        (async () => {
-          try {
-            const result = await chrome.storage.sync.get(['selectedAccount']);
-            const selectedAccount = result.selectedAccount;
-  
-            if (selectedAccount) {
-              const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
-              const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
-             
-              const tx = await acc.execute(message.data.transactions);
-              const res = await provider.waitForTransaction(tx.transaction_hash)
-              sendResponse({
-                type: "EXECUTE_RIVET_TRANSACTION_RES",
-                data: tx
-              });
-            } else {
-              console.error('No selected account found in storage.');
-              sendResponse({ error: 'No selected account found in storage.' });
-            }
-          } catch (error) {
-            console.error('Error executing transaction:', error);
-            sendResponse({ error: 'Error executing transaction.' });
-          }
-        })();
-  
-        return true;
 
     case 'SET_SELECTED_ACCOUNT':
       chrome.storage.sync.set({ selectedAccount: message.selectedAccount }, () => {
