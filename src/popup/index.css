@@ -12,8 +12,8 @@
     'Helvetica Neue',
     sans-serif;
 
-  color-scheme: light dark;
-  background-color: #242424;
+  /* color-scheme: light dark; */
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: light) {
@@ -23,6 +23,8 @@
 }
 
 body {
-  min-width: 20rem;
+  width: 22rem;
   margin: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }

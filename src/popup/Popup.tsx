@@ -1,63 +1,118 @@
-import { useEffect } from 'react'
-
-import './Popup.css'
-import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
-import DockerCommandGenerator from '../components/dockerCommand/dockerCommand'
-import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker'
-import { useSharedState } from '../components/context/context'
-import { Button } from '@mui/material'
+import "./Popup.css";
+import PredeployedAccounts from "../components/predeployedAccounts/predeployedAccounts";
+import DockerCommandGenerator from "../components/dockerCommand/dockerCommand";
+import RegisterRunningDocker from "../components/registerRunningDocker/registerRunningDocker";
+import { Component, useSharedState } from "../components/context/context";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { ChevronRight } from "@mui/icons-material";
 
 export const Popup = () => {
   const context = useSharedState();
   const { selectedComponent, setSelectedComponent, url } = context;
 
-  interface SelectedComponentMessage {
-    type: 'SELECTED_COMPONENT_CHANGED';
-    selectedComponent: string;
-  }
-  
-  const switchComponent = (newSelectedComponent: string) => {
-    if (newSelectedComponent == 'PredeployedAccounts' && !url) {
-      setSelectedComponent('');
+  const switchComponent = (newSelectedComponent: Component) => {
+    if (newSelectedComponent == Component.Accounts && !url) {
+      setSelectedComponent(null);
       return;
     }
     setSelectedComponent(newSelectedComponent);
   };
-  
-  return (
-    <main>
-      {selectedComponent === '' && ( 
-        <div style={{ marginBottom: '20px' }}>
-          <Button
-            variant={'outlined'}
-            style={{ marginRight: '10px' }}
-            onClick={() => switchComponent("DockerCommandGenerator")}
-          >
-            Docker Command Generator
-          </Button>
-          <Button
-            variant={'outlined'}
-            onClick={() => switchComponent('RegisterRunningDocker')}
-          >
-            Register Running Docker
-          </Button>
 
-          {!url && (
-            <p>No Predeployed accounts</p>
-          )}
-
+  const ComponentMenu = () => (
+    <Stack spacing={0}>
+      <Box>
+        <Button
+          variant="text"
+          fullWidth
+          sx={{
+            height: 48,
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+          onClick={() => switchComponent(Component.CommandGenerator)}
+        >
+          Docker Command Generator
+          <Box
+            display={"flex"}
+            alignItems={"center"}
+            paddingRight={2}
+            paddingLeft={4}
+          >
+            <ChevronRight />
+          </Box>
+        </Button>
+      </Box>
+      <Box>
+        <Button
+          variant="text"
+          fullWidth
+          sx={{
+            height: 48,
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+          onClick={() => switchComponent(Component.DockerRegister)}
+        >
+          Register Running Docker
+          <Box
+            display={"flex"}
+            alignItems={"center"}
+            paddingRight={2}
+            paddingLeft={4}
+          >
+            <ChevronRight />
+          </Box>
+        </Button>
+      </Box>
+      {url ? (
+        <Box>
           <Button
-            variant={'outlined'}
-            onClick={() => switchComponent('PredeployedAccounts')}
+            variant="text"
+            fullWidth
+            sx={{
+              height: 48,
+              justifyContent: "flex-end",
+              alignItems: "center",
+            }}
+            onClick={() => switchComponent(Component.Accounts)}
           >
             Show Predeployed Accounts
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              paddingRight={2}
+              paddingLeft={4}
+            >
+              <ChevronRight />
+            </Box>
           </Button>
-        </div>
+        </Box>
+      ) : (
+        <Box
+          height={48}
+          display={"flex"}
+          justifyContent={"center"}
+          alignItems={"center"}
+        >
+          <Typography variant="caption">No predeployed accounts</Typography>
+        </Box>
       )}
-      {selectedComponent === 'DockerCommandGenerator' && <DockerCommandGenerator />}
-      {selectedComponent === 'RegisterRunningDocker' && <RegisterRunningDocker />}
-      {selectedComponent === 'PredeployedAccounts' && url && <PredeployedAccounts />}
+    </Stack>
+  );
+
+  return (
+    <main>
+      {!selectedComponent && <ComponentMenu />}
+      {selectedComponent === Component.CommandGenerator && (
+        <DockerCommandGenerator />
+      )}
+      {selectedComponent === Component.DockerRegister && (
+        <RegisterRunningDocker />
+      )}
+      {selectedComponent === Component.Accounts && url && (
+        <PredeployedAccounts />
+      )}
     </main>
   );
-}
-export default Popup
+};
+export default Popup;

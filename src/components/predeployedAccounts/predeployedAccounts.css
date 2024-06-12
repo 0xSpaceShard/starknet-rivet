@@ -1,25 +1,3 @@
-.section-heading {
-    margin-bottom: 0.5rem;
-    text-align: center;
-}
-
-
-.account-section {
-    background-color: #9e9c9c; /* Grey background */
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.account-section:hover {
-    background-color: #9e9c9c; /* Light grey background on hover */
-}
-
-.account-section span {
-    display: block;
-}
-
 .selected-account-section {
     background-color: #9e9c9c; /* White background */
     padding: 20px;
