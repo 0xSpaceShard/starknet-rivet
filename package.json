@@ -36,7 +36,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
-    "starknet": "^6.9.0",
+    "starknet-6": "npm:starknet@^6.9.0",
     "starknet-types": "^0.0.5",
     "webextension-polyfill": "^0.12.0"
   },

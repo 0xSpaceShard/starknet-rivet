@@ -1,4 +1,4 @@
-import { Account } from "starknet";
+import { Account } from "starknet-6";
 
 class SingletonContext {
     private static instance: SingletonContext;

@@ -3,7 +3,7 @@ import { requestMessageHandler } from "./requestMessagesHandler/requestMessageHa
 import type { WalletEvents,  StarknetWindowObject } from "get-starknet-core"
 import { getIsPreauthorized } from "./messaging"
 import { sendMessage, waitForMessage } from "./messageActions"
-import { Account, RpcProvider } from "starknet"
+import { Account, RpcProvider } from "starknet-6"
 import { RivetAccount } from "./rivetAccount"
 
 export const userEventHandlers: WalletEvents[] = []
