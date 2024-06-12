@@ -1,4 +1,4 @@
-import { Account, RpcProvider, stark } from "starknet";
+import { Account, RpcProvider, stark } from "starknet-6";
 
 console.log('background is running');
 

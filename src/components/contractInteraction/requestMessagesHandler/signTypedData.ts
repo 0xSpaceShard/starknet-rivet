@@ -1,4 +1,4 @@
-import { TypedData } from "starknet"
+import { TypedData } from "starknet-6"
 import { sendMessage, waitForMessage } from "../messageActions"
 
 export async function signTypedDataHandler(params: TypedData) {

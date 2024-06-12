@@ -15,7 +15,7 @@ import {
     defaultProvider,
     ec,
     typedData,
-  } from "starknet"
+  } from "starknet-6"
   
   import { sendMessage, SignMessageOptions, waitForMessage } from "./messageActions"
 

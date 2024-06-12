@@ -52,8 +52,8 @@ interface MyContextValue {
     setConfigData: React.Dispatch<React.SetStateAction<any | null>>;
     urlList: ListOfDevnet[];
     setUrlList: React.Dispatch<React.SetStateAction<ListOfDevnet[]>>;
-    selectedComponent: string;
-    setSelectedComponent: React.Dispatch<React.SetStateAction<string>>;
+    selectedComponent: Component | null;
+    setSelectedComponent: React.Dispatch<React.SetStateAction<Component | null>>;
   }
   
 export const Context = createContext<MyContextValue | undefined>(undefined);
@@ -66,6 +66,12 @@ export const useSharedState = () => {
     return context;
   };
 
+export enum Component {
+  CommandGenerator = 'DockerCommandGenerator',
+  DockerRegister = 'RegisterRunningDocker',
+  Accounts = 'PredeployedAccounts',
+}
+
 export function MyContextProvider({ children }: { children: React.ReactNode }) {
     const [accounts, setAccounts] = useState<AccountData[]>([]);
     const [url, setUrl] = useState<string>('');
@@ -75,7 +81,7 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
     const [ commandOptions, setCommandOptions ] = useState<Options | null>(null);
     const [ configData, setConfigData ] = useState<any | null>(null);
     const [ urlList, setUrlList ] = useState<ListOfDevnet[]>([]);
-    const [selectedComponent, setSelectedComponent] = useState("");
+    const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
 
     useEffect(() => {
       chrome.storage.local.get(null, (data) => {

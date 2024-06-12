@@ -1,4 +1,4 @@
-import { Abi, ArraySignatureType, Call, InvocationsDetails, WalletAccount, TypedData } from "starknet";
+import { Abi, ArraySignatureType, Call, InvocationsDetails, WalletAccount, TypedData } from "starknet-6";
 
 export interface ExecuteTransactionRequest {
   transactions: Call | Call[]

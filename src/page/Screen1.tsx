@@ -4,18 +4,12 @@ import './Screen1.css'
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand'
 import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker'
-import { useSharedState } from '../components/context/context'
+import { Component, useSharedState } from '../components/context/context'
 
 export const Screen1 = () => {
   const context = useSharedState();
   const { selectedComponent, setSelectedComponent } = context;
 
-
-  interface SelectedComponentMessage {
-    type: 'SELECTED_COMPONENT_CHANGED';
-    selectedComponent: string;
-  }
-  
   window.addEventListener('message', (event) => {
     if (event.data.type === 'CHANGE_SELECTED_COMPONENT') {
       const selectedComponent = event.data.selectedComponent; 
@@ -25,21 +19,21 @@ export const Screen1 = () => {
 
   return (
     <section>
-      {selectedComponent === '' && (
+      {!selectedComponent && (
         <div>
               <button
                   style={{ marginRight: '10px' }}
-                  onClick={() => setSelectedComponent('DockerCommandGenerator')}
+                  onClick={() => setSelectedComponent(Component.CommandGenerator)}
               >
                   Docker Command Generator
               </button>
-              <button onClick={() => setSelectedComponent('RegisterRunningDocker')}>
+              <button onClick={() => setSelectedComponent(Component.DockerRegister)}>
                   Register Running Docker
               </button>
         </div>
       )} 
-      {selectedComponent === 'DockerCommandGenerator' && <DockerCommandGenerator />}
-      {selectedComponent === 'RegisterRunningDocker' && <RegisterRunningDocker />}
+      {selectedComponent === Component.CommandGenerator && <DockerCommandGenerator />}
+      {selectedComponent === Component.DockerRegister && <RegisterRunningDocker />}
       <title>Display Accounts</title>
       <PredeployedAccounts />
     </section>
