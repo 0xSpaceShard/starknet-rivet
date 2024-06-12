@@ -16,7 +16,7 @@ export type PreAuthorisationMessage =
       data?: { host: string; actionHash: string }
     }
   | { type: "CONNECT_RIVET_ACCOUNT_RES"; data: any }
-  | { type: "DISCONNECT_ACCOUNT" }
+  | { type: "DISCONNECT_RIVET_ACCOUNT" }
 
   export type TransactionMessage =
   | {

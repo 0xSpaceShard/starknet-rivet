@@ -89,7 +89,7 @@ async function loadModules() {
             }
           }
         }
-      } else if (data.type === "DISCONNECT_ACCOUNT") {
+      } else if (data.type === "DISCONNECT_RIVET_ACCOUNT") {
         starknet.selectedAddress = undefined
         starknet.account = undefined
         starknet.isConnected = false

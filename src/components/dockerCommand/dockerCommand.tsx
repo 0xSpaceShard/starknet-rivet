@@ -135,7 +135,7 @@ const DockerCommandGenerator: React.FC = () => {
         let command = 'docker run -p ';
     
         setUrl(`${options.host}:${options.port}`);
-        command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
+        command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:6fc953dbe2c76965d713e2d11339440d00d5b616`;
     
         const kebabCaseOptions = convertCamelToKebab(options);
         const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
@@ -151,7 +151,7 @@ const DockerCommandGenerator: React.FC = () => {
                 }
             }
         });
-    
+        command += ` --blocks-on-demand`;
         setGenerateCommand(true);
         return command;
     };

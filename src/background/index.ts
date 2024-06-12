@@ -53,13 +53,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     }
                   }
                   catch (error) {
-                    console.log("HERE BACK FAILED AFTER EXEC: ", error)
                     sendResponse({  type: "RIVET_TRANSACTION_FAILED", data: {error: 'Error executing transaction.'}});
                   }
                 })();
               }
               if (responseMessage.type === 'RIVET_TRANSACTION_FAILED') {
-                console.log("BACKGROUND FAILL USER ABORT")
                 sendResponse({  type: "RIVET_TRANSACTION_FAILED", data: {error: 'User abort'}});
               }
             };

@@ -9,7 +9,7 @@ import { Delete, Navigation } from '@mui/icons-material';
 
 const RegisterRunningDocker: React.FC = () => {
     const context = useSharedState();
-    const { setUrlList, urlList, devnetIsAlive,setDevnetIsAlive, setSelectedComponent, url, setUrl} = context;
+    const { setUrlList, urlList, devnetIsAlive,setDevnetIsAlive, setSelectedComponent, url, setUrl, setSelectedAccount} = context;
     const [newUrl, setNewUrl] = useState('');
     const [toPredeployedAccounts, setToPredeployedAccounts] = useState(false)
 
@@ -47,6 +47,7 @@ const RegisterRunningDocker: React.FC = () => {
         setUrlList(urlList.filter(item => item.url !== urlToDelete));
         if (url === urlToDelete) {
           setUrl('');
+          setSelectedAccount(null);
         }
     };
     

@@ -37,10 +37,6 @@ export const SelectedAccountInfo: React.FC = () => {
         }
     };
 
-    const handleBackToList = () => {
-        setSelectedAccount(null)
-    };
-
     const handleConfirm = (message: any) => {
         if (selectedAccount) {
             chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION_RES", data: message });
@@ -65,6 +61,7 @@ export const SelectedAccountInfo: React.FC = () => {
         }
     };
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        console.log("HERE HERE HERE: ", message.type)
         if (message.type === "EXECUTE_RIVET_TRANSACTION") {
           setTransactionData(message.data);
         }
@@ -98,12 +95,6 @@ export const SelectedAccountInfo: React.FC = () => {
                                 <p style={{ margin: '10px 0', cursor: 'pointer', textDecoration: 'underline' }}
                                 onClick={handleCopyAddress}>{shortAddress}</p>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
-                                <p onClick={handleBackToList}> Accounts</p>
-                                </div>
-                            </div>
-
                         </div>
                     )}
                 </section>

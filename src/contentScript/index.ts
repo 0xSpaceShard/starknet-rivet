@@ -22,9 +22,19 @@ window.addEventListener('message', async function(event) {
 
   if (event.data.extensionId && event.data.extensionId === 'iflmkgmjoppefaohpceojfikhkbcnopg') {
     if (event.data.type === 'CONNECT_RIVET_DAPP') {
-      let res = await chrome.runtime.sendMessage({type: event.data.type});
-      window.postMessage(res);
-      return true; 
+      // let res = await chrome.runtime.sendMessage({type: event.data.type});
+      // window.postMessage(res);
+      // return true; 
+      try {
+        let res = await chrome.runtime.sendMessage({ type: event.data.type });
+        if (chrome.runtime.lastError) {
+          console.error("Error sending message:", chrome.runtime.lastError);
+          return; 
+        }
+        window.postMessage(res);
+      } catch (error) {
+        console.error("Unexpected error:", error);
+      }
     }
     else if (event.data.type === 'EXECUTE_RIVET_TRANSACTION') {
       let res = await chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION", data: event.data.data })
@@ -38,7 +48,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'UPDATE_SELECTED_ACCOUNT') {    
     (async () => {
       try {
-        window.postMessage({ type: "CONNECT_RIVET_ACCOUNT_RES", data: message.data }, "*");
+        console.log("HER DISCO")
+        if (message.data.data == null) {
+          window.postMessage({ type: "DISCONNECT_RIVET_ACCOUNT", data: message.data }, "*");
+
+        } else {
+          window.postMessage({ type: "CONNECT_RIVET_ACCOUNT_RES", data: message.data }, "*");
+        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("Error in handling message:", error.message);
@@ -74,9 +90,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'RIVET_TRANSACTION_FAILED') {   
     (async () => {
       try {
-        console.log("ERROR MSG: ", message)
         let res = await chrome.runtime.sendMessage({ type: message.type, data: message.error  });
-        console.log("ERROR RES: ", res)
         window.postMessage({ type: "RIVET_TRANSACTION_FAILED", error: res }, "*");
         sendResponse(res);
       } catch (error: unknown) {

@@ -4,10 +4,12 @@ import './predeployedAccounts.css';
 import SingletonContext from '../../services/contextService';
 import UrlContext from '../../services/urlService';
 import SelectedAccountInfo from '../account/selectedAccount';
+import RegisterRunningDocker from '../registerRunningDocker/registerRunningDocker';
 
 export const PredeployedAccounts: React.FC = () => {
     const context = useSharedState();
     const { accounts, setAccounts, url, devnetIsAlive, setDevnetIsAlive, selectedAccount, setSelectedAccount, setSelectedComponent, setCurrentBalance, urlList, setUrlList } = context;
+    const [showSelectedAccount, setShowselectedAccount] = useState(false);
 
     async function fetchContainerLogs(): Promise<AccountData[] | null> {
         if (!url) {
@@ -61,11 +63,11 @@ export const PredeployedAccounts: React.FC = () => {
         const clickedAccount = accounts.find(account => account.address === clickedAddress);
         if (clickedAccount) {
             setSelectedAccount(clickedAccount);
+            setShowselectedAccount(true)
             chrome.runtime.sendMessage({ type: 'SET_SELECTED_ACCOUNT', selectedAccount: clickedAccount });
         }
         else {
-            setSelectedAccount(null);
-            chrome.runtime.sendMessage({ type: 'SET_SELECTED_ACCOUNT', selectedAccount: null });
+            setShowselectedAccount(false)
         }
     };
 
@@ -92,14 +94,17 @@ export const PredeployedAccounts: React.FC = () => {
     }, [selectedAccount]);
 
     const handleBack = () => {    
-
         setSelectedComponent('');
         handleAccountClick('');
     };
 
+    const handleBackToList = () => {    
+        setShowselectedAccount(false);
+    };
+
     return (
         <>
-            {devnetIsAlive && accounts.length > 0 && !selectedAccount && (
+            {devnetIsAlive && accounts.length > 0 && !showSelectedAccount && (
                 <section>
                     <h1 className="section-heading">Accounts</h1>
                     {accounts.map((account, index) => (
@@ -120,9 +125,17 @@ export const PredeployedAccounts: React.FC = () => {
                     </div>
                 </section>
             )}
-            {selectedAccount && (
+            {!devnetIsAlive && (
+                <RegisterRunningDocker />
+            )}
+            {showSelectedAccount && (
                 <section>
                     <div className="account-details">
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
+                                <p onClick={handleBackToList}> Accounts</p>
+                            </div>
+                        </div>
                         <SelectedAccountInfo />
                     </div>
                 </section>
