@@ -1,410 +1,620 @@
-import React, { useState, ChangeEvent } from 'react';
-import './dockerCommand.css'
-import InfoIcon from '../infoIcon/infoIcon';
-import {ACCOUNT_INFO, ACCOUNT_CLASS_INFO, ACCOUNT_CLASS_CUSTOM_INFO, SEED_INFO, START_TIME_INFO, DUMP_ON_INFO, DUMP_PATH_INFO, STATE_ARCHIVE_CAPACITY_INFO, FORK_NETWORK_INFO, FORK_BLOCK_INFO, REQUEST_BODY_SIZE_LIMIT} from "../../info";
-import { Options, useSharedState } from '../context/context';
-import { Button } from '@mui/material';
+import React, { useState, ChangeEvent } from "react";
+import {
+  ACCOUNT_INFO,
+  ACCOUNT_CLASS_INFO,
+  ACCOUNT_CLASS_CUSTOM_INFO,
+  SEED_INFO,
+  START_TIME_INFO,
+  DUMP_ON_INFO,
+  DUMP_PATH_INFO,
+  STATE_ARCHIVE_CAPACITY_INFO,
+  FORK_NETWORK_INFO,
+  FORK_BLOCK_INFO,
+  REQUEST_BODY_SIZE_LIMIT,
+} from "../../info";
+import { Options, useSharedState } from "../context/context";
+import {
+  Box,
+  Button,
+  Container,
+  FormHelperText,
+  IconButton,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { ChevronLeft, InfoOutlined } from "@mui/icons-material";
 
 const DockerCommandGenerator: React.FC = () => {
-    const context = useSharedState()
+  const context = useSharedState();
 
-    const defaultOptions: Options = {
-        accounts: 10,
-        accountClass: 'cairo1',
-        accountClassCustom: '',
-        initialBalance: "1000000000000000000000",
-        seed: '',
-        host: '127.0.0.1',
-        port: 5050,
-        startTime: 0,
-        timeout: 120,
-        gasPrice: 100000000000,
-        dataGasPrice: 100000000000,
-        chainId: 'TESTNET',
-        dumpOn: '',
-        dumpPath: '',
-        stateArchiveCapacity: 'none',
-        forkNetwork: '',
-        forkBlock: 0,
-        requestBodySizeLimit: 2000000
-    };
-    
-    const [options, setOptions] = useState<Options>(defaultOptions);
-    const [initialBalanceError, setInitialBalanceError] = useState('');
-    const [seedError, setSeedError] = useState('');
-    const [startTimeError, setStartTimeError] = useState('');
-    const [timeOutError, setTimeOutError] = useState('');
-    const [generalError, setGeneralError] = useState(false);
-    const [generateCommand, setGenerateCommand] = useState(false);
-    const [toContinue, setToContinue] = useState(false)
-    const [msg, setMsg] = useState("");
-    const { url, setUrl, devnetIsAlive, setDevnetIsAlive, commandOptions, setCommandOptions, setSelectedComponent} = context;
+  const defaultOptions: Options = {
+    accounts: 10,
+    accountClass: "cairo1",
+    accountClassCustom: "",
+    initialBalance: "1000000000000000000000",
+    seed: "",
+    host: "127.0.0.1",
+    port: 5050,
+    startTime: 0,
+    timeout: 120,
+    gasPrice: 100000000000,
+    dataGasPrice: 100000000000,
+    chainId: "TESTNET",
+    dumpOn: "",
+    dumpPath: "",
+    stateArchiveCapacity: "none",
+    forkNetwork: "",
+    forkBlock: 0,
+    requestBodySizeLimit: 2000000,
+  };
 
-    const isValidInitialBalance = (value: string): boolean => {
-        const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
-        return regex.test(value);
-    };
+  const [options, setOptions] = useState<Options>(defaultOptions);
+  const [initialBalanceError, setInitialBalanceError] = useState("");
+  const [seedError, setSeedError] = useState("");
+  const [startTimeError, setStartTimeError] = useState("");
+  const [timeoutError, setTimeOutError] = useState("");
+  const [generalError, setGeneralError] = useState(false);
+  const [generateCommand, setGenerateCommand] = useState(false);
+  const [toContinue, setToContinue] = useState(false);
+  const [msg, setMsg] = useState("");
+  const {
+    url,
+    setUrl,
+    urlList,
+    setUrlList,
+    devnetIsAlive,
+    setDevnetIsAlive,
+    commandOptions,
+    setCommandOptions,
+    setSelectedComponent,
+  } = context;
 
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setOptions((prevOptions) => ({
-            ...prevOptions,
-            [name]: value,
-        }));
-        if (name === 'initialBalance' && !Number.isNaN(Number(value))) {
-            if (!isValidInitialBalance(value)) {
-                setInitialBalanceError('Invalid initial balance');
-                setGeneralError(true);
-                return;
-            }
-            const hexValue = Number(value).toString(16);
-            const newValue = `0x${hexValue}`;
-            if (Number(value) < 0) {
-                setInitialBalanceError('Initial balance cannot be negative');
-                setGeneralError(true);
-                return;
-            } 
-            else {
-                setInitialBalanceError('');
-            }
-        }
-        if (name === 'seed') {
-            if (!Number.isNaN(Number(value))) {
-            const seedValue = parseInt(value);
-            if (seedValue < 0 || seedValue > 4294967295) {
-                setSeedError('Seed value must be between 0 and 4294967295');
-                setGeneralError(true);
-                return;
-            } else {
-                setSeedError('');
-            }
-            } else {
-            setSeedError('Invalid seed value');
-            setGeneralError(true);
-            return;
-            }
-        }
-        if (name === 'startTime') {
-            if (!Number.isNaN(Number(value))) {
-            const startTimeValue = BigInt(value);
-            if (startTimeValue < 0 || startTimeValue > 18446744073709551615n ) {
-                setStartTimeError('StartTime value must be between 0 and 18446744073709551615 ');
-                setGeneralError(true);
-                return;
-            } else {
-                setStartTimeError('');
-            }
-            } else {
-            setStartTimeError('Invalid StartTime value');
-            setGeneralError(true);
-            return;
-            }
-        }
-        if (name === 'timeout') {
-            if (!Number.isNaN(Number(value))) {
-            const startTimeValue = parseInt(value);
-            if (startTimeValue < 0 || startTimeValue > 65535 ) {
-                setTimeOutError('Timeout value must be between 0 and 65535 ');
-                setGeneralError(true);
-                return;
-            } else {
-                setTimeOutError('');
-            }
-            } else {
-            setTimeOutError('Invalid Timeout value');
-            setGeneralError(true);
-            return;
-            }
-        }
-        setGeneralError(false);
-        
-    };
+  const isValidInitialBalance = (value: string): boolean => {
+    const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
+    return regex.test(value);
+  };
 
-    function convertCamelToKebab(obj: any): any {
-        const newObj: any = {};
-        for (const key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                const kebabKey = key.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-                newObj[kebabKey] = obj[key];
-            }
-        }
-        return newObj;
+  const handleInputChange = (
+    e:
+      | ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+      | SelectChangeEvent
+  ) => {
+    const { name, value } = e.target;
+    setOptions((prevOptions) => ({
+      ...prevOptions,
+      [name]: value,
+    }));
+    if (name === "initialBalance" && !Number.isNaN(Number(value))) {
+      if (!isValidInitialBalance(value)) {
+        setInitialBalanceError("Invalid initial balance");
+        setGeneralError(true);
+        return;
+      }
+      const hexValue = Number(value).toString(16);
+      const newValue = `0x${hexValue}`;
+      if (Number(value) < 0) {
+        setInitialBalanceError("Initial balance cannot be negative");
+        setGeneralError(true);
+        return;
+      } else {
+        setInitialBalanceError("");
+      }
     }
-    
-    const generateDockerCommand = (options: Options) => {
-        let command = 'docker run -p ';
-    
-        setUrl(`${options.host}:${options.port}`);
-        command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:6fc953dbe2c76965d713e2d11339440d00d5b616`;
-    
-        const kebabCaseOptions = convertCamelToKebab(options);
-        const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
-        const commandOptionsCopy = { ...kebabCaseOptions };
-        setCommandOptions(commandOptionsCopy);
-    
-        Object.keys(kebabCaseOptions).forEach(option => {
-            if (kebabCaseOptions[option as keyof Options] !== kebabCaseDefaultOptions[option as keyof Options]) {
-                if (typeof kebabCaseOptions[option as keyof Options] === 'boolean' && kebabCaseOptions[option as keyof Options]) {
-                    command += ` --${option}`;
-                } else {
-                    command += ` --${option} ${kebabCaseOptions[option as keyof Options]}`;
-                }
-            }
-        });
-        command += ` --blocks-on-demand`;
-        setGenerateCommand(true);
-        return command;
-    };
+    if (name === "seed") {
+      if (!Number.isNaN(Number(value))) {
+        const seedValue = parseInt(value);
+        if (seedValue < 0 || seedValue > 4294967295) {
+          setSeedError("Seed value must be between 0 and 4294967295");
+          setGeneralError(true);
+          return;
+        } else {
+          setSeedError("");
+        }
+      } else {
+        setSeedError("Invalid seed value");
+        setGeneralError(true);
+        return;
+      }
+    }
+    if (name === "startTime") {
+      if (!Number.isNaN(Number(value))) {
+        const startTimeValue = BigInt(value);
+        if (startTimeValue < 0 || startTimeValue > 18446744073709551615n) {
+          setStartTimeError(
+            "StartTime value must be between 0 and 18446744073709551615 "
+          );
+          setGeneralError(true);
+          return;
+        } else {
+          setStartTimeError("");
+        }
+      } else {
+        setStartTimeError("Invalid StartTime value");
+        setGeneralError(true);
+        return;
+      }
+    }
+    if (name === "timeout") {
+      if (!Number.isNaN(Number(value))) {
+        const startTimeValue = parseInt(value);
+        if (startTimeValue < 0 || startTimeValue > 65535) {
+          setTimeOutError("Timeout value must be between 0 and 65535 ");
+          setGeneralError(true);
+          return;
+        } else {
+          setTimeOutError("");
+        }
+      } else {
+        setTimeOutError("Invalid Timeout value");
+        setGeneralError(true);
+        return;
+      }
+    }
+    setGeneralError(false);
+  };
 
-const handleContinue = async () => {
-    setSelectedComponent('');
-};
+  function convertCamelToKebab(obj: any): any {
+    const newObj: any = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const kebabKey = key
+          .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+          .toLowerCase();
+        newObj[kebabKey] = obj[key];
+      }
+    }
+    return newObj;
+  }
 
-const handleBack = () => {
-    setSelectedComponent('')
-};
+  const generateDockerCommand = (options: Options) => {
+    let command = "docker run -p ";
+
+    const newUrl = (`${options.host}:${options.port}`);
+    setUrlList([...urlList, { url: newUrl, isAlive: true }]);
+
+    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:6fc953dbe2c76965d713e2d11339440d00d5b616`;
+
+    const kebabCaseOptions = convertCamelToKebab(options);
+    const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
+    const commandOptionsCopy = { ...kebabCaseOptions };
+    setCommandOptions(commandOptionsCopy);
+
+    Object.keys(kebabCaseOptions).forEach((option) => {
+      if (
+        kebabCaseOptions[option as keyof Options] !==
+        kebabCaseDefaultOptions[option as keyof Options]
+      ) {
+        if (
+          typeof kebabCaseOptions[option as keyof Options] === "boolean" &&
+          kebabCaseOptions[option as keyof Options]
+        ) {
+          command += ` --${option}`;
+        } else {
+          command += ` --${option} ${kebabCaseOptions[option as keyof Options]}`;
+        }
+      }
+    });
+    command += ` --blocks-on-demand`;
+
+    setGenerateCommand(true);
+    return command;
+  };
+
+  const handleContinue = async () => {
+    setSelectedComponent(null);
+  };
+
+  const handleBack = () => {
+    setSelectedComponent(null);
+  };
 
   return (
     <>
-    {!toContinue && (
-        <div className="popup-container">
-            <div className="back-button">
-            <Button variant="outlined" onClick={handleBack}>Back</Button>
-            </div>
-            <div className="popup-content">
-                <h2 className='docker-heading'> Docker Command Generator</h2>
-                <form className="docker-form">
-                    <div className="form-group">
-                    <label htmlFor="account">Account:</label>
-                        <InfoIcon content={ACCOUNT_INFO} />
-                        <input
-                            type="text"
-                            name="accounts"
-                            value={options.accounts || ''}
-                            onChange={handleInputChange}
-                            className={options.accounts  && options.accounts > 255 ? 'error-message' : 'Max predeployed accounts is 255'}
-                        />
-                        {options.accounts  && options.accounts > 255 && <p className="error-message">Max predeployed accounts is 255.</p>}
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="accountClass">Account Class:</label>
-                    <InfoIcon content={ACCOUNT_CLASS_INFO} />
-                    <select
+      {!toContinue && (
+        <section>
+          <Stack
+            direction={"row"}
+            justifyContent={"center"}
+            position={"relative"}
+          >
+            <Box position={"absolute"} top={0} left={0}>
+              <Button
+                size="small"
+                variant={"text"}
+                startIcon={<ChevronLeft />}
+                onClick={handleBack}
+                sx={{
+                  padding: "8px 10px",
+                  // "&:hover": { backgroundColor: "transparent" },
+                }}
+              >
+                Back
+              </Button>
+            </Box>
+            <Container>
+              <Typography variant="h6" margin={0} marginY={2}>
+                Generator
+              </Typography>
+            </Container>
+          </Stack>
+          <Box paddingTop={1} paddingBottom={3}>
+            <form id="docker-command-form">
+              <Stack textAlign={"left"} paddingLeft={4} spacing={3}>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="accounts"
+                      value={options.accounts}
+                      label={"Account"}
+                      onChange={handleInputChange}
+                      error={!options?.accounts || options.accounts > 255}
+                      variant={"outlined"}
+                      size={"small"}
+                      helperText={
+                        !options?.accounts
+                          ? "Field is required"
+                          : options.accounts > 255
+                            ? "Max predeployed accounts is 255"
+                            : ""
+                      }
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={ACCOUNT_INFO} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Box marginTop={"10px !important"}>
+                  <FormHelperText style={{ marginBottom: "2px" }}>
+                    Account Class
+                  </FormHelperText>
+                  <Stack direction={"row"}>
+                    <Box flex={1}>
+                      <Select
+                        fullWidth
                         name="accountClass"
-                        id="accountClass"
                         value={options.accountClass}
+                        label={"Account Class"}
                         onChange={handleInputChange}
+                        size={"small"}
+                      >
+                        <MenuItem value={"cairo0"}>cairo0</MenuItem>
+                        <MenuItem value={"cairo1"}>cairo1</MenuItem>
+                      </Select>
+                    </Box>
+                    <Tooltip title={ACCOUNT_CLASS_INFO} sx={{ marginX: 2 }}>
+                      <IconButton>
+                        <InfoOutlined />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Box>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="accountClassCustom"
+                      value={options.accountClassCustom}
+                      label={"Custom Account Class"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip
+                    title={ACCOUNT_CLASS_CUSTOM_INFO}
+                    sx={{ marginX: 2 }}
+                  >
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="initialBalance"
+                      value={options.initialBalance}
+                      label={"Initial Balance"}
+                      onChange={handleInputChange}
+                      error={!!initialBalanceError}
+                      variant={"outlined"}
+                      size={"small"}
+                      helperText={initialBalanceError}
+                    ></TextField>
+                  </Box>
+                  <Box width={"40px"} marginX={2} marginY={0} />
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="seed"
+                      value={options.seed}
+                      label={"Seed"}
+                      onChange={handleInputChange}
+                      error={!!seedError}
+                      helperText={seedError}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={SEED_INFO} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="host"
+                      value={options.host}
+                      label={"Host"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Box width={"40px"} marginX={2} marginY={0} />
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="port"
+                      value={options.port}
+                      label={"Port"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Box width={"40px"} marginX={2} marginY={0} />
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="startTime"
+                      value={options.startTime}
+                      label={"Start Time"}
+                      onChange={handleInputChange}
+                      error={!!startTimeError}
+                      helperText={startTimeError}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={START_TIME_INFO} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="timeout"
+                      value={options.timeout}
+                      label={"Timeout"}
+                      onChange={handleInputChange}
+                      error={!!timeoutError}
+                      helperText={timeoutError}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Box width={"40px"} marginX={2} marginY={0} />
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="gasPrice"
+                      value={options.gasPrice}
+                      label={"Gas price"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Box width={"40px"} marginX={2} marginY={0} />
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="dataGasPrice"
+                      value={options.dataGasPrice}
+                      label={"Data Gas Price"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Box width={"40px"} marginX={2} marginY={0} />
+                </Stack>
+                <Box marginTop={"10px !important"}>
+                  <FormHelperText style={{ marginBottom: "2px" }}>
+                    Chain Id
+                  </FormHelperText>
+                  <Stack direction={"row"}>
+                    <Box flex={1}>
+                      <Select
+                        fullWidth
+                        name="chainId"
+                        value={options.chainId}
+                        label={"Chain Id"}
+                        onChange={handleInputChange}
+                        size={"small"}
+                      >
+                        <MenuItem value={"TESTNET"}>TESTNET</MenuItem>
+                        <MenuItem value={"MAINNET"}>MAINNET</MenuItem>
+                      </Select>
+                    </Box>
+                    <Box width={"40px"} marginX={2} marginY={0} />
+                  </Stack>
+                </Box>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="dumpOn"
+                      value={options.dumpOn}
+                      label={"Dump On"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={DUMP_ON_INFO} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="dumpPath"
+                      value={options.dumpPath}
+                      label={"Dump Path"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={DUMP_PATH_INFO} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Box marginTop={"10px !important"}>
+                  <FormHelperText style={{ marginBottom: "2px" }}>
+                    Archive Capacity
+                  </FormHelperText>
+                  <Stack direction={"row"}>
+                    <Box flex={1}>
+                      <Select
+                        fullWidth
+                        name="stateArchiveCapacity"
+                        value={options.stateArchiveCapacity}
+                        label={"Archive Capacity"}
+                        onChange={handleInputChange}
+                        size={"small"}
+                      >
+                        <MenuItem value={"none"}>none</MenuItem>
+                        <MenuItem value={"full"}>full</MenuItem>
+                      </Select>
+                    </Box>
+                    <Tooltip
+                      title={STATE_ARCHIVE_CAPACITY_INFO}
+                      sx={{ marginX: 2 }}
                     >
-                        <option value="">Select the account class</option>
-                        <option value="cairo1">cairo1</option>
-                        <option value="cairo0">cairo0</option>
-                    </select>
-                    </div>
-                    <div className="form-group">
-                    <label htmlFor="accountClassCustom">Account Class Custom:</label>
-                    <InfoIcon content={ACCOUNT_CLASS_CUSTOM_INFO} />
-                    <input
-                            type="text"
-                            name="accountClassCustom"
-                            value={options.accountClassCustom}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="initialBalance">initial Balance:</label>
-                        <input
-                            type="text"
-                            name="initialBalance"
-                            value={options.initialBalance}
-                            onChange={handleInputChange}
-                        />
-                        {initialBalanceError && <div className="error-message">{initialBalanceError}</div>}
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="seed">Seed:</label>
-                        <InfoIcon content={SEED_INFO} />
-                        <input
-                            type="text"
-                            name="seed"
-                            value={options.seed}
-                            onChange={handleInputChange}
-                        />
-                        {seedError && <div className="error-message">{seedError}</div>}
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="host">Host:</label>
-                        <input
-                            type="text"
-                            name="host"
-                            value={options.host}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="port">Port:</label>
-                    <input
-                        type="text"
-                        name="port"
-                        id="port"
-                        value={options.port}
-                        onChange={handleInputChange}
-                    />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="start-time">Start time:</label>
-                        <InfoIcon content={START_TIME_INFO} />
-                        <input
-                            type="text"
-                            name="startTime"
-                            value={options.startTime}
-                            onChange={handleInputChange}
-                        />
-                        {startTimeError && <div className="error-message">{startTimeError}</div>}
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="timeout">Timeout:</label>
-                        <InfoIcon content={START_TIME_INFO} />
-                        <input
-                            type="text"
-                            name="timeout"
-                            value={options.timeout}
-                            onChange={handleInputChange}
-                        />
-                        {timeOutError && <div className="error-message">{timeOutError}</div>}
-
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="gas-price">Gas Price:</label>
-                        <input
-                            type="text"
-                            name="gasPrice"
-                            value={options.gasPrice}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="data-gas-price">Data Gas Price:</label>
-                        <input
-                            type="text"
-                            name="dataGasPrice"
-                            value={options.dataGasPrice}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="chain-id">Chain ID:</label>
-                        <select
-                            name="chainId"
-                            id="chainId"
-                            value={options.chainId}
-                            onChange={handleInputChange}
-                        >
-                            <option value="">Select the chainId</option>
-                            <option value="TESTNET">TESTNET</option>
-                            <option value="MAINNET">MAINNET</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="dump-on">Dump On:</label>
-                        <InfoIcon content={DUMP_ON_INFO} />
-                        <input
-                            type="text"
-                            name="dumpOn"
-                            value={options.dumpOn}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="dump-path">Dump Path:</label>
-                        <InfoIcon content={DUMP_PATH_INFO} />
-                        <input
-                            type="text"
-                            name="dumpPath"
-                            value={options.dumpPath}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="state-archive-capacity">State archive capacity:</label>
-                    <InfoIcon content={STATE_ARCHIVE_CAPACITY_INFO} />
-                    <select
-                            name="stateArchiveCapacity"
-                            id="stateArchiveCapacity"
-                            value={options.stateArchiveCapacity}
-                            onChange={handleInputChange}
-                        >
-                            <option value="">Select the state archive capacity</option>
-                            <option value="none">none</option>
-                            <option value="full">full</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="fork-network">Fork network:</label>
-                            <InfoIcon content={FORK_NETWORK_INFO} />
-                        <input
-                            type="text"
-                            name="forkNetwork"
-                            value={options.forkNetwork}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-
-                    <div className="form-group">
-                    <label htmlFor="fork-block">Fork block:</label>
-                        <InfoIcon content={FORK_BLOCK_INFO} />
-                        <input
-                            type="text"
-                            name="forkBlock"
-                            value={options.forkBlock}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                    <label htmlFor="fork-block">Request Body Size Limit:</label>
-                        <InfoIcon content={REQUEST_BODY_SIZE_LIMIT} />
-                        <input
-                            type="text"
-                            name="requestBodySizeLimit"
-                            value={options.requestBodySizeLimit}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="button-group">
-                        {!generateCommand && (
-                            <Button variant="contained" color="primary" onClick={() => alert(generateDockerCommand(options))} disabled={generalError}>
-                                Generate Docker Command
-                            </Button>
-                        )}
-                        {generateCommand && (
-                            <div style={{ textAlign: 'center' }}>
-                                <Button variant="contained" color="primary" onClick={handleContinue}>
-                                    Continue
-                                </Button>
-                                <p className="error-message">{msg}</p>
-                            </div>
-                        )}
-                    </div>
-                </form>
-            </div>
-        </div>
-    )}
+                      <IconButton>
+                        <InfoOutlined />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Box>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="forkNetwork"
+                      value={options.forkNetwork}
+                      label={"Fork Network"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={FORK_NETWORK_INFO} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="forkBlock"
+                      value={options.forkBlock}
+                      label={"Fork Block"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={FORK_BLOCK_INFO} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Stack direction={"row"}>
+                  <Box flex={1}>
+                    <TextField
+                      fullWidth
+                      name="requestBodySizeLimit"
+                      value={options.requestBodySizeLimit}
+                      label={"Request Body Size Limit"}
+                      onChange={handleInputChange}
+                      variant={"outlined"}
+                      size={"small"}
+                    ></TextField>
+                  </Box>
+                  <Tooltip title={REQUEST_BODY_SIZE_LIMIT} sx={{ marginX: 2 }}>
+                    <IconButton>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </Stack>
+              <Box marginTop={3}>
+                <Container>
+                  {!generateCommand && (
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => alert(generateDockerCommand(options))}
+                      disabled={generalError}
+                    >
+                      Generate Docker Command
+                    </Button>
+                  )}
+                  {generateCommand && (
+                    <Box>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={handleContinue}
+                      >
+                        Continue
+                      </Button>
+                      <p className="error-message">{msg}</p>
+                    </Box>
+                  )}
+                </Container>
+              </Box>
+            </form>
+          </Box>
+        </section>
+      )}
     </>
   );
 };

@@ -1,5 +1,5 @@
 import { RivetAccount } from "../components/contractInteraction/rivetAccount";
-import { RpcProvider } from "starknet";
+import { RpcProvider } from "starknet-6";
 import { assertNever, userEventHandlers } from "../components/contractInteraction/starknetWindowObject";
 import { WindowMessageType } from "../components/contractInteraction/messageActions";
 

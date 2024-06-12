@@ -7,6 +7,7 @@ export const SelectedAccountInfo: React.FC = () => {
     const context = useSharedState();
     const { url, devnetIsAlive, setDevnetIsAlive, setSelectedAccount, selectedAccount, currentBalance, setConfigData, configData } = context;
     const [transactionData, setTransactionData] = useState<any>(null);
+    const [signatureData, setSignatureData] = useState<any>(null);
 
     async function fetchAccountConfig(): Promise<any | null> {
         if (!url) {
@@ -39,8 +40,14 @@ export const SelectedAccountInfo: React.FC = () => {
 
     const handleConfirm = (message: any) => {
         if (selectedAccount) {
-            chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION_RES", data: message });
-            setTransactionData(null);
+            if (transactionData) {
+                chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION_RES", data: message });
+                setTransactionData(null);
+            }
+            else if (signatureData){
+                chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE_RES", data: message });
+                setSignatureData(null);
+            }
             chrome.windows.getCurrent((window) => {
                 if (window && window.id) {
                     chrome.windows.remove(window.id);
@@ -65,7 +72,13 @@ export const SelectedAccountInfo: React.FC = () => {
         if (message.type === "EXECUTE_RIVET_TRANSACTION") {
           setTransactionData(message.data);
         }
-      });
+    });
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message.type === "SIGN_RIVET_MESSAGE") {
+          setSignatureData(message.data);
+        }
+    });
 
     useEffect(() => {
         fetchAccountConfig();
@@ -107,6 +120,15 @@ export const SelectedAccountInfo: React.FC = () => {
                         <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{JSON.stringify(transactionData, null, 2)}</pre>
                         <p  onClick={() => handleConfirm(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Confirm</p>
                         <p  onClick={() => handleDecline(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Decline</p>
+                    </div>
+                </div>
+            )}
+            {signatureData && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh' }}>
+                    <div style={{ marginTop: 'auto', border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
+                        <p>Transaction Details:</p>
+                        <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{JSON.stringify(transactionData, null, 2)}</pre>
+                        <p  onClick={() => handleConfirm(signatureData)} style={{ cursor: 'pointer', color: 'blue' }}>Confirm</p>
                     </div>
                 </div>
             )}
