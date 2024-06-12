@@ -45,17 +45,21 @@ interface MyContextValue {
     selectedAccount: AccountData | null;
     setSelectedAccount: React.Dispatch<React.SetStateAction<AccountData| null>>;
     currentBalance: bigint;
-    setCurrentBalance:React.Dispatch<React.SetStateAction<bigint>>;
+    setCurrentBalance: React.Dispatch<React.SetStateAction<bigint>>;
     commandOptions: Options | null;
-    setCommandOptions:React.Dispatch<React.SetStateAction<Options| null>>;
+    setCommandOptions: React.Dispatch<React.SetStateAction<Options| null>>;
     configData: any | null;
     setConfigData: React.Dispatch<React.SetStateAction<any | null>>;
     urlList: ListOfDevnet[];
     setUrlList: React.Dispatch<React.SetStateAction<ListOfDevnet[]>>;
     selectedComponent: Component | null;
     setSelectedComponent: React.Dispatch<React.SetStateAction<Component | null>>;
+    transactionData: any;
+    setTransactionData: React.Dispatch<React.SetStateAction<any>>;
+    signatureData: any;
+    setSignatureData: React.Dispatch<React.SetStateAction<any>>;
   }
-  
+
 export const Context = createContext<MyContextValue | undefined>(undefined);
 
 export const useSharedState = () => {
@@ -82,6 +86,8 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
     const [ configData, setConfigData ] = useState<any | null>(null);
     const [ urlList, setUrlList ] = useState<ListOfDevnet[]>([]);
     const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
+    const [transactionData, setTransactionData] = useState<any>(null);
+    const [signatureData, setSignatureData] = useState<any>(null);
 
     useEffect(() => {
       chrome.storage.local.get(null, (data) => {
@@ -114,7 +120,7 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
   
 
     return (
-        <Context.Provider value={{ accounts, setAccounts, url, setUrl, devnetIsAlive, setDevnetIsAlive, selectedAccount, setSelectedAccount, currentBalance, setCurrentBalance, commandOptions, setCommandOptions, configData, setConfigData, urlList, setUrlList, selectedComponent, setSelectedComponent }}>
+        <Context.Provider value={{ accounts, setAccounts, url, setUrl, devnetIsAlive, setDevnetIsAlive, selectedAccount, setSelectedAccount, currentBalance, setCurrentBalance, commandOptions, setCommandOptions, configData, setConfigData, urlList, setUrlList, selectedComponent, setSelectedComponent, transactionData, setTransactionData,signatureData, setSignatureData }}>
           {children}
         </Context.Provider>
     );

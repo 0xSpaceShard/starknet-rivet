@@ -8,7 +8,7 @@ import { ChevronRight } from "@mui/icons-material";
 
 export const Popup = () => {
   const context = useSharedState();
-  const { selectedComponent, setSelectedComponent, url } = context;
+  const { selectedComponent, setSelectedComponent, url, setTransactionData, setSignatureData } = context;
 
   const switchComponent = (newSelectedComponent: Component) => {
     if (newSelectedComponent == Component.Accounts && !url) {
@@ -17,6 +17,18 @@ export const Popup = () => {
     }
     setSelectedComponent(newSelectedComponent);
   };
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "EXECUTE_RIVET_TRANSACTION") {
+      setTransactionData(message.data);
+      setSelectedComponent(Component.Accounts)
+    }
+    else if (message.type === "SIGN_RIVET_MESSAGE") {
+      console.log("MESSAGE SIGN")
+      setSignatureData(message.data);
+      setSelectedComponent(Component.Accounts)
+    }
+  });
 
   const ComponentMenu = () => (
     <Stack spacing={0}>
@@ -109,7 +121,7 @@ export const Popup = () => {
       {selectedComponent === Component.DockerRegister && (
         <RegisterRunningDocker />
       )}
-      {selectedComponent === Component.Accounts && url && (
+      {selectedComponent === Component.Accounts && (
         <PredeployedAccounts />
       )}
     </main>

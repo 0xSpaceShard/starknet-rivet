@@ -67,9 +67,6 @@ const DockerCommandGenerator: React.FC = () => {
     setUrl,
     urlList,
     setUrlList,
-    devnetIsAlive,
-    setDevnetIsAlive,
-    commandOptions,
     setCommandOptions,
     setSelectedComponent,
   } = context;

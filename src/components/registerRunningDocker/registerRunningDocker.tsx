@@ -75,10 +75,11 @@ const RegisterRunningDocker: React.FC = () => {
   };
 
   const handleDeleteUrl = (urlToDelete: string) => {
+    console.log("URL to DELETE: ", urlToDelete)
     setUrlList(urlList.filter((item) => item.url !== urlToDelete));
-    if (url === urlToDelete) {
-      setUrl("");
-    }
+    // if (url === urlToDelete) {
+    //   setUrl("");
+    // }
   };
 
   const handleShowAccounts = useCallback(async () => {

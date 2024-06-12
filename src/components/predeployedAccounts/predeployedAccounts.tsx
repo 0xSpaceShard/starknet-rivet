@@ -28,6 +28,8 @@ export const PredeployedAccounts: React.FC = () => {
 
   async function fetchContainerLogs(): Promise<AccountData[] | null> {
     if (!url) {
+      console.log("NO URL")
+      setDevnetIsAlive(false);
       return null;
     }
     try {
@@ -38,6 +40,7 @@ export const PredeployedAccounts: React.FC = () => {
         setUrlList([...urlList, { url, isAlive: true }]);
       }
     } catch (error) {
+      console.log("ERROR ALIVE: ", error)
       setDevnetIsAlive(false);
       return null;
     }
@@ -111,6 +114,7 @@ export const PredeployedAccounts: React.FC = () => {
     if (selectedAccount?.address) {
       context.setSelectedAccount(selectedAccount?.address);
     }
+    setShowselectedAccount(true)
   }, [selectedAccount]);
 
   const handleBack = () => {
@@ -180,21 +184,21 @@ export const PredeployedAccounts: React.FC = () => {
           </Stack>
         </section>
       )}
-       {!devnetIsAlive && (
-          <RegisterRunningDocker />
-        )}
-        {showSelectedAccount && (
-          <section>
-              <div className="account-details">
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
-                          <p onClick={handleBackToList}> Accounts</p>
-                      </div>
-                  </div>
-                  <SelectedAccountInfo />
-              </div>
-          </section>
-        )}
+      {!devnetIsAlive && (
+        <RegisterRunningDocker />
+      )}
+      {showSelectedAccount && (
+        <section>
+            <div className="account-details">
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
+                        <p onClick={handleBackToList}> Accounts</p>
+                    </div>
+                </div>
+                <SelectedAccountInfo />
+            </div>
+        </section>
+      )}
     </>
   );
 };

@@ -130,7 +130,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true;
 
-
     default:
       sendResponse({ error: 'Unknown message type.' });
       return true;

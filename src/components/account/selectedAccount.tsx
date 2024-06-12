@@ -2,16 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useSharedState } from '../context/context';
 import './selectedAccount.css';
 import { Account, hash } from 'starknet';
+import { Box, Button, Container } from '@mui/material';
 
 export const SelectedAccountInfo: React.FC = () => {
     const context = useSharedState();
-    const { url, devnetIsAlive, setDevnetIsAlive, setSelectedAccount, selectedAccount, currentBalance, setConfigData, configData } = context;
-    const [transactionData, setTransactionData] = useState<any>(null);
-    const [signatureData, setSignatureData] = useState<any>(null);
-
+    const { url, devnetIsAlive, setDevnetIsAlive, setSelectedAccount, selectedAccount, currentBalance, setConfigData, configData, transactionData, setTransactionData, signatureData, setSignatureData} = context;
     async function fetchAccountConfig(): Promise<any | null> {
         if (!url) {
-        return null;
+            setDevnetIsAlive(false);
+            return null;
         }
         try {
             await fetch(`http://${url}/is_alive`);
@@ -67,18 +66,6 @@ export const SelectedAccountInfo: React.FC = () => {
             });
         }
     };
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        console.log("HERE HERE HERE: ", message.type)
-        if (message.type === "EXECUTE_RIVET_TRANSACTION") {
-          setTransactionData(message.data);
-        }
-    });
-
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message.type === "SIGN_RIVET_MESSAGE") {
-          setSignatureData(message.data);
-        }
-    });
 
     useEffect(() => {
         fetchAccountConfig();
@@ -114,23 +101,41 @@ export const SelectedAccountInfo: React.FC = () => {
                 </>
             )}
             {transactionData && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh' }}>
-                    <div style={{ marginTop: 'auto', border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
+               <Container>
                         <p>Transaction Details:</p>
-                        <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{JSON.stringify(transactionData, null, 2)}</pre>
-                        <p  onClick={() => handleConfirm(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Confirm</p>
-                        <p  onClick={() => handleDecline(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Decline</p>
-                    </div>
-                </div>
+                        <Box component="pre" style={{ textAlign: 'left', whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '10px', borderRadius: '5px' }}>
+                            {JSON.stringify(transactionData, null, 2)}
+                        </Box>
+                        <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleConfirm(transactionData)}
+                        >
+                        Confirm
+                        </Button>
+                        <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() =>  handleDecline(transactionData)}
+                        >
+                        Decline
+                        </Button>
+                </Container>
             )}
             {signatureData && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh' }}>
-                    <div style={{ marginTop: 'auto', border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
-                        <p>Transaction Details:</p>
-                        <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{JSON.stringify(transactionData, null, 2)}</pre>
-                        <p  onClick={() => handleConfirm(signatureData)} style={{ cursor: 'pointer', color: 'blue' }}>Confirm</p>
-                    </div>
-                </div>
+                <Container>
+                    <p>Signature Details:</p>
+                    <Box component="pre" style={{ textAlign: 'left', whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '10px', borderRadius: '5px' }}>
+                        {JSON.stringify(signatureData, null, 2)}
+                    </Box>
+                    <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => handleConfirm(signatureData)}
+                    >
+                    Confirm
+                    </Button>
+                </Container>
             )}
         </>
     );

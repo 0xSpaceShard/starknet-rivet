@@ -43,8 +43,6 @@ window.addEventListener('message', async function(event) {
       return true; 
     } 
     else if (event.data.type === 'SIGN_RIVET_MESSAGE') {
-      chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE", data: event.data.data }, (response) => {
-      });
       let res = await chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE", data: event.data.data })
       window.postMessage({ ...res, type: res.type }, window.location.origin);
       return true; 
@@ -56,7 +54,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'UPDATE_SELECTED_ACCOUNT') {    
     (async () => {
       try {
-        console.log("HER DISCO")
         if (message.data.data == null) {
           window.postMessage({ type: "DISCONNECT_RIVET_ACCOUNT", data: message.data }, "*");
 
