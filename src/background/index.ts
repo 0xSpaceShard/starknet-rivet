@@ -8,17 +8,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {
     case 'CONNECT_RIVET_DAPP':
       chrome.storage.sync.get(['selectedAccount'], (result) => {
-        const selectedAccount = result.selectedAccount || '';
-        if (selectedAccount === '') {
-          chrome.tabs.create({
-            url: chrome.runtime.getURL('popup.html')
+        chrome.storage.sync.get(['url'], (urlResult) => {
+          const url = urlResult.url || 'http://localhost:5050';
+          
+          const selectedAccount = result.selectedAccount || '';
+          if (selectedAccount === '') {
+            chrome.tabs.create({
+              url: chrome.runtime.getURL('popup.html')
+            });
+          }
+  
+          sendResponse({
+            type: "CONNECT_RIVET_DAPP_RES",
+            data: { data: selectedAccount, url: url }
           });
-        }
-        sendResponse({
-          type: "CONNECT_RIVET_DAPP_RES",
-          data: { data: selectedAccount }
         });
-      });
+      });  
       return true;
 
     case 'EXECUTE_RIVET_TRANSACTION':
@@ -39,7 +44,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     const selectedAccount = result.selectedAccount;
           
                     if (selectedAccount) {
-                      const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
+                      const  resultUrl = await chrome.storage.sync.get(['url']);
+                      const url = resultUrl.url;
+                      const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
                       const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
                      
                       const tx = await acc.execute(message.data.transactions);
@@ -69,6 +76,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       });
       return true;
+    
+      case 'SET_URL':
+        chrome.storage.sync.set({ url: message.url }, () => {
+          chrome.tabs.query({}, function (tabs) {
+            for (let i = 0; i < tabs.length; i++) {
+              chrome.tabs.sendMessage(tabs[i].id as number, { type: 'UPDATE_URL', data: { data: message.url } });
+            }
+          });
+          sendResponse({ success: true });
+        });
+        return true;
 
     case 'SET_SELECTED_ACCOUNT':
       chrome.storage.sync.set({ selectedAccount: message.selectedAccount }, () => {
@@ -99,7 +117,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     const selectedAccount = result.selectedAccount;
 
                     if (selectedAccount) {
-                      const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
+                      const  resultUrl = await chrome.storage.sync.get(['url']);
+                      const url = resultUrl.url;
+                      const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
                       const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
 
                       const signature = await acc.signMessage(responseMessage.data.typedData);

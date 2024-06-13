@@ -28,7 +28,6 @@ export const PredeployedAccounts: React.FC = () => {
 
   async function fetchContainerLogs(): Promise<AccountData[] | null> {
     if (!url) {
-      console.log("NO URL")
       setDevnetIsAlive(false);
       return null;
     }
