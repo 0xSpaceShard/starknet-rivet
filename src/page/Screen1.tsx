@@ -1,34 +1,45 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import './Screen1.css'
+import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
+import DockerCommandGenerator from '../components/dockerCommand/dockerCommand'
+import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker'
+import { Component, useSharedState } from '../components/context/context'
 
 export const Screen1 = () => {
-  const getTime = () => {
-    const date = new Date()
-    const hour = String(date.getHours()).padStart(2, '0')
-    const minute = String(date.getMinutes()).padStart(2, '0')
-    return `${hour}:${minute}`
-  }
+  const context = useSharedState();
+  const { selectedComponent, setSelectedComponent } = context;
 
-  const [time, setTime] = useState(getTime())
-  const link = 'https://github.com/guocaoyi/create-chrome-ext'
-
-  useEffect(() => {
-    let intervalId = setInterval(() => {
-      setTime(getTime())
-    }, 1000)
-
-    return () => {
-      clearInterval(intervalId)
+  window.addEventListener('message', (event) => {
+    if (event.data.type === 'CHANGE_SELECTED_COMPONENT') {
+      const selectedComponent = event.data.selectedComponent; 
+      setSelectedComponent(selectedComponent);
     }
-  }, [])
+  });
 
   return (
     <section>
-      <span></span>
-      <h1>Demo Screen1</h1>
+      {!selectedComponent && (
+        <div>
+              <button
+                  style={{ marginRight: '10px' }}
+                  onClick={() => setSelectedComponent(Component.CommandGenerator)}
+              >
+                  Docker Command Generator
+              </button>
+              <button onClick={() => setSelectedComponent(Component.DockerRegister)}>
+                  Register Running Docker
+              </button>
+        </div>
+      )} 
+      {selectedComponent === Component.CommandGenerator && <DockerCommandGenerator />}
+      {selectedComponent === Component.DockerRegister && <RegisterRunningDocker />}
+      <title>Display Accounts</title>
+      <PredeployedAccounts />
     </section>
   )
 }
 
 export default Screen1
+
+

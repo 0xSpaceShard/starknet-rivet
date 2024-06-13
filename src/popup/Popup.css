@@ -6,7 +6,6 @@
 
 main {
   text-align: center;
-  padding: 1em;
   margin: 0 auto;
 }
 
@@ -36,7 +35,7 @@ h3 {
     outline: none;
 
     width: 3rem;
-    margin: 0 a;
+    margin: 0 auto;
   }
 
   & > label {
