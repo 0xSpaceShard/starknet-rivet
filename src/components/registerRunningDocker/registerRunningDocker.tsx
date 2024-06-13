@@ -61,7 +61,6 @@ const RegisterRunningDocker: React.FC = () => {
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     event.stopPropagation(); // Stop event propagation here
-    console.log("hello!");
     try {
       await fetch(`http://${clickedUrl}/is_alive`);
       setDevnetIsAlive(true);
@@ -83,7 +82,6 @@ const RegisterRunningDocker: React.FC = () => {
   };
 
   const handleDeleteUrl = (urlToDelete: string) => {
-    console.log("URL to DELETE: ", urlToDelete)
     setUrlList(urlList.filter((item) => item.url !== urlToDelete));
     // if (url === urlToDelete) {
     //   setUrl("");

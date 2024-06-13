@@ -24,7 +24,6 @@ export const Popup = () => {
       setSelectedComponent(Component.Accounts)
     }
     else if (message.type === "SIGN_RIVET_MESSAGE") {
-      console.log("MESSAGE SIGN")
       setSignatureData(message.data);
       setSelectedComponent(Component.Accounts)
     }
@@ -111,6 +110,13 @@ export const Popup = () => {
       )}
     </Stack>
   );
+
+
+  const openExtensionInTab = async () => {
+    const url = chrome.runtime.getURL("index.html")
+    const tab = await chrome.tabs.create({ url })
+    return tab
+  }
 
   return (
     <main>

@@ -38,7 +38,6 @@ export const PredeployedAccounts: React.FC = () => {
         setUrlList([...urlList, { url, isAlive: true }]);
       }
     } catch (error) {
-      console.log("ERROR ALIVE: ", error);
       setDevnetIsAlive(false);
       return null;
     }
@@ -61,7 +60,6 @@ export const PredeployedAccounts: React.FC = () => {
       if (data == null) {
         return;
       }
-      console.log(data);
       setAccounts(data);
     } catch (error) {
       console.error("Error fetching container logs:", error);

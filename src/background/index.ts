@@ -6,6 +6,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Message received:", message);
 
   switch (message.type) {
+
+    case 'GET_EXTENSION_ID':
+      sendResponse({ extensionId: chrome.runtime.id });
+      return true;
+
     case 'CONNECT_RIVET_DAPP':
       chrome.storage.sync.get(['selectedAccount'], (result) => {
         chrome.storage.sync.get(['url'], (urlResult) => {
