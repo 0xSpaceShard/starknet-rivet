@@ -65,9 +65,8 @@ const DockerCommandGenerator: React.FC = () => {
   const {
     url,
     setUrl,
-    devnetIsAlive,
-    setDevnetIsAlive,
-    commandOptions,
+    urlList,
+    setUrlList,
     setCommandOptions,
     setSelectedComponent,
   } = context;
@@ -172,8 +171,10 @@ const DockerCommandGenerator: React.FC = () => {
   const generateDockerCommand = (options: Options) => {
     let command = "docker run -p ";
 
-    setUrl(`${options.host}:${options.port}`);
-    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
+    const newUrl = (`${options.host}:${options.port}`);
+    setUrlList([...urlList, { url: newUrl, isAlive: true }]);
+
+    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:6fc953dbe2c76965d713e2d11339440d00d5b616`;
 
     const kebabCaseOptions = convertCamelToKebab(options);
     const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
@@ -195,6 +196,7 @@ const DockerCommandGenerator: React.FC = () => {
         }
       }
     });
+    command += ` --blocks-on-demand`;
 
     setGenerateCommand(true);
     return command;

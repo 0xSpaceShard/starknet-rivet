@@ -1,148 +1,265 @@
-import React, { useEffect, useState } from 'react';
-import { useSharedState } from '../context/context';
-import './selectedAccount.css';
-import { Account, hash } from 'starknet';
+import React, { useCallback, useEffect, useState } from "react";
+import { useSharedState } from "../context/context";
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  Link,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { ChevronLeft } from "@mui/icons-material";
 
-export const SelectedAccountInfo: React.FC = () => {
-    const context = useSharedState();
-    const { url, devnetIsAlive, setDevnetIsAlive, setSelectedAccount, selectedAccount, currentBalance, setConfigData, configData } = context;
-    const [transactionData, setTransactionData] = useState<any>(null);
-    const [signatureData, setSignatureData] = useState<any>(null);
+export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
+  handleBack,
+}) => {
+  const context = useSharedState();
+  const {
+    url,
+    devnetIsAlive,
+    setDevnetIsAlive,
+    selectedAccount,
+    currentBalance,
+    setConfigData,
+    configData,
+    transactionData,
+    setTransactionData,
+    signatureData,
+    setSignatureData,
+  } = context;
 
-    async function fetchAccountConfig(): Promise<any | null> {
-        if (!url) {
-        return null;
-        }
-        try {
-            await fetch(`http://${url}/is_alive`);
-            setDevnetIsAlive(true);
-        } catch (error) {
-            setDevnetIsAlive(false);
-            return null;
-        }
+  const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
 
-        try {
-            const configResponse = await fetch(`http://${url}/config`);
-            const configData = await configResponse.json();
-            setConfigData(configData);
-            return configData;
-        } catch (error) {
-            console.error('Error fetching config logs:', error);
-            return null;
-        }
+  async function fetchAccountConfig(): Promise<any | null> {
+    if (!url) {
+      setDevnetIsAlive(false);
+      return null;
+    }
+    try {
+      await fetch(`http://${url}/is_alive`);
+      setDevnetIsAlive(true);
+    } catch (error) {
+      setDevnetIsAlive(false);
+      return null;
     }
 
-    const handleCopyAddress = () => {
-        if (selectedAccount) {
-            navigator.clipboard.writeText(selectedAccount.address);
+    try {
+      const configResponse = await fetch(`http://${url}/config`);
+      const configData = await configResponse.json();
+      setConfigData(configData);
+      return configData;
+    } catch (error) {
+      console.error("Error fetching config logs:", error);
+      return null;
+    }
+  }
+
+  const handleCopyAddress = () => {
+    if (selectedAccount) {
+      navigator.clipboard.writeText(selectedAccount.address);
+    }
+  };
+
+  const handleConfirm = useCallback(
+    (message: any) => {
+      if (!selectedAccount || (!transactionData && !signatureData)) return;
+
+      const messageType = transactionData
+        ? "EXECUTE_RIVET_TRANSACTION_RES"
+        : "SIGN_RIVET_MESSAGE_RES";
+
+      chrome.runtime.sendMessage({
+        type: messageType,
+        data: message,
+      });
+
+      setTransactionData(null);
+      setSignatureData(null);
+
+      chrome.windows.getCurrent((window) => {
+        if (window && window.id) {
+          chrome.windows.remove(window.id);
         }
-    };
+      });
+    },
+    [selectedAccount, transactionData, signatureData]
+  );
 
-    const handleBackToList = () => {
-        setSelectedAccount(null)
-    };
+  const showTooltip = async () => {
+    setIsCopyTooltipShown(true);
+    setTimeout(() => setIsCopyTooltipShown(false), 3000);
+  };
 
-    const handleConfirm = (message: any) => {
-        if (selectedAccount) {
-            if (transactionData) {
-                chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION_RES", data: message });
-                setTransactionData(null);
-            }
-            else if (signatureData){
-                chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE_RES", data: message });
-                setSignatureData(null);
-            }
-            chrome.windows.getCurrent((window) => {
-                if (window && window.id) {
-                    chrome.windows.remove(window.id);
-                }
-            });
+  const handleDecline = (message: any) => {
+    if (selectedAccount) {
+      chrome.runtime.sendMessage({
+        type: "RIVET_TRANSACTION_FAILED",
+        data: message,
+      });
+      setTransactionData(null);
+      chrome.windows.getCurrent((window) => {
+        if (window && window.id) {
+          chrome.windows.remove(window.id);
         }
-    };
+      });
+    }
+  };
 
-    const handleDecline = (message: any) => {
-        if (selectedAccount) {
-            chrome.runtime.sendMessage({ type: "RIVET_TRANSACTION_FAILED", data: message });
-            setTransactionData(null);
-            chrome.windows.getCurrent((window) => {
-                if (window && window.id) {
-                    chrome.windows.remove(window.id);
-                }
-            });
-        }
-    };
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message.type === "EXECUTE_RIVET_TRANSACTION") {
-          setTransactionData(message.data);
-        }
-    });
+  useEffect(() => {
+    fetchAccountConfig();
+  }, []);
 
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message.type === "SIGN_RIVET_MESSAGE") {
-          setSignatureData(message.data);
-        }
-    });
+  const balanceBigInt = BigInt(currentBalance) / BigInt(10n ** 18n);
+  const balanceString = balanceBigInt.toString();
+  const shortAddress = selectedAccount
+    ? `${selectedAccount.address.slice(0, 12)}...${selectedAccount.address.slice(-12)}`
+    : "";
 
-    useEffect(() => {
-        fetchAccountConfig();
-    }, []);
-
-
-    const balanceBigInt = BigInt(currentBalance) / BigInt(10n ** 18n);
-    const balanceString = balanceBigInt.toString();
-    const shortAddress = selectedAccount ? `${selectedAccount.address.slice(0, 6)}...${selectedAccount.address.slice(-4)}` : '';
-
-    return (
-        <>
-            {devnetIsAlive && selectedAccount && configData && (
-                <>
-                <section>
-                    {selectedAccount.address && (
-                        <div className="account-details">
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <div style={{ position: 'absolute', top: 0, right: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
-                                    <p>Chain ID: {configData.chain_id}</p>
-                                </div>
-                                <p style={{ fontSize: '24px', margin: '20px 0', display: 'flex', alignItems: 'center' }}>
-                                    <img src="./src/assets/eth.png" style={{ width: '30px', height: 'auto', marginRight: '10px' }} />
-                                    {balanceString} ETH
-                                </p>
-
-                                <p style={{ margin: '10px 0', cursor: 'pointer', textDecoration: 'underline' }}
-                                onClick={handleCopyAddress}>{shortAddress}</p>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
-                                <p onClick={handleBackToList}> Accounts</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    )}
-                </section>
-                </>
+  return (
+    <section>
+      <Box paddingBottom={transactionData || signatureData ? 3 : 6}>
+        <Stack
+          direction={"row"}
+          justifyContent={"center"}
+          position={"relative"}
+        >
+          <Box position={"absolute"} top={0} left={0}>
+            <Button
+              size="small"
+              variant={"text"}
+              startIcon={<ChevronLeft />}
+              onClick={handleBack}
+              sx={{
+                padding: "8px 10px",
+                // "&:hover": { backgroundColor: "transparent" },
+              }}
+            >
+              Back
+            </Button>
+          </Box>
+          <Container>
+            <Typography variant="h6" margin={0} marginY={2}>
+              Account Info
+            </Typography>
+          </Container>
+        </Stack>
+        {devnetIsAlive && selectedAccount && configData && (
+          <>
+            <Divider variant="middle" />
+            <Box
+              width={"100%"}
+              display={"flex"}
+              justifyContent={"flex-end"}
+              alignItems={"center"}
+              padding={2}
+            >
+              <Typography variant="caption">
+                Chain ID: {configData.chain_id}
+              </Typography>
+            </Box>
+            {selectedAccount.address && (
+              <Container>
+                <Box padding={4}>
+                  <Typography variant="h5">{balanceString} ETH</Typography>
+                </Box>
+                <Box paddingY={1}>
+                  <Tooltip
+                    PopperProps={{
+                      disablePortal: true,
+                    }}
+                    open={isCopyTooltipShown}
+                    disableFocusListener
+                    disableHoverListener
+                    disableTouchListener
+                    title="Address copied to clipboard"
+                  >
+                    <Link
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCopyAddress();
+                        showTooltip();
+                      }}
+                    >
+                      {shortAddress}
+                    </Link>
+                  </Tooltip>
+                </Box>
+              </Container>
             )}
-            {transactionData && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh' }}>
-                    <div style={{ marginTop: 'auto', border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
-                        <p>Transaction Details:</p>
-                        <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{JSON.stringify(transactionData, null, 2)}</pre>
-                        <p  onClick={() => handleConfirm(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Confirm</p>
-                        <p  onClick={() => handleDecline(transactionData)} style={{ cursor: 'pointer', color: 'blue' }}>Decline</p>
-                    </div>
-                </div>
-            )}
-            {signatureData && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh' }}>
-                    <div style={{ marginTop: 'auto', border: '1px solid white', padding: '5px', borderRadius: '10px' }}>
-                        <p>Transaction Details:</p>
-                        <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{JSON.stringify(transactionData, null, 2)}</pre>
-                        <p  onClick={() => handleConfirm(signatureData)} style={{ cursor: 'pointer', color: 'blue' }}>Confirm</p>
-                    </div>
-                </div>
-            )}
-        </>
-    );
-}
+          </>
+        )}
+        {transactionData && (
+          <>
+            <Divider sx={{ marginY: 3 }} variant="middle" />
+            <Container>
+              <Typography variant="body1">Transaction Details</Typography>
+              <Box
+                component="pre"
+                padding={1}
+                textAlign={"left"}
+                borderRadius={"5px"}
+                whiteSpace={"pre-wrap"}
+                sx={{
+                  wordBreak: "break-word",
+                }}
+              >
+                {JSON.stringify(transactionData, null, 2)}
+              </Box>
+              <Stack justifyContent={"center"} direction={"row"} spacing={3}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => handleConfirm(transactionData)}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleDecline(transactionData)}
+                >
+                  Decline
+                </Button>
+              </Stack>
+            </Container>
+          </>
+        )}
+        {signatureData && (
+          <>
+            <Divider sx={{ marginY: 3 }} variant="middle" />
+            <Container>
+              <Typography variant="body1">Signature Details</Typography>
+              <Box
+                component="pre"
+                padding={1}
+                textAlign={"left"}
+                borderRadius={"5px"}
+                whiteSpace={"pre-wrap"}
+                sx={{
+                  wordBreak: "break-word",
+                }}
+              >
+                {JSON.stringify(signatureData, null, 2)}
+              </Box>
+              <Stack justifyContent={"center"} direction={"row"} spacing={3}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => handleConfirm(signatureData)}
+                >
+                  Confirm
+                </Button>
+              </Stack>
+            </Container>
+          </>
+        )}
+      </Box>
+    </section>
+  );
+};
 
 export default SelectedAccountInfo;

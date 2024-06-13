@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { AccountData, useSharedState } from "../context/context";
-import "./predeployedAccounts.css";
 import SingletonContext from "../../services/contextService";
 import UrlContext from "../../services/urlService";
 import SelectedAccountInfo from "../account/selectedAccount";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import { ChevronLeft } from "@mui/icons-material";
 import { darkTheme } from "../..";
+import RegisterRunningDocker from "../registerRunningDocker/registerRunningDocker";
 
 export const PredeployedAccounts: React.FC = () => {
   const context = useSharedState();
@@ -23,9 +23,11 @@ export const PredeployedAccounts: React.FC = () => {
     urlList,
     setUrlList,
   } = context;
+  const [showSelectedAccount, setShowselectedAccount] = useState(false);
 
   async function fetchContainerLogs(): Promise<AccountData[] | null> {
     if (!url) {
+      setDevnetIsAlive(false);
       return null;
     }
     try {
@@ -36,6 +38,7 @@ export const PredeployedAccounts: React.FC = () => {
         setUrlList([...urlList, { url, isAlive: true }]);
       }
     } catch (error) {
+      console.log("ERROR ALIVE: ", error);
       setDevnetIsAlive(false);
       return null;
     }
@@ -58,6 +61,7 @@ export const PredeployedAccounts: React.FC = () => {
       if (data == null) {
         return;
       }
+      console.log(data);
       setAccounts(data);
     } catch (error) {
       console.error("Error fetching container logs:", error);
@@ -78,16 +82,13 @@ export const PredeployedAccounts: React.FC = () => {
     );
     if (clickedAccount) {
       setSelectedAccount(clickedAccount);
+      setShowselectedAccount(true);
       chrome.runtime.sendMessage({
         type: "SET_SELECTED_ACCOUNT",
         selectedAccount: clickedAccount,
       });
     } else {
-      setSelectedAccount(null);
-      chrome.runtime.sendMessage({
-        type: "SET_SELECTED_ACCOUNT",
-        selectedAccount: null,
-      });
+      setShowselectedAccount(false);
     }
   };
 
@@ -112,6 +113,7 @@ export const PredeployedAccounts: React.FC = () => {
     if (selectedAccount?.address) {
       context.setSelectedAccount(selectedAccount?.address);
     }
+    setShowselectedAccount(true);
   }, [selectedAccount]);
 
   const handleBack = () => {
@@ -119,9 +121,22 @@ export const PredeployedAccounts: React.FC = () => {
     handleAccountClick("");
   };
 
+  const handleBackToList = () => {
+    setShowselectedAccount(false);
+    setSelectedAccount(null);
+  };
+
+  const shortenAddress = (address: string, startCount = 12, endCount = 12) =>
+    `${address.slice(0, startCount)}...${address.slice(-endCount)}`;
+
+  const getBalanceStr = (balance: string) => {
+    const balanceBigInt = BigInt(balance) / BigInt(10n ** 18n);
+    return balanceBigInt.toString();
+  };
+
   return (
     <>
-      {devnetIsAlive && accounts.length > 0 && !selectedAccount && (
+      {devnetIsAlive && accounts.length > 0 && !showSelectedAccount && (
         <section>
           <Stack
             direction={"row"}
@@ -157,32 +172,33 @@ export const PredeployedAccounts: React.FC = () => {
                   sx={{
                     textTransform: "none",
                     paddingY: 1,
-                    paddingX: 0,
+                    paddingX: 2,
                     color: darkTheme.palette.text.secondary,
                   }}
                   onClick={() => handleAccountClick(account.address)}
                 >
                   <Typography
-                    width={"100%"}
-                    paddingX={2}
-                    overflow={"hidden"}
+                    width={"70%"}
                     whiteSpace={"nowrap"}
-                    textOverflow={"ellipsis"}
                   >
-                    {account.address}
+                    {shortenAddress(account.address)}
                   </Typography>
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-end"
+                    width={"30%"}
+                  >
+                    {getBalanceStr(account.initial_balance)} ETH
+                  </Stack>
                 </Button>
               </Box>
             ))}
           </Stack>
         </section>
       )}
-      {selectedAccount && (
-        <section>
-          <div className="account-details">
-            <SelectedAccountInfo />
-          </div>
-        </section>
+      {!devnetIsAlive && <RegisterRunningDocker />}
+      {showSelectedAccount && (
+        <SelectedAccountInfo handleBack={handleBackToList} />
       )}
     </>
   );

@@ -47,7 +47,8 @@ export const starknetWindowObject: StarknetWindowObject = {
       const starknet = window.starknet_rivet as StarknetWindowObject
   
       const { address, private_key } = walletAccount.data
-      const provider = new RpcProvider({ nodeUrl: 'http://127.0.0.1:8081/rpc' });
+      const url  = walletAccount.url;
+      const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
       starknet.provider = provider;
       starknet.account = new RivetAccount(address, private_key, provider);
       starknet.selectedAddress = address
