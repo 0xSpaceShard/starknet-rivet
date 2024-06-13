@@ -92,20 +92,25 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
     setTimeout(() => setIsCopyTooltipShown(false), 3000);
   };
 
-  const handleDecline = (message: any) => {
-    if (selectedAccount) {
-      chrome.runtime.sendMessage({
-        type: "RIVET_TRANSACTION_FAILED",
-        data: message,
-      });
-      setTransactionData(null);
-      chrome.windows.getCurrent((window) => {
-        if (window && window.id) {
-          chrome.windows.remove(window.id);
-        }
-      });
-    }
-  };
+  const handleDecline = useCallback(
+    (message: any) => {
+      if (selectedAccount) {
+        chrome.runtime.sendMessage({
+          type: "RIVET_TRANSACTION_FAILED",
+          data: message,
+        });
+        setTransactionData(null);
+        setSignatureData(null);
+
+        chrome.windows.getCurrent((window) => {
+          if (window && window.id) {
+            chrome.windows.remove(window.id);
+          }
+        });
+      }
+    },
+    [selectedAccount]
+  );
 
   useEffect(() => {
     fetchAccountConfig();
