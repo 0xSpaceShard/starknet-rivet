@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { AccountData, useSharedState } from "../context/context";
-import "./predeployedAccounts.css";
 import SingletonContext from "../../services/contextService";
 import UrlContext from "../../services/urlService";
 import SelectedAccountInfo from "../account/selectedAccount";
@@ -39,7 +38,7 @@ export const PredeployedAccounts: React.FC = () => {
         setUrlList([...urlList, { url, isAlive: true }]);
       }
     } catch (error) {
-      console.log("ERROR ALIVE: ", error)
+      console.log("ERROR ALIVE: ", error);
       setDevnetIsAlive(false);
       return null;
     }
@@ -62,6 +61,7 @@ export const PredeployedAccounts: React.FC = () => {
       if (data == null) {
         return;
       }
+      console.log(data);
       setAccounts(data);
     } catch (error) {
       console.error("Error fetching container logs:", error);
@@ -88,7 +88,7 @@ export const PredeployedAccounts: React.FC = () => {
         selectedAccount: clickedAccount,
       });
     } else {
-      setShowselectedAccount(false)
+      setShowselectedAccount(false);
     }
   };
 
@@ -113,7 +113,7 @@ export const PredeployedAccounts: React.FC = () => {
     if (selectedAccount?.address) {
       context.setSelectedAccount(selectedAccount?.address);
     }
-    setShowselectedAccount(true)
+    setShowselectedAccount(true);
   }, [selectedAccount]);
 
   const handleBack = () => {
@@ -121,9 +121,18 @@ export const PredeployedAccounts: React.FC = () => {
     handleAccountClick("");
   };
 
-  const handleBackToList = () => {    
+  const handleBackToList = () => {
     setShowselectedAccount(false);
-};
+    setSelectedAccount(null);
+  };
+
+  const shortenAddress = (address: string, startCount = 12, endCount = 12) =>
+    `${address.slice(0, startCount)}...${address.slice(-endCount)}`;
+
+  const getBalanceStr = (balance: string) => {
+    const balanceBigInt = BigInt(balance) / BigInt(10n ** 18n);
+    return balanceBigInt.toString();
+  };
 
   return (
     <>
@@ -163,40 +172,33 @@ export const PredeployedAccounts: React.FC = () => {
                   sx={{
                     textTransform: "none",
                     paddingY: 1,
-                    paddingX: 0,
+                    paddingX: 2,
                     color: darkTheme.palette.text.secondary,
                   }}
                   onClick={() => handleAccountClick(account.address)}
                 >
                   <Typography
-                    width={"100%"}
-                    paddingX={2}
-                    overflow={"hidden"}
+                    width={"70%"}
                     whiteSpace={"nowrap"}
-                    textOverflow={"ellipsis"}
                   >
-                    {account.address}
+                    {shortenAddress(account.address)}
                   </Typography>
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-end"
+                    width={"30%"}
+                  >
+                    {getBalanceStr(account.initial_balance)} ETH
+                  </Stack>
                 </Button>
               </Box>
             ))}
           </Stack>
         </section>
       )}
-      {!devnetIsAlive && (
-        <RegisterRunningDocker />
-      )}
+      {!devnetIsAlive && <RegisterRunningDocker />}
       {showSelectedAccount && (
-        <section>
-            <div className="account-details">
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, border: '1px solid white', padding: '5px',  borderRadius: '10px' }}>
-                        <p onClick={handleBackToList}> Accounts</p>
-                    </div>
-                </div>
-                <SelectedAccountInfo />
-            </div>
-        </section>
+        <SelectedAccountInfo handleBack={handleBackToList} />
       )}
     </>
   );
