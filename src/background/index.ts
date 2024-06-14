@@ -1,4 +1,4 @@
-import { Account, RpcProvider, stark } from "starknet-6";
+import { Account, RpcProvider, stark, TransactionType } from "starknet-6";
 
 console.log('background is running');
 
@@ -30,6 +30,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
       });  
       return true;
+
+      case 'SIMULATE_RIVET_TRANSACTION':
+        (async () => {
+          try {
+            const result = await chrome.storage.sync.get(['selectedAccount']);
+            const selectedAccount = result.selectedAccount;
+
+            if (selectedAccount) {
+              const resultUrl = await chrome.storage.sync.get(['url']);
+              const url = resultUrl.url;
+              const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+              const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
+
+              await acc.simulateTransaction([{type: TransactionType.INVOKE, payload: message.data.transactions}]);
+              sendResponse({ type: "SIMULATE_RIVET_TRANSACTION_RES", data: {data: message.data.transactions, error: null }});
+            }
+            else {
+              console.log('No selected account found in storage.');
+              sendResponse({ type: "SIMULATE_RIVET_TRANSACTION_RES", data: { error: 'No selected account found in storage.' } });
+            }
+          }  catch (error) {
+              sendResponse({ type: "SIMULATE_RIVET_TRANSACTION_RES", data: { error: parseErrorMessage(error) } });
+          }
+        })();
+        return true;
 
       case 'EXECUTE_RIVET_TRANSACTION':
         chrome.windows.create({
@@ -78,7 +103,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
               chrome.runtime.onMessage.addListener(onResponseListener);
               setTimeout(() => {
-                chrome.tabs.sendMessage(tabId, { type: "EXECUTE_RIVET_TRANSACTION", data: message.data });
+                chrome.tabs.sendMessage(tabId, { type: "EXECUTE_RIVET_TRANSACTION", data: message.data, error: message?.error });
               }, 1000);
             }
           }
@@ -164,3 +189,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+function parseErrorMessage(error: any): string {
+  try {
+    const errorObject = JSON.parse(error.message);
+    if (errorObject.revert_error) {
+      return errorObject.revert_error;
+    }
+    return error.message;
+  } catch (e) {
+    return error.message;
+  }
+}

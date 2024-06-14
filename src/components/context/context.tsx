@@ -35,6 +35,11 @@ export interface Options {
     requestBodySizeLimit: number,
 }
 
+export interface TransactionInfo {
+  data: any,
+  error?: any
+}
+
 interface MyContextValue {
     accounts: AccountData[];
     setAccounts: React.Dispatch<React.SetStateAction<AccountData[]>>;
@@ -54,8 +59,8 @@ interface MyContextValue {
     setUrlList: React.Dispatch<React.SetStateAction<ListOfDevnet[]>>;
     selectedComponent: Component | null;
     setSelectedComponent: React.Dispatch<React.SetStateAction<Component | null>>;
-    transactionData: any;
-    setTransactionData: React.Dispatch<React.SetStateAction<any>>;
+    transactionData: TransactionInfo | null;
+    setTransactionData: React.Dispatch<React.SetStateAction<TransactionInfo | null>>;
     signatureData: any;
     setSignatureData: React.Dispatch<React.SetStateAction<any>>;
   }

@@ -29,6 +29,20 @@ import {
         abis?: Abi[] | UniversalDetails,
         transactionsDetail?: UniversalDetails
     ): Promise<InvokeFunctionResponse> {
+
+        sendMessage({
+            type: "SIMULATE_RIVET_TRANSACTION",
+            data: {
+            transactions,
+            abis,
+            transactionsDetail,
+            },
+        })
+
+        const responseSimulate = await Promise.race([
+          waitForMessage("SIMULATE_RIVET_TRANSACTION_RES", 10 * 60 * 1000),
+        ])
+
         sendMessage({
             type: "EXECUTE_RIVET_TRANSACTION",
             data: {
@@ -36,6 +50,7 @@ import {
             abis,
             transactionsDetail,
             },
+            error: responseSimulate?.error
         })
 
         const response = await Promise.race([
