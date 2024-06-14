@@ -68,6 +68,7 @@ window.addEventListener('message', async function(event) {
       return true;
     }
   }
+  return true;
 });
 
 // Listener for messages from the background script
