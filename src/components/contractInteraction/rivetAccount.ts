@@ -50,6 +50,7 @@ import {
             abis,
             transactionsDetail,
             },
+            gas_fee: responseSimulate?.gas_fee,
             error: responseSimulate?.error
         })
 

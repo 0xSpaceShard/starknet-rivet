@@ -37,6 +37,7 @@ export interface Options {
 
 export interface TransactionInfo {
   data: any,
+  gas_fee?: string,
   error?: any
 }
 

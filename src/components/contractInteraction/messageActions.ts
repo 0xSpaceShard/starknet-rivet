@@ -22,6 +22,7 @@ export type PreAuthorisationMessage =
   | {
       type: "EXECUTE_RIVET_TRANSACTION"
       data: ExecuteTransactionRequest
+      gas_fee?: string
       error?: any
     }
   | { type: "EXECUTE_RIVET_TRANSACTION_RES"; data: any }
