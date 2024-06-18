@@ -210,22 +210,26 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
                 whiteSpace={"pre-wrap"}
                 sx={{
                   wordBreak: "break-word",
+                  color: transactionData.error ? 'red' : 'inherit',
                 }}
               >
-                {JSON.stringify(transactionData, null, 2)}
+                {transactionData.error
+                ? JSON.stringify(transactionData.error, null, 2)
+                : JSON.stringify(transactionData.data, null, 2)}
               </Box>
               <Stack justifyContent={"center"} direction={"row"} spacing={3}>
                 <Button
                   variant="outlined"
                   color="primary"
-                  onClick={() => handleConfirm(transactionData)}
+                  onClick={() => handleConfirm(transactionData.data)}
+                  disabled={!!transactionData.error}
                 >
                   Confirm
                 </Button>
                 <Button
                   variant="outlined"
                   color="secondary"
-                  onClick={() => handleDecline(transactionData)}
+                  onClick={() => handleDecline(transactionData.data)}
                 >
                   Decline
                 </Button>

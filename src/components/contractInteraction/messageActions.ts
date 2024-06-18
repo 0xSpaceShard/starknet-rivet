@@ -22,11 +22,15 @@ export type PreAuthorisationMessage =
   | {
       type: "EXECUTE_RIVET_TRANSACTION"
       data: ExecuteTransactionRequest
+      error?: any
     }
   | { type: "EXECUTE_RIVET_TRANSACTION_RES"; data: any }
   | {
-      type: "RIVET_TRANSACTION_SUBMITTED"
-      data: { txHash: string; actionHash: string }
+      type: "SIMULATE_RIVET_TRANSACTION"
+      data: ExecuteTransactionRequest
+    }
+  | {
+      type: "SIMULATE_RIVET_TRANSACTION_RES"; data: any
     }
   | {
       type: "RIVET_TRANSACTION_FAILED"

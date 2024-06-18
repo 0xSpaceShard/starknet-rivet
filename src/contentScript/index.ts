@@ -59,13 +59,14 @@ window.addEventListener('message', async function(event) {
         console.error("Unexpected error:", error);
       }
     } else if (event.data.type === 'EXECUTE_RIVET_TRANSACTION') {
-      let res = await chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION", data: event.data.data });
+      let res = await chrome.runtime.sendMessage({ type: "EXECUTE_RIVET_TRANSACTION", data: event.data.data, error: event.data?.error });
       window.postMessage({ ...res, type: res.type }, window.location.origin);
-      return true;
     } else if (event.data.type === 'SIGN_RIVET_MESSAGE') {
       let res = await chrome.runtime.sendMessage({ type: "SIGN_RIVET_MESSAGE", data: event.data.data });
       window.postMessage({ ...res, type: res.type }, window.location.origin);
-      return true;
+    } else if (event.data.type === 'SIMULATE_RIVET_TRANSACTION') {
+      let res = await chrome.runtime.sendMessage({ type: "SIMULATE_RIVET_TRANSACTION", data: event.data.data });
+      window.postMessage({ ...res, type: res.type }, window.location.origin);
     }
   }
   return true;
@@ -112,6 +113,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (message.type === 'SIMULATE_RIVET_TRANSACTION_RES') {   
+    (async () => {
+      try {
+        let res = await chrome.runtime.sendMessage({ type: message.type, data: message.data });
+        window.postMessage({ type: "SIMULATE_RIVET_TRANSACTION_RES", data: res }, "*");
+        sendResponse(res);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Error in handling message:", error.message);
+          sendResponse({ success: false, error: error.message });
+        } else {
+          console.error("An unknown error occurred", error);
+          sendResponse({ success: false, error: "An unknown error occurred" });
+        }
+      }
+    })();
+    return true;
+  }
+
 
   if (message.type === 'SIGN_RIVET_MESSAGE_RES') {   
     (async () => {

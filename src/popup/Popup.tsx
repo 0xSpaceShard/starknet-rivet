@@ -1,4 +1,5 @@
 import "./Popup.css";
+import React from "react";
 import PredeployedAccounts from "../components/predeployedAccounts/predeployedAccounts";
 import DockerCommandGenerator from "../components/dockerCommand/dockerCommand";
 import RegisterRunningDocker from "../components/registerRunningDocker/registerRunningDocker";
@@ -20,7 +21,7 @@ export const Popup = () => {
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "EXECUTE_RIVET_TRANSACTION") {
-      setTransactionData(message.data);
+      setTransactionData({data: message.data, error: message?.error});
       setSelectedComponent(Component.Accounts)
     }
     else if (message.type === "SIGN_RIVET_MESSAGE") {
