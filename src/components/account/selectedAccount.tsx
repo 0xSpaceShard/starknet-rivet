@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronLeft } from "@mui/icons-material";
+import { num } from "starknet-6";
 
 export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
   handleBack,
@@ -31,6 +32,15 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
   } = context;
 
   const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
+
+  const weiToEth = (wei: string): string => {
+    const weiNumber = BigInt(num.hexToDecimalString(wei));
+    const ethNumber = weiNumber / BigInt(10 ** 18);
+    const ethRemainder = weiNumber % BigInt(10 ** 18);
+    const ethString = ethNumber.toString() + "." + ethRemainder.toString().padStart(18, '0');
+
+    return ethString.replace(/\.?0+$/, '');
+  }
 
   async function fetchAccountConfig(): Promise<any | null> {
     if (!url) {
@@ -95,8 +105,12 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
   const handleDecline = useCallback(
     (message: any) => {
       if (selectedAccount) {
+        const messageType = transactionData
+        ? "RIVET_TRANSACTION_FAILED"
+        : "SIGNATURE_RIVET_FAILURE";
+
         chrome.runtime.sendMessage({
-          type: "RIVET_TRANSACTION_FAILED",
+          type: messageType,
           data: message,
         });
         setTransactionData(null);
@@ -217,6 +231,24 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
                 ? JSON.stringify(transactionData.error, null, 2)
                 : JSON.stringify(transactionData.data, null, 2)}
               </Box>
+              {transactionData.gas_fee && (
+                <Box
+                  component="pre"
+                  padding={1}
+                  marginTop={2}
+                  marginBottom={2}
+                  textAlign={"left"}
+                  border={"1px solid grey"}
+                  borderRadius={"5px"}
+                  display={"inline-block"}
+                  sx={{
+                    wordBreak: "break-word",
+                    backgroundColor: 'darkgrey',
+                  }}
+                >
+                  <strong>Estimate Fee:</strong> {weiToEth(transactionData.gas_fee)} ETH
+                </Box>
+              )}
               <Stack justifyContent={"center"} direction={"row"} spacing={3}>
                 <Button
                   variant="outlined"
@@ -261,6 +293,13 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
                   onClick={() => handleConfirm(signatureData)}
                 >
                   Confirm
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleDecline(signatureData.data)}
+                >
+                  Decline
                 </Button>
               </Stack>
             </Container>
