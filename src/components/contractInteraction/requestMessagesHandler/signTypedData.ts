@@ -1,22 +1,19 @@
-import { TypedData } from "starknet-6"
-import { sendMessage, waitForMessage } from "../messageActions"
+import { TypedData } from 'starknet-6';
+import { sendMessage, waitForMessage } from '../messageActions';
 
 export async function signTypedDataHandler(params: TypedData) {
-  const skipDeploy = "skipDeploy" in params ? !!params.skipDeploy : false
+  const skipDeploy = 'skipDeploy' in params ? !!params.skipDeploy : false;
 
-  sendMessage({ type: "SIGN_RIVET_MESSAGE", data: { typedData: params, options: { skipDeploy } } })
-      
+  sendMessage({ type: 'SIGN_RIVET_MESSAGE', data: { typedData: params, options: { skipDeploy } } });
+
   const response = await Promise.race([
-    waitForMessage("SIGN_RIVET_MESSAGE_RES", 10 * 60 * 1000),
-    waitForMessage(
-      "SIGNATURE_RIVET_FAILURE",
-      10 * 60 * 1000,
-    )
-  ])
-  
+    waitForMessage('SIGN_RIVET_MESSAGE_RES', 10 * 60 * 1000),
+    waitForMessage('SIGNATURE_RIVET_FAILURE', 10 * 60 * 1000),
+  ]);
+
   if (response.error) {
-      throw Error("User abort")
+    throw Error('User abort');
   }
 
-  return response.signature
+  return response.signature;
 }

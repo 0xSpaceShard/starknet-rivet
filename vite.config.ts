@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite'
-import { crx } from '@crxjs/vite-plugin'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import { crx } from '@crxjs/vite-plugin';
+import react from '@vitejs/plugin-react';
 import * as path from 'path';
 
-import manifest from './src/manifest'
+import manifest from './src/manifest';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -11,8 +11,11 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         // Ensure webextension-polyfill is properly resolved
-        'webextension-polyfill': path.resolve(__dirname, 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js')
-      }
+        'webextension-polyfill': path.resolve(
+          __dirname,
+          'node_modules/webextension-polyfill/dist/browser-polyfill.min.js'
+        ),
+      },
     },
     build: {
       emptyOutDir: true, // Clears the output directory on build
@@ -33,5 +36,5 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [crx({ manifest }), react()],
-  }
-})
+  };
+});

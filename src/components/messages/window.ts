@@ -1,82 +1,82 @@
-
 interface BaseMessage {
-    id: string
-    meta?: Record<string, unknown>
-  }
-  
-  export interface RequestMessage extends BaseMessage {
-    type: "REQUEST"
-    method: string
-    args: unknown[]
-  }
-  
-  export interface ResponseResultMessage extends BaseMessage {
-    type: "RESPONSE"
-    result: unknown
-  }
-  
-  export interface ResponseErrorMessage extends BaseMessage {
-    type: "RESPONSE"
-    error: unknown
-  }
-  
-  export type ResponseMessage = ResponseResultMessage | ResponseErrorMessage
-  
-  export type Message = RequestMessage | ResponseMessage
-  
-  export type Listener = (message: Message, origin: string) => void
-  
-  export interface Messenger {
-    postMessage(message: Message): void
-    addListener(listener: Listener): void
-    removeListener(listener: Listener): void
-  }
+  id: string;
+  meta?: Record<string, unknown>;
+}
+
+export interface RequestMessage extends BaseMessage {
+  type: 'REQUEST';
+  method: string;
+  args: unknown[];
+}
+
+export interface ResponseResultMessage extends BaseMessage {
+  type: 'RESPONSE';
+  result: unknown;
+}
+
+export interface ResponseErrorMessage extends BaseMessage {
+  type: 'RESPONSE';
+  error: unknown;
+}
+
+export type ResponseMessage = ResponseResultMessage | ResponseErrorMessage;
+
+export type Message = RequestMessage | ResponseMessage;
+
+export type Listener = (message: Message, origin: string) => void;
+
+export interface Messenger {
+  postMessage(message: Message): void;
+  addListener(listener: Listener): void;
+  removeListener(listener: Listener): void;
+}
 
 export class WindowMessenger implements Messenger {
-  private readonly listeners: Set<Listener>
+  private readonly listeners: Set<Listener>;
+
   private readonly origins: {
-    post: string
-    listen: string
-  }
+    post: string;
+    listen: string;
+  };
 
   constructor(
     private readonly window: Pick<
       Window,
-      "postMessage" | "addEventListener" | "removeEventListener"
+      'postMessage' | 'addEventListener' | 'removeEventListener'
     >,
     {
-      post = "*",
-      listen = "*",
+      post = '*',
+      listen = '*',
     }: {
-      post?: string
-      listen?: string
-    } = {},
+      post?: string;
+      listen?: string;
+    } = {}
   ) {
-    this.listeners = new Set()
+    this.listeners = new Set();
     this.origins = {
       post,
       listen,
-    }
+    };
   }
 
   public addListener = (listener: Listener) => {
-    this.listeners.add(listener)
+    this.listeners.add(listener);
     if (this.listeners.size === 1) {
-      this.window.addEventListener("message", this.handleMessage)
+      this.window.addEventListener('message', this.handleMessage);
     }
-  }
+  };
 
   public removeListener = (listener: Listener) => {
-    this.listeners.delete(listener)
+    this.listeners.delete(listener);
     if (this.listeners.size === 0) {
-      this.window.removeEventListener("message", this.handleMessage)
+      this.window.removeEventListener('message', this.handleMessage);
     }
-  }
+  };
 
   public postMessage = (message: Message) => {
-    let parsedMessage = { ...message }
+    let parsedMessage = { ...message };
     // cause data clone exception
-    if ("error" in message) {
+    if ('error' in message) {
       parsedMessage = JSON.parse(
         JSON.stringify(message, function jsonFriendlyErrorReplacer(_, value) {
           if (value instanceof Error) {
@@ -87,22 +87,22 @@ export class WindowMessenger implements Messenger {
               name: value.name,
               message: value.message,
               stack: value.stack,
-            }
+            };
           }
 
-          return value
-        }),
-      )
+          return value;
+        })
+      );
     }
 
-    this.window.postMessage(parsedMessage, this.origins.post)
-  }
+    this.window.postMessage(parsedMessage, this.origins.post);
+  };
 
   private handleMessage = (event: MessageEvent) => {
     this.listeners.forEach((listener) => {
-      if (event.origin === this.origins.listen || this.origins.listen === "*") {
-        listener(event.data, event.origin) // origin need to be from a trusted source
+      if (event.origin === this.origins.listen || this.origins.listen === '*') {
+        listener(event.data, event.origin); // origin need to be from a trusted source
       }
-    })
-  }
+    });
+  };
 }
