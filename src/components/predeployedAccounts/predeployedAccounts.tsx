@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { Box, Button, Container, Stack, Typography } from '@mui/material';
+import { ChevronLeft } from '@mui/icons-material';
 import { AccountData, useSharedState } from '../context/context';
 import SingletonContext from '../../services/contextService';
 import UrlContext from '../../services/urlService';
 import SelectedAccountInfo from '../account/selectedAccount';
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
-import { ChevronLeft } from '@mui/icons-material';
 import { darkTheme } from '../..';
 import RegisterRunningDocker from '../registerRunningDocker/registerRunningDocker';
 
@@ -31,7 +31,7 @@ export const PredeployedAccounts: React.FC = () => {
       return null;
     }
     try {
-      const isAlive = await fetch(`http://${url}/is_alive`);
+      // const isAlive = await fetch(`http://${url}/is_alive`);
       setDevnetIsAlive(true);
       const urlExists = urlList.some((devnet) => devnet.url === url);
       if (!urlExists) {
@@ -43,8 +43,6 @@ export const PredeployedAccounts: React.FC = () => {
     }
 
     try {
-      const configResponse = await fetch(`http://${url}/config`);
-      const configData = await configResponse.json();
       const response = await fetch(`http://${url}/predeployed_accounts`);
       const data: AccountData[] = await response.json();
       return data;
@@ -68,9 +66,9 @@ export const PredeployedAccounts: React.FC = () => {
 
   useEffect(() => {
     fetchDataAndPrintAccounts();
-    const context = UrlContext.getInstance();
+    const contextInstance = UrlContext.getInstance();
     if (url) {
-      context.setSelectedUrl(url);
+      contextInstance.setSelectedUrl(url);
     }
   }, [url, devnetIsAlive]);
 
@@ -105,9 +103,9 @@ export const PredeployedAccounts: React.FC = () => {
       return;
     }
     fetchCurrentBalance(selectedAccount?.address);
-    const context = SingletonContext.getInstance();
+    const contextInstance = SingletonContext.getInstance();
     if (selectedAccount?.address) {
-      context.setSelectedAccount(selectedAccount?.address);
+      contextInstance.setSelectedAccount(selectedAccount?.address);
     }
     setShowselectedAccount(true);
   }, [selectedAccount]);

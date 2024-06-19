@@ -1,24 +1,9 @@
-import { useState, useEffect } from 'react'
-
-import './SidePanel.css'
-import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts'
-import DockerCommandGenerator from '../components/dockerCommand/dockerCommand'
+import './SidePanel.css';
+import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
+import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
 
 export const SidePanel = () => {
-  const [countSync, setCountSync] = useState(0)
-  const link = 'https://github.com/guocaoyi/create-chrome-ext'
-
-  useEffect(() => {
-    chrome.storage.sync.get(['count'], (result) => {
-      setCountSync(result.count || 0)
-    })
-
-    chrome.runtime.onMessage.addListener((request) => {
-      if (request.type === 'COUNT') {
-        setCountSync(request.count || 0)
-      }
-    })
-  }, [])
+  const link = 'https://github.com/guocaoyi/create-chrome-ext';
 
   return (
     <main>
@@ -29,7 +14,7 @@ export const SidePanel = () => {
       </a>
       <PredeployedAccounts />
     </main>
-  )
-}
+  );
+};
 
-export default SidePanel
+export default SidePanel;
