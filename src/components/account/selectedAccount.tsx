@@ -1,21 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useSharedState } from "../context/context";
-import {
-  Box,
-  Button,
-  Container,
-  Divider,
-  Link,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { ChevronLeft } from "@mui/icons-material";
-import { num } from "starknet-6";
-import { useNavigate } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSharedState } from '../context/context';
+import { Box, Button, Container, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
+import { ChevronLeft } from '@mui/icons-material';
+import { num } from 'starknet-6';
+import { useNavigate } from 'react-router-dom';
 
-export const SelectedAccountInfo: React.FC<{}> = ({
-}) => {
+export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   const context = useSharedState();
   const {
     url,
@@ -38,10 +28,10 @@ export const SelectedAccountInfo: React.FC<{}> = ({
     const weiNumber = BigInt(num.hexToDecimalString(wei));
     const ethNumber = weiNumber / BigInt(10 ** 18);
     const ethRemainder = weiNumber % BigInt(10 ** 18);
-    const ethString = ethNumber.toString() + "." + ethRemainder.toString().padStart(18, '0');
+    const ethString = `${ethNumber.toString()}.${ethRemainder.toString().padStart(18, '0')}`;
 
     return ethString.replace(/\.?0+$/, '');
-  }
+  };
 
   async function fetchAccountConfig(): Promise<any | null> {
     if (!url) {
@@ -58,11 +48,11 @@ export const SelectedAccountInfo: React.FC<{}> = ({
 
     try {
       const configResponse = await fetch(`http://${url}/config`);
-      const configData = await configResponse.json();
-      setConfigData(configData);
-      return configData;
+      const data = await configResponse.json();
+      setConfigData(data);
+      return data;
     } catch (error) {
-      console.error("Error fetching config logs:", error);
+      console.error('Error fetching config logs:', error);
       return null;
     }
   }
@@ -78,8 +68,8 @@ export const SelectedAccountInfo: React.FC<{}> = ({
       if (!selectedAccount || (!transactionData && !signatureData)) return;
 
       const messageType = transactionData
-        ? "EXECUTE_RIVET_TRANSACTION_RES"
-        : "SIGN_RIVET_MESSAGE_RES";
+        ? 'EXECUTE_RIVET_TRANSACTION_RES'
+        : 'SIGN_RIVET_MESSAGE_RES';
 
       chrome.runtime.sendMessage({
         type: messageType,
@@ -107,8 +97,8 @@ export const SelectedAccountInfo: React.FC<{}> = ({
     (message: any) => {
       if (selectedAccount) {
         const messageType = transactionData
-        ? "RIVET_TRANSACTION_FAILED"
-        : "SIGNATURE_RIVET_FAILURE";
+          ? 'RIVET_TRANSACTION_FAILED'
+          : 'SIGNATURE_RIVET_FAILURE';
 
         chrome.runtime.sendMessage({
           type: messageType,
@@ -128,7 +118,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({
   );
 
   const handleBack = () => {
-    navigate("/accounts");
+    navigate('/accounts');
   };
 
   useEffect(() => {
@@ -139,24 +129,20 @@ export const SelectedAccountInfo: React.FC<{}> = ({
   const balanceString = balanceBigInt.toString();
   const shortAddress = selectedAccount
     ? `${selectedAccount.address.slice(0, 12)}...${selectedAccount.address.slice(-12)}`
-    : "";
+    : '';
 
   return (
     <section>
       <Box paddingBottom={transactionData || signatureData ? 3 : 6}>
-        <Stack
-          direction={"row"}
-          justifyContent={"center"}
-          position={"relative"}
-        >
-          <Box position={"absolute"} top={0} left={0}>
+        <Stack direction={'row'} justifyContent={'center'} position={'relative'}>
+          <Box position={'absolute'} top={0} left={0}>
             <Button
               size="small"
-              variant={"text"}
+              variant={'text'}
               startIcon={<ChevronLeft />}
               onClick={handleBack}
               sx={{
-                padding: "8px 10px",
+                padding: '8px 10px',
                 // "&:hover": { backgroundColor: "transparent" },
               }}
             >
@@ -173,15 +159,13 @@ export const SelectedAccountInfo: React.FC<{}> = ({
           <>
             <Divider variant="middle" />
             <Box
-              width={"100%"}
-              display={"flex"}
-              justifyContent={"flex-end"}
-              alignItems={"center"}
+              width={'100%'}
+              display={'flex'}
+              justifyContent={'flex-end'}
+              alignItems={'center'}
               padding={2}
             >
-              <Typography variant="caption">
-                Chain ID: {configData.chain_id}
-              </Typography>
+              <Typography variant="caption">Chain ID: {configData.chain_id}</Typography>
             </Box>
             {selectedAccount.address && (
               <Container>
@@ -200,7 +184,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({
                     title="Address copied to clipboard"
                   >
                     <Link
-                      style={{ cursor: "pointer" }}
+                      style={{ cursor: 'pointer' }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -224,17 +208,17 @@ export const SelectedAccountInfo: React.FC<{}> = ({
               <Box
                 component="pre"
                 padding={1}
-                textAlign={"left"}
-                borderRadius={"5px"}
-                whiteSpace={"pre-wrap"}
+                textAlign={'left'}
+                borderRadius={'5px'}
+                whiteSpace={'pre-wrap'}
                 sx={{
-                  wordBreak: "break-word",
+                  wordBreak: 'break-word',
                   color: transactionData.error ? 'red' : 'inherit',
                 }}
               >
                 {transactionData.error
-                ? JSON.stringify(transactionData.error, null, 2)
-                : JSON.stringify(transactionData.data, null, 2)}
+                  ? JSON.stringify(transactionData.error, null, 2)
+                  : JSON.stringify(transactionData.data, null, 2)}
               </Box>
               {transactionData.gas_fee && (
                 <Box
@@ -242,19 +226,19 @@ export const SelectedAccountInfo: React.FC<{}> = ({
                   padding={1}
                   marginTop={2}
                   marginBottom={2}
-                  textAlign={"left"}
-                  border={"1px solid grey"}
-                  borderRadius={"5px"}
-                  display={"inline-block"}
+                  textAlign={'left'}
+                  border={'1px solid grey'}
+                  borderRadius={'5px'}
+                  display={'inline-block'}
                   sx={{
-                    wordBreak: "break-word",
+                    wordBreak: 'break-word',
                     backgroundColor: 'darkgrey',
                   }}
                 >
                   <strong>Estimate Fee:</strong> {weiToEth(transactionData.gas_fee)} ETH
                 </Box>
               )}
-              <Stack justifyContent={"center"} direction={"row"} spacing={3}>
+              <Stack justifyContent={'center'} direction={'row'} spacing={3}>
                 <Button
                   variant="outlined"
                   color="primary"
@@ -282,16 +266,16 @@ export const SelectedAccountInfo: React.FC<{}> = ({
               <Box
                 component="pre"
                 padding={1}
-                textAlign={"left"}
-                borderRadius={"5px"}
-                whiteSpace={"pre-wrap"}
+                textAlign={'left'}
+                borderRadius={'5px'}
+                whiteSpace={'pre-wrap'}
                 sx={{
-                  wordBreak: "break-word",
+                  wordBreak: 'break-word',
                 }}
               >
                 {JSON.stringify(signatureData, null, 2)}
               </Box>
-              <Stack justifyContent={"center"} direction={"row"} spacing={3}>
+              <Stack justifyContent={'center'} direction={'row'} spacing={3}>
                 <Button
                   variant="outlined"
                   color="primary"

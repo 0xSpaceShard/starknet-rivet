@@ -1,8 +1,8 @@
-import { SwitchStarknetChainParameters } from "starknet-types";
+import { SwitchStarknetChainParameters } from 'starknet-types';
 
 export async function switchStarknetChainHandler({
-    chainId,
-  }: SwitchStarknetChainParameters): Promise<boolean> {
-    console.log("switchStarknetChainHandler")
-    return true;
-  }
+  chainId: _chainId,
+}: SwitchStarknetChainParameters): Promise<boolean> {
+  console.log('switchStarknetChainHandler');
+  return true;
+}

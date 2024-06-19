@@ -1,7 +1,5 @@
-import { WatchAssetParameters } from "starknet-types";
+import { WatchAssetParameters } from 'starknet-types';
 
-export async function watchAssetHandler(
-  callParams: WatchAssetParameters,
-): Promise<boolean> {
-  return true
+export async function watchAssetHandler(_callParams: WatchAssetParameters): Promise<boolean> {
+  return true;
 }

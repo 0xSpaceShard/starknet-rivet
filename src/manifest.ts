@@ -1,8 +1,8 @@
-import { defineManifest } from '@crxjs/vite-plugin'
-import packageData from '../package.json'
+import { defineManifest } from '@crxjs/vite-plugin';
+import packageData from '../package.json';
 
-//@ts-ignore
-const isDev = process.env.NODE_ENV == 'development'
+// @ts-ignore
+// const isDev = process.env.NODE_ENV === 'development';
 
 export default defineManifest({
   name: 'starknet_rivet',
@@ -29,7 +29,7 @@ export default defineManifest({
     {
       matches: ['<all_urls>'],
       js: ['build/src/contentScript/index.js', 'build/src/contentScript/inpage.js'],
-      run_at: "document_start",
+      run_at: 'document_start',
       all_frames: true,
     },
   ],
@@ -38,15 +38,24 @@ export default defineManifest({
   },
   web_accessible_resources: [
     {
-      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'contentScript.js', 'inpage.js', 'assets/*' ],
-      matches: ["<all_urls>"],
+      resources: [
+        'img/logo-16.png',
+        'img/logo-34.png',
+        'img/logo-48.png',
+        'img/logo-128.png',
+        'contentScript.js',
+        'inpage.js',
+        'assets/*',
+      ],
+      matches: ['<all_urls>'],
     },
   ],
-  permissions: ['storage', 'activeTab', 'tabs', 'scripting', 'http://localhost:3000/*', 'http://localhost:3000/referral/', 'http://localhost:3000'],
+  host_permissions: ['http://localhost:3000/*'],
+  permissions: ['storage', 'activeTab', 'tabs', 'scripting'],
   chrome_url_overrides: {
     newtab: 'newtab.html',
   },
   content_security_policy: {
-    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   },
-})
+});
