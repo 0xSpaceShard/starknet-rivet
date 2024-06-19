@@ -1,9 +1,4 @@
 import React, { useState, ChangeEvent, useCallback } from 'react';
-import { useSharedState } from '../context/context';
-import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
-import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
-import UrlContext from '../../services/urlService';
-import { darkTheme } from '../..';
 import {
   Box,
   Button,
@@ -21,6 +16,11 @@ import {
   Typography,
 } from '@mui/material';
 import { AddBoxOutlined, ChevronLeft, Delete, List as ListIcon } from '@mui/icons-material';
+import { useSharedState } from '../context/context';
+import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
+import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
+import UrlContext from '../../services/urlService';
+import { darkTheme } from '../..';
 
 const RegisterRunningDocker: React.FC = () => {
   const context = useSharedState();
@@ -32,7 +32,6 @@ const RegisterRunningDocker: React.FC = () => {
     setSelectedComponent,
     url,
     setUrl,
-    setSelectedAccount,
   } = context;
   const [newUrl, setNewUrl] = useState('');
   const [showPredeployedAccs, setShowPredeployedAccs] = useState(false);
@@ -60,8 +59,8 @@ const RegisterRunningDocker: React.FC = () => {
       await fetch(`http://${clickedUrl}/is_alive`);
       setDevnetIsAlive(true);
       setUrl(clickedUrl);
-      const context = UrlContext.getInstance();
-      context.setSelectedUrl(url);
+      const contextInstance = UrlContext.getInstance();
+      contextInstance.setSelectedUrl(url);
       chrome.runtime.sendMessage({
         type: 'SET_URL',
         url: clickedUrl,

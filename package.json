@@ -21,7 +21,7 @@
     "preview": "vite preview",
     "fmt": "prettier --write '**/*.{tsx,ts,json,css,scss,md}'",
     "zip": "npm run build && node src/zip.js",
-    "lint": "eslint . --cache --fix --ext .ts",
+    "lint": "eslint . --cache --fix --ext .ts,.tsx",
     "format": "prettier --log-level log --write \"**/*.{ts,js,md,yml,json}\""
   },
   "dependencies": {
@@ -33,6 +33,7 @@
     "@mui/icons-material": "^5.15.16",
     "@mui/material": "^5.15.16",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@starknet-react/chains": "^0.1.7",
     "@starknet-react/core": "^2.8.2",
     "@types/webextension-polyfill": "^0.10.7",
     "chrome": "^0.1.0",
