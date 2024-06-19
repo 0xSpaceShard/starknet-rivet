@@ -26,6 +26,8 @@ import {
   Delete,
   List as ListIcon,
 } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import SingletonContext from "../../services/contextService";
 
 const RegisterRunningDocker: React.FC = () => {
   const context = useSharedState();
@@ -34,13 +36,12 @@ const RegisterRunningDocker: React.FC = () => {
     urlList,
     devnetIsAlive,
     setDevnetIsAlive,
-    setSelectedComponent,
     url,
     setUrl,
     setSelectedAccount,
   } = context;
   const [newUrl, setNewUrl] = useState("");
-  const [showPredeployedAccs, setShowPredeployedAccs] = useState(false);
+  const navigate = useNavigate();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewUrl(e.target.value);
@@ -78,23 +79,65 @@ const RegisterRunningDocker: React.FC = () => {
   };
 
   const handleBack = () => {
-    setSelectedComponent(null);
+    navigate("/");
   };
 
   const handleDeleteUrl = (urlToDelete: string) => {
-    setUrlList(urlList.filter((item) => item.url !== urlToDelete));
-    // if (url === urlToDelete) {
-    //   setUrl("");
-    // }
+    const updatedUrlList = urlList.filter((item) => item.url !== urlToDelete);
+    setUrlList(updatedUrlList);
+  
+    if (url === urlToDelete) {
+      if (updatedUrlList.length > 0) {
+        const firstAliveUrl = updatedUrlList.find((devnet) => devnet.isAlive);
+        if (firstAliveUrl) {
+          setUrl(firstAliveUrl.url);
+          
+          const urlContext = UrlContext.getInstance();
+          urlContext.setSelectedUrl(firstAliveUrl.url);
+          
+          chrome.runtime.sendMessage({
+            type: "SET_URL",
+            url: firstAliveUrl.url,
+          });
+  
+          const accountContext = SingletonContext.getInstance();
+          accountContext.setSelectedAccount(null);
+          setSelectedAccount(null);
+  
+          chrome.runtime.sendMessage({
+            type: "SET_SELECTED_ACCOUNT",
+            selectedAccount: null,
+          });
+  
+          return;
+        }
+      }
+  
+      setUrl('');
+      setDevnetIsAlive(false);
+  
+      const urlContext = UrlContext.getInstance();
+      urlContext.setSelectedUrl(null);
+  
+      const accountContext = SingletonContext.getInstance();
+      accountContext.setSelectedAccount(null);
+      setSelectedAccount(null);
+  
+      chrome.runtime.sendMessage({
+        type: "SET_SELECTED_ACCOUNT",
+        selectedAccount: null,
+      });
+    }
   };
 
   const handleShowAccounts = useCallback(async () => {
-    setShowPredeployedAccs(devnetIsAlive);
+    if (devnetIsAlive) {
+      navigate("/accounts")
+    }
   }, [devnetIsAlive]);
 
   return (
     <>
-      {!showPredeployedAccs ? (
         <section>
           <Stack
             direction={"row"}
@@ -200,9 +243,6 @@ const RegisterRunningDocker: React.FC = () => {
             </List>
           </Box>
         </section>
-      ) : (
-        <PredeployedAccounts />
-      )}
     </>
   );
 };

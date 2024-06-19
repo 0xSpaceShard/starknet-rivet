@@ -28,6 +28,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronLeft, InfoOutlined } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const DockerCommandGenerator: React.FC = () => {
   const context = useSharedState();
@@ -60,15 +61,14 @@ const DockerCommandGenerator: React.FC = () => {
   const [timeoutError, setTimeOutError] = useState("");
   const [generalError, setGeneralError] = useState(false);
   const [generateCommand, setGenerateCommand] = useState(false);
-  const [toContinue, setToContinue] = useState(false);
-  const [msg, setMsg] = useState("");
+  const navigate = useNavigate();
+
   const {
     url,
     setUrl,
     urlList,
     setUrlList,
     setCommandOptions,
-    setSelectedComponent,
   } = context;
 
   const isValidInitialBalance = (value: string): boolean => {
@@ -202,17 +202,13 @@ const DockerCommandGenerator: React.FC = () => {
     return command;
   };
 
-  const handleContinue = async () => {
-    setSelectedComponent(null);
-  };
 
   const handleBack = () => {
-    setSelectedComponent(null);
+    navigate("/");
   };
 
   return (
     <>
-      {!toContinue && (
         <section>
           <Stack
             direction={"row"}
@@ -599,11 +595,10 @@ const DockerCommandGenerator: React.FC = () => {
                       <Button
                         variant="outlined"
                         color="primary"
-                        onClick={handleContinue}
+                        onClick={handleBack}
                       >
                         Continue
                       </Button>
-                      <p className="error-message">{msg}</p>
                     </Box>
                   )}
                 </Container>
@@ -611,7 +606,6 @@ const DockerCommandGenerator: React.FC = () => {
             </form>
           </Box>
         </section>
-      )}
     </>
   );
 };

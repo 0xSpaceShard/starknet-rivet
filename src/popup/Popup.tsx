@@ -6,6 +6,8 @@ import RegisterRunningDocker from "../components/registerRunningDocker/registerR
 import { Component, useSharedState } from "../components/context/context";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { ChevronRight } from "@mui/icons-material";
+import { Route, Routes, Link as RouteLink, useLocation, Navigate  } from "react-router-dom";
+import SelectedAccountInfo from "../components/account/selectedAccount";
 
 export const Popup = () => {
   const context = useSharedState();
@@ -18,15 +20,12 @@ export const Popup = () => {
     }
     setSelectedComponent(newSelectedComponent);
   };
-
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "EXECUTE_RIVET_TRANSACTION") {
       setTransactionData({data: message.data, gas_fee: message?.gas_fee, error: message?.error});
-      setSelectedComponent(Component.Accounts)
     }
     else if (message.type === "SIGN_RIVET_MESSAGE") {
       setSignatureData(message.data);
-      setSelectedComponent(Component.Accounts)
     }
   });
 
@@ -35,6 +34,8 @@ export const Popup = () => {
       <Box>
         <Button
           variant="text"
+          component={RouteLink}
+          to="/command-generator"
           fullWidth
           sx={{
             height: 48,
@@ -57,6 +58,8 @@ export const Popup = () => {
       <Box>
         <Button
           variant="text"
+          component={RouteLink}
+          to="/docker-register"
           fullWidth
           sx={{
             height: 48,
@@ -80,6 +83,8 @@ export const Popup = () => {
         <Box>
           <Button
             variant="text"
+            component={RouteLink}
+            to="/accounts"
             fullWidth
             sx={{
               height: 48,
@@ -112,25 +117,15 @@ export const Popup = () => {
     </Stack>
   );
 
-
-  const openExtensionInTab = async () => {
-    const url = chrome.runtime.getURL("index.html")
-    const tab = await chrome.tabs.create({ url })
-    return tab
-  }
-
   return (
     <main>
-      {!selectedComponent && <ComponentMenu />}
-      {selectedComponent === Component.CommandGenerator && (
-        <DockerCommandGenerator />
-      )}
-      {selectedComponent === Component.DockerRegister && (
-        <RegisterRunningDocker />
-      )}
-      {selectedComponent === Component.Accounts && (
-        <PredeployedAccounts />
-      )}
+      <Routes>
+        <Route path="/" element={<ComponentMenu />} />
+        <Route path="/command-generator" element={<DockerCommandGenerator />} />
+        <Route path="/docker-register" element={<RegisterRunningDocker />} />
+        <Route path="/accounts" element={<PredeployedAccounts />} />
+        <Route path="/accounts/:address" element={<SelectedAccountInfo />} />
+      </Routes>
     </main>
   );
 };

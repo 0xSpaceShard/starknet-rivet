@@ -12,9 +12,9 @@ import {
 } from "@mui/material";
 import { ChevronLeft } from "@mui/icons-material";
 import { num } from "starknet-6";
+import { useNavigate } from "react-router-dom";
 
-export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
-  handleBack,
+export const SelectedAccountInfo: React.FC<{}> = ({
 }) => {
   const context = useSharedState();
   const {
@@ -32,6 +32,7 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
   } = context;
 
   const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
+  const navigate = useNavigate();
 
   const weiToEth = (wei: string): string => {
     const weiNumber = BigInt(num.hexToDecimalString(wei));
@@ -125,6 +126,10 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({
     },
     [selectedAccount]
   );
+
+  const handleBack = () => {
+    navigate("/accounts");
+  };
 
   useEffect(() => {
     fetchAccountConfig();
