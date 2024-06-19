@@ -1,3 +1,3 @@
 export async function getPermissionsHandler() {
-    return (true)
-  }
+  return true;
+}

@@ -1,0 +1,39 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": ["airbnb-base", "airbnb-typescript/base", "prettier", "plugin:prettier/recommended"],
+  "ignorePatterns": [
+    "vite.config.ts"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module",
+    "project": "./tsconfig.eslint.json"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "class-methods-use-this": 0,
+    "import/prefer-default-export": 0,
+    "@typescript-eslint/no-redeclare": 0,
+    "@typescript-eslint/naming-convention": 0,
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-use-before-define": ["error", "nofunc"],
+    "func-names": 0,
+    "no-console": ["warn", { "allow": ["info", "warn", "error"] }],
+    "import/extensions": ["error", { "ts": "never", "json": "always" }]
+  }
+}

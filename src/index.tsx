@@ -1,8 +1,8 @@
-import React, { ReactNode } from "react";
-import { MyContextProvider } from "./components/context/context";
-import { StarknetProvider } from "./components/starknet/starknet-provider";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+import React, { ReactNode } from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { MyContextProvider } from './components/context/context';
+import { StarknetProvider } from './components/starknet/starknet-provider';
 
 interface SharedComponentProps {
   children: ReactNode;
@@ -10,16 +10,14 @@ interface SharedComponentProps {
 
 export const darkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: 'dark',
     background: {
-      default: "#1A1A1A",
+      default: '#1A1A1A',
     },
   },
 });
 
-export const SharedComponent: React.FC<SharedComponentProps> = ({
-  children,
-}) => (
+export const SharedComponent: React.FC<SharedComponentProps> = ({ children }) => (
   <MyContextProvider>
     <StarknetProvider>
       <React.StrictMode>
