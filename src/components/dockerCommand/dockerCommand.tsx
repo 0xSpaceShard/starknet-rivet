@@ -13,6 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, InfoOutlined } from '@mui/icons-material';
 import {
   ACCOUNT_INFO,
@@ -60,6 +61,8 @@ const DockerCommandGenerator: React.FC = () => {
   const [timeoutError, setTimeOutError] = useState('');
   const [generalError, setGeneralError] = useState(false);
   const [generateCommand, setGenerateCommand] = useState(false);
+  const navigate = useNavigate();
+
   const { urlList, setUrlList, setCommandOptions, setSelectedComponent } = context;
 
   const isValidInitialBalance = (value: string): boolean => {
@@ -179,12 +182,8 @@ const DockerCommandGenerator: React.FC = () => {
     return command;
   }, [options]);
 
-  const handleContinue = async () => {
-    setSelectedComponent(null);
-  };
-
   const handleBack = () => {
-    setSelectedComponent(null);
+    navigate('/');
   };
 
   return (
@@ -226,7 +225,6 @@ const DockerCommandGenerator: React.FC = () => {
                     variant={'outlined'}
                     size={'small'}
                     helperText={
-                      // eslint-disable-next-line no-nested-ternary
                       !options?.accounts
                         ? 'Field is required'
                         : options.accounts > 255
@@ -549,7 +547,6 @@ const DockerCommandGenerator: React.FC = () => {
                   <Button
                     variant="outlined"
                     color="primary"
-                    // eslint-disable-next-line no-alert
                     onClick={() => alert(generateDockerCommand())}
                     disabled={generalError}
                   >
@@ -558,7 +555,7 @@ const DockerCommandGenerator: React.FC = () => {
                 )}
                 {generateCommand && (
                   <Box>
-                    <Button variant="outlined" color="primary" onClick={handleContinue}>
+                    <Button variant="outlined" color="primary" onClick={handleBack}>
                       Continue
                     </Button>
                   </Box>

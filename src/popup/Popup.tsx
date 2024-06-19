@@ -1,16 +1,17 @@
 import './Popup.css';
 import React from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
-import { ChevronRight } from '@mui/icons-material';
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
 import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker';
 import { Component, useSharedState } from '../components/context/context';
+import { Box, Button, Stack, Typography } from '@mui/material';
+import { ChevronRight } from '@mui/icons-material';
+import { Route, Routes, Link as RouteLink, useLocation, Navigate } from 'react-router-dom';
+import SelectedAccountInfo from '../components/account/selectedAccount';
 
 export const Popup = () => {
   const context = useSharedState();
-  const { selectedComponent, setSelectedComponent, url, setTransactionData, setSignatureData } =
-    context;
+  const { setSelectedComponent, url, setTransactionData, setSignatureData } = context;
 
   const switchComponent = (newSelectedComponent: Component) => {
     if (newSelectedComponent === Component.Accounts && !url) {
@@ -19,14 +20,11 @@ export const Popup = () => {
     }
     setSelectedComponent(newSelectedComponent);
   };
-
-  chrome.runtime.onMessage.addListener((message) => {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'EXECUTE_RIVET_TRANSACTION') {
       setTransactionData({ data: message.data, gas_fee: message?.gas_fee, error: message?.error });
-      setSelectedComponent(Component.Accounts);
     } else if (message.type === 'SIGN_RIVET_MESSAGE') {
       setSignatureData(message.data);
-      setSelectedComponent(Component.Accounts);
     }
   });
 
@@ -35,6 +33,8 @@ export const Popup = () => {
       <Box>
         <Button
           variant="text"
+          component={RouteLink}
+          to="/command-generator"
           fullWidth
           sx={{
             height: 48,
@@ -52,6 +52,8 @@ export const Popup = () => {
       <Box>
         <Button
           variant="text"
+          component={RouteLink}
+          to="/docker-register"
           fullWidth
           sx={{
             height: 48,
@@ -70,6 +72,8 @@ export const Popup = () => {
         <Box>
           <Button
             variant="text"
+            component={RouteLink}
+            to="/accounts"
             fullWidth
             sx={{
               height: 48,
@@ -94,10 +98,13 @@ export const Popup = () => {
 
   return (
     <main>
-      {!selectedComponent && <ComponentMenu />}
-      {selectedComponent === Component.CommandGenerator && <DockerCommandGenerator />}
-      {selectedComponent === Component.DockerRegister && <RegisterRunningDocker />}
-      {selectedComponent === Component.Accounts && <PredeployedAccounts />}
+      <Routes>
+        <Route path="/" element={<ComponentMenu />} />
+        <Route path="/command-generator" element={<DockerCommandGenerator />} />
+        <Route path="/docker-register" element={<RegisterRunningDocker />} />
+        <Route path="/accounts" element={<PredeployedAccounts />} />
+        <Route path="/accounts/:address" element={<SelectedAccountInfo />} />
+      </Routes>
     </main>
   );
 };

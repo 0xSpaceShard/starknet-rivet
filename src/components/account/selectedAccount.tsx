@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useSharedState } from '../context/context';
 import { Box, Button, Container, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
 import { num } from 'starknet-6';
-import { useSharedState } from '../context/context';
+import { useNavigate } from 'react-router-dom';
 
-export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({ handleBack }) => {
+export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   const context = useSharedState();
   const {
     url,
@@ -21,6 +22,7 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({ hand
   } = context;
 
   const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
+  const navigate = useNavigate();
 
   const weiToEth = (wei: string): string => {
     const weiNumber = BigInt(num.hexToDecimalString(wei));
@@ -114,6 +116,10 @@ export const SelectedAccountInfo: React.FC<{ handleBack: () => void }> = ({ hand
     },
     [selectedAccount]
   );
+
+  const handleBack = () => {
+    navigate('/accounts');
+  };
 
   useEffect(() => {
     fetchAccountConfig();
