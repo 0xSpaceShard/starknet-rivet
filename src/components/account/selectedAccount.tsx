@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSharedState } from '../context/context';
 import { Box, Button, Container, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
-import { ChevronLeft } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { num } from 'starknet-6';
 import { useNavigate } from 'react-router-dom';
+import { Settings } from '../settings/settings';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   const context = useSharedState();
@@ -121,6 +123,13 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
     navigate('/accounts');
   };
 
+  const handleSettings = () => {
+    console.log('PATH HERE');
+
+    console.log(`$/accounts/${selectedAccount?.address}/settings`);
+    navigate(`/accounts/${selectedAccount?.address}/settings`);
+  };
+
   useEffect(() => {
     fetchAccountConfig();
   }, []);
@@ -154,6 +163,20 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
               Account Info
             </Typography>
           </Container>
+          <Box position={'absolute'} top={0} right={0}>
+            <Tooltip title="Settings">
+              <Button
+                size="small"
+                variant={'text'}
+                startIcon={<SettingsIcon />}
+                onClick={handleSettings}
+                sx={{
+                  padding: '8px 10px',
+                  // "&:hover": { backgroundColor: "transparent" },
+                }}
+              ></Button>
+            </Tooltip>
+          </Box>
         </Stack>
         {devnetIsAlive && selectedAccount && configData && (
           <>

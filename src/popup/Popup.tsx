@@ -8,6 +8,9 @@ import { Box, Button, Stack, Typography } from '@mui/material';
 import { ChevronRight } from '@mui/icons-material';
 import { Route, Routes, Link as RouteLink, useLocation, Navigate } from 'react-router-dom';
 import SelectedAccountInfo from '../components/account/selectedAccount';
+import { Settings } from '../components/settings/settings';
+import { DeploySmartContract } from '../components/settings/deploySmartContract';
+import { DeclareSmartContract } from '../components/settings/declareSmartContract';
 
 export const Popup = () => {
   const context = useSharedState();
@@ -104,6 +107,9 @@ export const Popup = () => {
         <Route path="/docker-register" element={<RegisterRunningDocker />} />
         <Route path="/accounts" element={<PredeployedAccounts />} />
         <Route path="/accounts/:address" element={<SelectedAccountInfo />} />
+        <Route path="/accounts/:address/settings" element={<Settings />} />
+        <Route path="/accounts/:address/declare" element={<DeclareSmartContract />} />
+        <Route path="/accounts/:address/deploy" element={<DeploySmartContract />} />
       </Routes>
     </main>
   );
