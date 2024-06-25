@@ -36,7 +36,6 @@ async function loadModules() {
         (window as any)[name] = starknetWindowObject;
       }
     });
-    console.log('end attached: ', window.starknet_rivet);
   }
 
   window.addEventListener('load', attach);

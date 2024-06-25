@@ -124,9 +124,6 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   };
 
   const handleSettings = () => {
-    console.log('PATH HERE');
-
-    console.log(`$/accounts/${selectedAccount?.address}/settings`);
     navigate(`/accounts/${selectedAccount?.address}/settings`);
   };
 

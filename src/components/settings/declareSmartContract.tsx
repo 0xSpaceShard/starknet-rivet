@@ -1,4 +1,4 @@
-import { Button, Stack, styled, Typography } from '@mui/material';
+import { Box, Button, Link, Stack, styled, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
@@ -9,6 +9,10 @@ import { CompiledSierraCasm, hash, isSierra } from 'starknet-6';
 export const DeclareSmartContract: React.FC = () => {
   const [selectedSierraFile, setSelectedSierraFile] = useState<object | null>(null);
   const [selectedCasmFile, setSelectedCasmFile] = useState<CompiledSierraCasm | null>(null);
+  const [declareClassHash, setDeclareClassHash] = useState('');
+  const [errorDeclaration, setErrorDeclaration] = useState('');
+  const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
+
   const [selectedSierraFileName, setSelectedSierraFileName] = useState(
     'Click to upload sierra JSON'
   );
@@ -35,7 +39,6 @@ export const DeclareSmartContract: React.FC = () => {
               const isValidSierra = isSierra(json);
               setCheckSierra(isValidSierra);
               setSelectedSierraFile(json);
-              console.log('JSON: ', json);
             } catch (error) {
               console.error('Error parsing JSON file:', error);
             }
@@ -61,7 +64,6 @@ export const DeclareSmartContract: React.FC = () => {
             try {
               const json = JSON.parse(content);
               setSelectedCasmFile(json);
-              console.log('JSON: ', json);
             } catch (error) {
               console.error('Error parsing JSON file:', error);
             }
@@ -87,9 +89,26 @@ export const DeclareSmartContract: React.FC = () => {
         },
       },
       (response) => {
-        console.log('Response from background:', response);
+        if (response?.error) {
+          setDeclareClassHash('');
+          setErrorDeclaration(response.error);
+        } else {
+          setErrorDeclaration('');
+          setDeclareClassHash(response.class_hash);
+        }
       }
     );
+  };
+
+  const handleCopyAddress = () => {
+    if (declareClassHash) {
+      navigator.clipboard.writeText(declareClassHash);
+    }
+  };
+
+  const showTooltip = async () => {
+    setIsCopyTooltipShown(true);
+    setTimeout(() => setIsCopyTooltipShown(false), 3000);
   };
 
   const VisuallyHiddenInput = styled('input')({
@@ -103,6 +122,10 @@ export const DeclareSmartContract: React.FC = () => {
     whiteSpace: 'nowrap',
     width: 1,
   });
+
+  const shortAddress = declareClassHash
+    ? `${declareClassHash.slice(0, 12)}...${declareClassHash.slice(-12)}`
+    : '';
 
   return (
     <section>
@@ -146,6 +169,39 @@ export const DeclareSmartContract: React.FC = () => {
           >
             Declare
           </Button>
+
+          {errorDeclaration && (
+            <Typography color="error" variant="body2">
+              {errorDeclaration}
+            </Typography>
+          )}
+
+          {!errorDeclaration && declareClassHash && (
+            <Box paddingY={1}>
+              <Tooltip
+                PopperProps={{
+                  disablePortal: true,
+                }}
+                open={isCopyTooltipShown}
+                disableFocusListener
+                disableHoverListener
+                disableTouchListener
+                title="Address copied to clipboard"
+              >
+                <Link
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleCopyAddress();
+                    showTooltip();
+                  }}
+                >
+                  {shortAddress}
+                </Link>
+              </Tooltip>
+            </Box>
+          )}
         </Stack>
       </PageHeader>
     </section>
