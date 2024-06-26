@@ -1,17 +1,18 @@
-import { Box, Button, Link, Stack, styled, Tooltip, Typography } from '@mui/material';
+import { Button, Stack, styled, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PageHeader from './pageHeader';
 import { CompiledSierraCasm, hash, isSierra } from 'starknet-6';
+import { shortenAddress } from '../utils/utils';
+import AddressTooltip from '../addressTooltip/addressTooltip';
 
 export const DeclareSmartContract: React.FC = () => {
   const [selectedSierraFile, setSelectedSierraFile] = useState<object | null>(null);
   const [selectedCasmFile, setSelectedCasmFile] = useState<CompiledSierraCasm | null>(null);
   const [declareClassHash, setDeclareClassHash] = useState('');
   const [errorDeclaration, setErrorDeclaration] = useState('');
-  const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
 
   const [selectedSierraFileName, setSelectedSierraFileName] = useState(
     'Click to upload sierra JSON'
@@ -100,17 +101,6 @@ export const DeclareSmartContract: React.FC = () => {
     );
   };
 
-  const handleCopyAddress = () => {
-    if (declareClassHash) {
-      navigator.clipboard.writeText(declareClassHash);
-    }
-  };
-
-  const showTooltip = async () => {
-    setIsCopyTooltipShown(true);
-    setTimeout(() => setIsCopyTooltipShown(false), 3000);
-  };
-
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -123,9 +113,7 @@ export const DeclareSmartContract: React.FC = () => {
     width: 1,
   });
 
-  const shortAddress = declareClassHash
-    ? `${declareClassHash.slice(0, 12)}...${declareClassHash.slice(-12)}`
-    : '';
+  const shortAddress = shortenAddress(declareClassHash);
 
   return (
     <section>
@@ -176,32 +164,7 @@ export const DeclareSmartContract: React.FC = () => {
             </Typography>
           )}
 
-          {!errorDeclaration && declareClassHash && (
-            <Box paddingY={1}>
-              <Tooltip
-                PopperProps={{
-                  disablePortal: true,
-                }}
-                open={isCopyTooltipShown}
-                disableFocusListener
-                disableHoverListener
-                disableTouchListener
-                title="Address copied to clipboard"
-              >
-                <Link
-                  style={{ cursor: 'pointer' }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleCopyAddress();
-                    showTooltip();
-                  }}
-                >
-                  {shortAddress}
-                </Link>
-              </Tooltip>
-            </Box>
-          )}
+          {!errorDeclaration && declareClassHash && <AddressTooltip address={declareClassHash} />}
         </Stack>
       </PageHeader>
     </section>

@@ -1,9 +1,11 @@
-import { Box, Button, Link, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import { Button, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import { Abi, RpcProvider } from 'starknet-6';
+import { shortenAddress } from '../utils/utils';
+import AddressTooltip from '../addressTooltip/addressTooltip';
 
 interface AbiEntry {
   name?: string;
@@ -21,7 +23,6 @@ export const DeploySmartContract: React.FC = () => {
   const [selectedClassHash, setSelectedClassHash] = useState('');
   const [deployedContractAddress, setDeployedContractAddress] = useState('');
   const [errorDeployment, setErrorDeployment] = useState('');
-  const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
 
   const [constructorParams, setConstructorParams] = useState<ConstructorParam[]>([]);
 
@@ -111,26 +112,13 @@ export const DeploySmartContract: React.FC = () => {
     }
   }
 
-  const handleCopyAddress = () => {
-    if (deployedContractAddress) {
-      navigator.clipboard.writeText(deployedContractAddress);
-    }
-  };
-
-  const showTooltip = async () => {
-    setIsCopyTooltipShown(true);
-    setTimeout(() => setIsCopyTooltipShown(false), 3000);
-  };
-
   useEffect(() => {
     if (selectedClassHash) {
       fetchAbiAndParseConstructor(selectedClassHash);
     }
   }, [selectedClassHash]);
 
-  const shortAddress = deployedContractAddress
-    ? `${deployedContractAddress.slice(0, 12)}...${deployedContractAddress.slice(-12)}`
-    : '';
+  const shortAddress = shortenAddress(deployedContractAddress);
 
   return (
     <section>
@@ -173,30 +161,7 @@ export const DeploySmartContract: React.FC = () => {
           )}
 
           {!errorDeployment && deployedContractAddress && (
-            <Box paddingY={1}>
-              <Tooltip
-                PopperProps={{
-                  disablePortal: true,
-                }}
-                open={isCopyTooltipShown}
-                disableFocusListener
-                disableHoverListener
-                disableTouchListener
-                title="Address copied to clipboard"
-              >
-                <Link
-                  style={{ cursor: 'pointer' }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleCopyAddress();
-                    showTooltip();
-                  }}
-                >
-                  {shortAddress}
-                </Link>
-              </Tooltip>
-            </Box>
+            <AddressTooltip address={deployedContractAddress} />
           )}
         </Stack>
       </PageHeader>
