@@ -5,7 +5,6 @@ import { useSharedState } from '../context/context';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PageHeader from './pageHeader';
 import { CompiledSierraCasm, hash, isSierra } from 'starknet-6';
-import { shortenAddress } from '../utils/utils';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 
 export const DeclareSmartContract: React.FC = () => {
@@ -112,8 +111,6 @@ export const DeclareSmartContract: React.FC = () => {
     whiteSpace: 'nowrap',
     width: 1,
   });
-
-  const shortAddress = shortenAddress(declareClassHash);
 
   return (
     <section>

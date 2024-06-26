@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import { Abi, RpcProvider } from 'starknet-6';
-import { shortenAddress } from '../utils/utils';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 
 interface AbiEntry {
@@ -117,8 +116,6 @@ export const DeploySmartContract: React.FC = () => {
       fetchAbiAndParseConstructor(selectedClassHash);
     }
   }, [selectedClassHash]);
-
-  const shortAddress = shortenAddress(deployedContractAddress);
 
   return (
     <section>
