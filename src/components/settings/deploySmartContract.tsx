@@ -1,45 +1,10 @@
-import { Button, Stack, TextField } from '@mui/material';
+import { Button, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
-import {
-  Abi,
-  provider,
-  RpcProvider,
-  CairoUint256,
-  CairoUint512,
-  cairo,
-  encode,
-  num,
-  shortString,
-  BigNumberish,
-  AllowArray,
-} from 'starknet-6';
-
-function parseBaseTypes(type: string, val: BigNumberish): AllowArray<string> {
-  switch (true) {
-    case CairoUint256.isAbiType(type):
-      return new CairoUint256(val).toApiRequest();
-    case CairoUint512.isAbiType(type):
-      return new CairoUint512(val).toApiRequest();
-    case cairo.isTypeBytes31(type):
-      return shortString.encodeShortString(val.toString());
-    case cairo.isTypeSecp256k1Point(type): {
-      const pubKeyETH = encode.removeHexPrefix(num.toHex(val)).padStart(128, '0');
-      const pubKeyETHy = cairo.uint256(encode.addHexPrefix(pubKeyETH.slice(-64)));
-      const pubKeyETHx = cairo.uint256(encode.addHexPrefix(pubKeyETH.slice(0, -64)));
-      return [
-        cairo.felt(pubKeyETHx.low),
-        cairo.felt(pubKeyETHx.high),
-        cairo.felt(pubKeyETHy.low),
-        cairo.felt(pubKeyETHy.high),
-      ];
-    }
-    default:
-      return cairo.felt(val);
-  }
-}
+import { Abi, RpcProvider } from 'starknet-6';
+import AddressTooltip from '../addressTooltip/addressTooltip';
 
 interface AbiEntry {
   name?: string;
@@ -55,6 +20,9 @@ interface ConstructorParam {
 
 export const DeploySmartContract: React.FC = () => {
   const [selectedClassHash, setSelectedClassHash] = useState('');
+  const [deployedContractAddress, setDeployedContractAddress] = useState('');
+  const [errorDeployment, setErrorDeployment] = useState('');
+
   const [constructorParams, setConstructorParams] = useState<ConstructorParam[]>([]);
 
   const navigate = useNavigate();
@@ -82,9 +50,6 @@ export const DeploySmartContract: React.FC = () => {
   const handleDeploy = () => {
     const paramsObject = constructParamsObject(constructorParams);
 
-    console.group('DEPLOY: ', selectedClassHash);
-    console.group('CALL DATA: ', constructorParams);
-
     chrome.runtime.sendMessage(
       {
         type: 'RIVET_DEPLOY_CONTRACT',
@@ -94,7 +59,13 @@ export const DeploySmartContract: React.FC = () => {
         },
       },
       (response) => {
-        console.log('Response from background:', response);
+        if (response?.error) {
+          setDeployedContractAddress('');
+          setErrorDeployment(response.error);
+        } else {
+          setErrorDeployment('');
+          setDeployedContractAddress(response.contract_address);
+        }
       }
     );
   };
@@ -111,9 +82,7 @@ export const DeploySmartContract: React.FC = () => {
   const constructParamsObject = (params: ConstructorParam[]): { [key: string]: any } => {
     const paramsObj: { [key: string]: any } = {};
     params.forEach((param) => {
-      const value = parseBaseTypes(param.type, param.value);
-
-      paramsObj[param.name] = value;
+      paramsObj[param.name] = param.value;
     });
     return paramsObj;
   };
@@ -122,7 +91,7 @@ export const DeploySmartContract: React.FC = () => {
     if (!constructor || !constructor.inputs) {
       return [];
     }
-    return constructor.inputs.map((input) => ({ name: input.name, type: input.type, value: 0 }));
+    return constructor.inputs.map((input) => ({ name: input.name, type: input.type, value: '' }));
   }
 
   async function fetchAbiAndParseConstructor(selectedClassHash: string) {
@@ -182,6 +151,15 @@ export const DeploySmartContract: React.FC = () => {
           >
             Deploy
           </Button>
+          {errorDeployment && (
+            <Typography color="error" variant="body2">
+              {errorDeployment}
+            </Typography>
+          )}
+
+          {!errorDeployment && deployedContractAddress && (
+            <AddressTooltip address={deployedContractAddress} />
+          )}
         </Stack>
       </PageHeader>
     </section>

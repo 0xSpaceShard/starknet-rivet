@@ -548,17 +548,15 @@ async function declareContract(message: any, sendResponse: (response?: any) => v
     const provider = await getProvider();
     const acc = await getSelectedAccount();
 
-    const nonce = await provider.getNonceForAddress(acc.address);
-    console.log('NONCE: ', nonce);
-    const declareResponse = await acc.declare(
-      { contract: message.data.sierra, casm: message.data.casm },
-      { nonce: 3 }
-    );
-    console.log('Test Contract declared with classHash =', declareResponse.class_hash);
-    await provider.waitForTransaction(declareResponse.transaction_hash);
+    const declareResponse = await acc.declareIfNot({
+      contract: message.data.sierra,
+      casm: message.data.casm,
+    });
+    if (declareResponse.transaction_hash != '') {
+      await provider.waitForTransaction(declareResponse.transaction_hash);
+    }
     sendResponse({ class_hash: declareResponse.class_hash });
   } catch (error) {
-    console.log('ERROR BACKGROUND: ', error);
     sendResponse({ error: parseErrorMessage(error) });
   }
 }
@@ -570,26 +568,21 @@ async function deployContract(message: any, sendResponse: (response?: any) => vo
     const acc = await getSelectedAccount();
 
     const { abi: testAbi } = await provider.getClassByHash(message.data.class_hash);
-
     const contractCallData: CallData = new CallData(testAbi);
-
-    console.log('CALLDATA BACK: ', message.data.call_data);
 
     const ConstructorCallData: Calldata = contractCallData.compile(
       'constructor',
       message.data.call_data
     );
-    console.log('CALDAT: ', ConstructorCallData);
+
     const deployResponse = await acc.deployContract({
       classHash: message.data.class_hash,
       constructorCalldata: ConstructorCallData,
     });
-    console.log('Test Contract deploy on tx =', deployResponse.transaction_hash);
     await provider.waitForTransaction(deployResponse.transaction_hash);
 
     sendResponse({ contract_address: deployResponse.contract_address });
   } catch (error) {
-    console.log('ERROR BACKGROUND: ', error);
     sendResponse({ error: parseErrorMessage(error) });
   }
 }

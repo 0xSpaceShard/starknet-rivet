@@ -5,10 +5,14 @@ import { useSharedState } from '../context/context';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PageHeader from './pageHeader';
 import { CompiledSierraCasm, hash, isSierra } from 'starknet-6';
+import AddressTooltip from '../addressTooltip/addressTooltip';
 
 export const DeclareSmartContract: React.FC = () => {
   const [selectedSierraFile, setSelectedSierraFile] = useState<object | null>(null);
   const [selectedCasmFile, setSelectedCasmFile] = useState<CompiledSierraCasm | null>(null);
+  const [declareClassHash, setDeclareClassHash] = useState('');
+  const [errorDeclaration, setErrorDeclaration] = useState('');
+
   const [selectedSierraFileName, setSelectedSierraFileName] = useState(
     'Click to upload sierra JSON'
   );
@@ -85,7 +89,13 @@ export const DeclareSmartContract: React.FC = () => {
         },
       },
       (response) => {
-        console.log('Response from background:', response);
+        if (response?.error) {
+          setDeclareClassHash('');
+          setErrorDeclaration(response.error);
+        } else {
+          setErrorDeclaration('');
+          setDeclareClassHash(response.class_hash);
+        }
       }
     );
   };
@@ -144,6 +154,14 @@ export const DeclareSmartContract: React.FC = () => {
           >
             Declare
           </Button>
+
+          {errorDeclaration && (
+            <Typography color="error" variant="body2">
+              {errorDeclaration}
+            </Typography>
+          )}
+
+          {!errorDeclaration && declareClassHash && <AddressTooltip address={declareClassHash} />}
         </Stack>
       </PageHeader>
     </section>

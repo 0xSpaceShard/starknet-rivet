@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSharedState } from '../context/context';
 import { Box, Button, Container, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { ChevronLeft } from '@mui/icons-material';
 import { num } from 'starknet-6';
 import { useNavigate } from 'react-router-dom';
-import { Settings } from '../settings/settings';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { handleCopyAddress, shortenAddress } from '../utils/utils';
+import { useCopyTooltip } from '../hooks/hooks';
 
 export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   const context = useSharedState();
@@ -23,7 +24,8 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
     setSignatureData,
   } = context;
 
-  const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(false);
+  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+
   const navigate = useNavigate();
 
   const weiToEth = (wei: string): string => {
@@ -59,12 +61,6 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
     }
   }
 
-  const handleCopyAddress = () => {
-    if (selectedAccount) {
-      navigator.clipboard.writeText(selectedAccount.address);
-    }
-  };
-
   const handleConfirm = useCallback(
     (message: any) => {
       if (!selectedAccount || (!transactionData && !signatureData)) return;
@@ -89,11 +85,6 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
     },
     [selectedAccount, transactionData, signatureData]
   );
-
-  const showTooltip = async () => {
-    setIsCopyTooltipShown(true);
-    setTimeout(() => setIsCopyTooltipShown(false), 3000);
-  };
 
   const handleDecline = useCallback(
     (message: any) => {
@@ -133,9 +124,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
 
   const balanceBigInt = BigInt(currentBalance) / BigInt(10n ** 18n);
   const balanceString = balanceBigInt.toString();
-  const shortAddress = selectedAccount
-    ? `${selectedAccount.address.slice(0, 12)}...${selectedAccount.address.slice(-12)}`
-    : '';
+  const shortAddress = shortenAddress(selectedAccount?.address);
 
   return (
     <section>
@@ -208,7 +197,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleCopyAddress();
+                        handleCopyAddress(selectedAccount?.address);
                         showTooltip();
                       }}
                     >
