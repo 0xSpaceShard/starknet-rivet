@@ -28,7 +28,12 @@ import {
   FORK_BLOCK_INFO,
   REQUEST_BODY_SIZE_LIMIT,
 } from '../../info';
-import { Options, useSharedState } from '../context/context';
+import { useSharedState } from '../context/context';
+import {
+  sendMessageToSetBlockInterval,
+  sendMessageToSetUrlList,
+} from '../utils/sendMessageBackground';
+import { Options } from '../context/interfaces';
 
 const DockerCommandGenerator: React.FC = () => {
   const context = useSharedState();
@@ -63,7 +68,7 @@ const DockerCommandGenerator: React.FC = () => {
   const [generateCommand, setGenerateCommand] = useState(false);
   const navigate = useNavigate();
 
-  const { urlList, setUrlList, setCommandOptions, setSelectedComponent } = context;
+  const { setUrlList, setCommandOptions, blockInterval, setBlockInterval } = context;
 
   const isValidInitialBalance = (value: string): boolean => {
     const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
@@ -152,7 +157,11 @@ const DockerCommandGenerator: React.FC = () => {
     let command = 'docker run -p ';
 
     const newUrl = `${options.host}:${options.port}`;
-    setUrlList([...urlList, { url: newUrl, isAlive: true }]);
+    sendMessageToSetUrlList({ url: newUrl, isAlive: true }, setUrlList);
+
+    const newMap = new Map(blockInterval);
+    newMap.set(newUrl, 300000);
+    sendMessageToSetBlockInterval(newUrl, 300000, setBlockInterval);
 
     command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:6fc953dbe2c76965d713e2d11339440d00d5b616`;
 

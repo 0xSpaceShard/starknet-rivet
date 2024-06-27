@@ -1,16 +1,23 @@
-import {
-  Account,
-  cairo,
-  Calldata,
-  CallData,
-  RpcProvider,
-  stark,
-  TransactionType,
-  Uint256,
-} from 'starknet-6';
+import { Account, Calldata, CallData, RpcProvider, stark, TransactionType } from 'starknet-6';
 
 console.log('Background script is running');
 
+export interface ListOfDevnet {
+  url: string;
+  isAlive: boolean;
+}
+
+// Listener for Chrome alarms
+chrome.alarms.onAlarm.addListener((alarm) => {
+  const alarmName = alarm.name;
+
+  if (alarmName.startsWith('mintBlockAlarm_')) {
+    const url = alarmName.replace('mintBlockAlarm_', '');
+    mintBlock(url);
+  }
+});
+
+// Listener for incoming messages from the extension popup or content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Message received:', message);
 
@@ -33,6 +40,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'SET_URL':
       setUrl(message, sendResponse);
+      break;
+
+    case 'SET_NEW_URL_TO_LIST':
+      setNewUrlToList(message, sendResponse);
+      break;
+
+    case 'GET_URL_LIST':
+      getUrlList(sendResponse);
+      break;
+
+    case 'REMOVE_URL_FROM_LIST':
+      removeUrlFromList(message, sendResponse);
+      break;
+
+    case 'UPDATE_URL_FROM_LIST':
+      updateUrlFromList(message, sendResponse);
+      break;
+
+    case 'SET_URL_BLOCK_INTERVAL':
+      setUrlBlockInterval(message, sendResponse);
+      break;
+
+    case 'REMOVE_URL_BLOCK_INTERVAL':
+      removeUrlBlockInterval(message, sendResponse);
       break;
 
     case 'SET_SELECTED_ACCOUNT':
@@ -58,6 +89,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
+// Function to connect Rivet Dapp
 async function connectRivetDapp(sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -116,6 +148,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
   }
 }
 
+// Function to simulate a Rivet transaction
 async function simulateRivetTransaction(message: any, sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -150,6 +183,7 @@ async function simulateRivetTransaction(message: any, sendResponse: (response?: 
   }
 }
 
+// Function to execute a Rivet transaction
 async function executeRivetTransaction(message: any, sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -185,7 +219,9 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
 
                   const tx = await acc.execute(message.data.transactions);
                   await provider.waitForTransaction(tx.transaction_hash);
-
+                  for (let index = 0; index <= 3; index++) {
+                    await provider.getBlockTransactionsTraces(index);
+                  }
                   sendResponse({ type: 'EXECUTE_RIVET_TRANSACTION_RES', data: tx });
                 }
                 if (responseMessage.type === 'RIVET_TRANSACTION_FAILED') {
@@ -223,6 +259,7 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
   }
 }
 
+// Function to set URL in Chrome storage
 async function setUrl(message: any, sendResponse: (response?: any) => void) {
   try {
     await chrome.storage.sync.set({ url: message.url });
@@ -232,6 +269,103 @@ async function setUrl(message: any, sendResponse: (response?: any) => void) {
   }
 }
 
+// Function to save a new URL to the list of devnet networks in Chrome storage
+async function saveUrlListToSyncStorage(urlList: ListOfDevnet[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({ ['urlList']: urlList }, () => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve();
+    });
+  });
+}
+
+// Function to set a new devnet URL to URL list
+async function setNewUrlToList(message: any, sendResponse: (response?: any) => void) {
+  try {
+    await addUrlToUrlListInSyncStorage(message.item);
+    const updatedUrlList = await getUrlListFromSyncStorage();
+    sendResponse({ success: true, urlList: updatedUrlList });
+  } catch (error) {
+    sendResponse({ success: false });
+  }
+  return true;
+}
+
+// Function to set a new devnet URL to URL list
+async function removeUrlFromList(message: any, sendResponse: (response?: any) => void) {
+  try {
+    await removeUrlFromListInSyncStorage(message.url);
+    const updatedUrlList = await getUrlListFromSyncStorage();
+    sendResponse({ success: true, urlList: updatedUrlList });
+  } catch (error) {
+    sendResponse({ success: false });
+  }
+  return true;
+}
+
+// Function to update devnet URL from URL list
+async function updateUrlFromList(message: any, sendResponse: (response?: any) => void) {
+  try {
+    await updateUrlFromListInSyncStorage(message.url, message.isAlive);
+    const updatedUrlList = await getUrlListFromSyncStorage();
+    sendResponse({ success: true, urlList: updatedUrlList });
+  } catch (error) {
+    sendResponse({ success: false });
+  }
+  return true;
+}
+
+// Function to get devnet URL list
+async function getUrlList(sendResponse: (response?: any) => void) {
+  try {
+    const updatedUrlList = await getUrlListFromSyncStorage();
+    sendResponse({ success: true, urlList: updatedUrlList });
+  } catch (error) {
+    sendResponse({ success: false });
+  }
+  return true;
+}
+
+// Function to retrieve devnet URL list from Chrome sync storage
+async function getUrlListFromSyncStorage(): Promise<ListOfDevnet[]> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['urlList'], (result) => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve(result['urlList'] || []);
+    });
+  });
+}
+
+// Function to add a new devnet URL to URL list in Chrome sync storage
+async function addUrlToUrlListInSyncStorage(item: ListOfDevnet): Promise<void> {
+  const urlList = await getUrlListFromSyncStorage();
+  if (!urlList.some((devnet) => devnet.url === item.url)) {
+    urlList.push(item);
+    await saveUrlListToSyncStorage(urlList);
+  }
+}
+
+// Function to remove devnet URL from URL list in Chrome sync storage
+async function removeUrlFromListInSyncStorage(url: string): Promise<void> {
+  const urlList = await getUrlListFromSyncStorage();
+  const newUrlList = urlList.filter((devnet) => devnet.url !== url);
+  await saveUrlListToSyncStorage(newUrlList);
+}
+
+// Function to update devnet URL from URL list in Chrome sync storage
+async function updateUrlFromListInSyncStorage(url: string, isAlive: boolean): Promise<void> {
+  const urlList = await getUrlListFromSyncStorage();
+  const newUrlList = urlList.map((devnet) =>
+    devnet.url === url ? { ...devnet, isAlive } : devnet
+  );
+  await saveUrlListToSyncStorage(newUrlList);
+}
+
+// Function to set selected account address
 async function setSelectedAccount(message: any, sendResponse: (response?: any) => void) {
   try {
     await chrome.storage.sync.set({ selectedAccount: message.selectedAccount });
@@ -248,6 +382,105 @@ async function setSelectedAccount(message: any, sendResponse: (response?: any) =
   }
 }
 
+// Function to set block interval for  a given URL
+async function setUrlBlockInterval(message: any, sendResponse: (response?: any) => void) {
+  try {
+    await addIntervalToBlockIntervalInSyncStorage(message.url, message.interval);
+    const updatedBlockInterval = await getBlockIntervalFromSyncStorage();
+    const blockIntervalObject = Object.fromEntries(updatedBlockInterval);
+    await createMintBlockAlarm(message.url, message.interval);
+    sendResponse({ success: true, blockInterval: blockIntervalObject });
+  } catch (error) {
+    sendResponse({ success: false });
+  }
+  return true;
+}
+
+// Function to remove block interval for a given URL
+async function removeUrlBlockInterval(message: any, sendResponse: (response?: any) => void) {
+  try {
+    await removeIntervalFromBlockIntervalInSyncStorage(message.url);
+    const updatedBlockInterval = await getBlockIntervalFromSyncStorage();
+    const blockIntervalObject = Object.fromEntries(updatedBlockInterval);
+    sendResponse({ success: true, blockInterval: blockIntervalObject });
+  } catch (error) {
+    sendResponse({ success: false });
+  }
+  return true;
+}
+
+// Function to save block interval object to Chrome sync storage
+async function saveBlockIntervalToSyncStorage(blockInterval: Map<string, number>): Promise<void> {
+  const obj = Object.fromEntries(blockInterval);
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({ blockInterval: obj }, () => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve();
+    });
+  });
+}
+
+// Function to get block interval object from Chrome sync storage
+async function getBlockIntervalFromSyncStorage(): Promise<Map<string, number>> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['blockInterval'], (result) => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      const obj = result['blockInterval'] || {};
+      const blockInterval = new Map<string, number>(Object.entries(obj));
+
+      resolve(blockInterval);
+    });
+  });
+}
+
+// Function to add a new block interval for a given URL in Chrome sync storage and start alarm for this interval
+async function addIntervalToBlockIntervalInSyncStorage(
+  url: string,
+  interval: number
+): Promise<void> {
+  const blockInterval = await getBlockIntervalFromSyncStorage();
+  blockInterval.set(url, interval);
+  await saveBlockIntervalToSyncStorage(blockInterval);
+}
+
+// Function to remove block interval for a given URL in Chrome sync storage and stop alarm for this interval
+async function removeIntervalFromBlockIntervalInSyncStorage(url: string): Promise<void> {
+  try {
+    const blockInterval = await getBlockIntervalFromSyncStorage();
+
+    chrome.alarms.get(`mintBlockAlarm_${url}`, async (existingAlarm) => {
+      if (existingAlarm) {
+        chrome.alarms.clear(`mintBlockAlarm_${url}`, (cleared) => {
+          if (cleared) {
+            blockInterval.delete(url);
+            saveBlockIntervalToSyncStorage(blockInterval)
+              .then(() => {})
+              .catch((error) => {
+                console.error(`Failed to save updated block interval: ${error}`);
+              });
+          } else {
+            console.error(`Failed to clear alarm for URL: ${url}`);
+          }
+        });
+      } else {
+        blockInterval.delete(url);
+        saveBlockIntervalToSyncStorage(blockInterval)
+          .then(() => {})
+          .catch((error) => {
+            console.error(`Failed to save updated block interval: ${error}`);
+          });
+      }
+    });
+  } catch (error) {
+    console.error('Error removing interval from block interval:', error);
+  }
+}
+
+// Function to sign a Rivet message
 async function signRivetMessage(message: any, sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -309,6 +542,7 @@ async function signRivetMessage(message: any, sendResponse: (response?: any) => 
   }
 }
 
+// Function to declare a Contract from Rivet extension
 async function declareContract(message: any, sendResponse: (response?: any) => void) {
   try {
     const provider = await getProvider();
@@ -329,6 +563,7 @@ async function declareContract(message: any, sendResponse: (response?: any) => v
   }
 }
 
+// Function to deploy a Contract from Rivet extension
 async function deployContract(message: any, sendResponse: (response?: any) => void) {
   try {
     const provider = await getProvider();
@@ -338,9 +573,12 @@ async function deployContract(message: any, sendResponse: (response?: any) => vo
 
     const contractCallData: CallData = new CallData(testAbi);
 
-    console.log("CALLDATA BACK: ", message.data.call_data)
+    console.log('CALLDATA BACK: ', message.data.call_data);
 
-    const ConstructorCallData: Calldata = contractCallData.compile('constructor', message.data.call_data);
+    const ConstructorCallData: Calldata = contractCallData.compile(
+      'constructor',
+      message.data.call_data
+    );
     console.log('CALDAT: ', ConstructorCallData);
     const deployResponse = await acc.deployContract({
       classHash: message.data.class_hash,
@@ -356,6 +594,7 @@ async function deployContract(message: any, sendResponse: (response?: any) => vo
   }
 }
 
+// Utils functions Parse error message
 function parseErrorMessage(error: any): string {
   try {
     const errorObject = JSON.parse(error.message);
@@ -367,7 +606,7 @@ function parseErrorMessage(error: any): string {
     return error.message;
   }
 }
-
+// Utils functions to get selected account from Chrome sync storage
 async function getSelectedAccount(): Promise<Account> {
   const result = await chrome.storage.sync.get(['selectedAccount']);
   const selectedAccount = result.selectedAccount;
@@ -376,9 +615,71 @@ async function getSelectedAccount(): Promise<Account> {
   return new Account(provider, selectedAccount.address, selectedAccount.private_key);
 }
 
+// Utils functions to get provider from Chrome sync storage
 async function getProvider(): Promise<RpcProvider> {
   const resultUrl = await chrome.storage.sync.get(['url']);
   const url = resultUrl.url;
 
   return new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+}
+
+// Function to create an alarm (or clear and creat new one) that will mint block at this interval
+async function createMintBlockAlarm(url: string, interval: number): Promise<void> {
+  try {
+    const blockInterval = await getBlockIntervalFromSyncStorage();
+
+    chrome.alarms.get(`mintBlockAlarm_${url}`, async (existingAlarm) => {
+      if (existingAlarm) {
+        // If an alarm exists, clear it
+        chrome.alarms.clear(`mintBlockAlarm_${url}`, (cleared) => {
+          if (cleared) {
+            // Update block interval and set new alarm
+            updateAndSetAlarm(url, interval, blockInterval);
+          } else {
+            console.error(`Failed to clear existing alarm for URL: ${url}`);
+          }
+        });
+      } else {
+        // If no existing alarm, directly set the new alarm
+        updateAndSetAlarm(url, interval, blockInterval);
+      }
+    });
+  } catch (error) {
+    console.error('Error create Mint Block Alarm:', error);
+  }
+}
+
+// Function that update the alarm to mint block for the new interval
+function updateAndSetAlarm(
+  url: string,
+  interval: number,
+  blockInterval: Map<string, number>
+): void {
+  blockInterval.set(url, interval);
+  chrome.storage.local.set({ blockInterval: Object.fromEntries(blockInterval) }, () => {
+    // Create a new alarm with the specified URL and interval
+    const intervalMinutes = interval / (1000 * 60);
+    chrome.alarms.create(`mintBlockAlarm_${url}`, { periodInMinutes: intervalMinutes });
+  });
+}
+
+// Function that mint new block for the given devnet URL
+async function mintBlock(url: string): Promise<void> {
+  try {
+    const response = await fetch(`http://${url}/create_block`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+
+    if (response.ok) {
+      console.log(`Minted block for ${url}`);
+    } else {
+      console.error('Error creating block:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error creating block:', error);
+  }
 }

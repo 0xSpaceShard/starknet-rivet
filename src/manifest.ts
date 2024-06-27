@@ -51,7 +51,7 @@ export default defineManifest({
     },
   ],
   host_permissions: ['http://localhost:3000/*'],
-  permissions: ['storage', 'activeTab', 'tabs', 'scripting'],
+  permissions: ['storage', 'activeTab', 'tabs', 'scripting', 'alarms'],
   chrome_url_overrides: {
     newtab: 'newtab.html',
   },

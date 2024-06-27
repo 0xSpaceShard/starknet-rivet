@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSharedState } from '../context/context';
 import './checkDevnetStatus.css';
+import { sendMessageToUpdateUrlList } from '../utils/sendMessageBackground';
 
 const CheckDevnetStatus: React.FC<{ url: string }> = ({ url }) => {
   const [isAlive, setIsAlive] = useState(false);
@@ -8,9 +9,7 @@ const CheckDevnetStatus: React.FC<{ url: string }> = ({ url }) => {
 
   const updateIsAliveStatus = useCallback(
     (newIsAlive: boolean) => {
-      setUrlList((prevList) =>
-        prevList.map((item) => (item.url === url ? { ...item, isAlive: newIsAlive } : item))
-      );
+      sendMessageToUpdateUrlList(url, newIsAlive, setUrlList);
     },
     [url]
   );

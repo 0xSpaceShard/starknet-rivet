@@ -35,7 +35,6 @@ export const DeclareSmartContract: React.FC = () => {
               const isValidSierra = isSierra(json);
               setCheckSierra(isValidSierra);
               setSelectedSierraFile(json);
-              console.log('JSON: ', json);
             } catch (error) {
               console.error('Error parsing JSON file:', error);
             }
@@ -61,7 +60,6 @@ export const DeclareSmartContract: React.FC = () => {
             try {
               const json = JSON.parse(content);
               setSelectedCasmFile(json);
-              console.log('JSON: ', json);
             } catch (error) {
               console.error('Error parsing JSON file:', error);
             }

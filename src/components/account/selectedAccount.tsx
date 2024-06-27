@@ -41,7 +41,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
       return null;
     }
     try {
-      await fetch(`http://${url}/is_alive`);
+      const res = await fetch(`http://${url}/is_alive`);
       setDevnetIsAlive(true);
     } catch (error) {
       setDevnetIsAlive(false);
@@ -124,9 +124,6 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   };
 
   const handleSettings = () => {
-    console.log('PATH HERE');
-
-    console.log(`$/accounts/${selectedAccount?.address}/settings`);
     navigate(`/accounts/${selectedAccount?.address}/settings`);
   };
 

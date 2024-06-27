@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { AccountData, useSharedState } from '../context/context';
-import SingletonContext from '../../services/contextService';
-import UrlContext from '../../services/urlService';
-import SelectedAccountInfo from '../account/selectedAccount';
+import { useSharedState } from '../context/context';
+// import SingletonContext from '../../services/contextService';
+// import UrlContext from '../../services/urlService';
+// import SelectedAccountInfo from '../account/selectedAccount';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
 import { darkTheme } from '../..';
 import { useNavigate } from 'react-router-dom';
+import {
+  sendMessageToSetBlockInterval,
+  sendMessageToSetUrlList,
+} from '../utils/sendMessageBackground';
+import { AccountData } from '../context/interfaces';
 
 export const PredeployedAccounts: React.FC = () => {
   const context = useSharedState();
@@ -21,8 +26,12 @@ export const PredeployedAccounts: React.FC = () => {
     setCurrentBalance,
     urlList,
     setUrlList,
+    // blockInterval,
+    setBlockInterval,
+    configData,
+    setConfigData,
   } = context;
-  const [showSelectedAccount, setShowselectedAccount] = useState(false);
+  // const [showSelectedAccount, setShowselectedAccount] = useState(false);
   const navigate = useNavigate();
 
   async function fetchDataAndPrintAccounts() {
@@ -50,7 +59,7 @@ export const PredeployedAccounts: React.FC = () => {
       setDevnetIsAlive(true);
       const urlExists = urlList.some((devnet) => devnet.url === url);
       if (!urlExists) {
-        setUrlList([...urlList, { url, isAlive: true }]);
+        sendMessageToSetUrlList({ url, isAlive: true }, setUrlList);
       }
     } catch (error) {
       setDevnetIsAlive(false);
@@ -60,8 +69,8 @@ export const PredeployedAccounts: React.FC = () => {
 
     try {
       const configResponse = await fetch(`http://${url}/config`);
-      await configResponse.json();
-
+      const dataConfig = await configResponse.json();
+      setConfigData(dataConfig);
       const response = await fetch(`http://${url}/predeployed_accounts`);
       const data: AccountData[] = await response.json();
 
@@ -75,10 +84,6 @@ export const PredeployedAccounts: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       await fetchDataAndPrintAccounts();
-      const context = UrlContext.getInstance();
-      if (url) {
-        context.setSelectedUrl(url);
-      }
     };
 
     fetchData();
@@ -99,9 +104,15 @@ export const PredeployedAccounts: React.FC = () => {
 
   async function fetchCurrentBalance(address: string | undefined) {
     try {
-      const response = await fetch(
-        `http://${url}/account_balance?address=${address}&block_tag=pending`
-      );
+      let response: Response;
+
+      if (!configData?.blocks_on_demand) {
+        response = await fetch(`http://${url}/account_balance?address=${address}`);
+      } else {
+        response = await fetch(
+          `http://${url}/account_balance?address=${address}&block_tag=pending`
+        );
+      }
       const array = await response.json();
       setCurrentBalance(array.amount);
     } catch (error) {
@@ -115,11 +126,6 @@ export const PredeployedAccounts: React.FC = () => {
         return;
       }
       await fetchCurrentBalance(selectedAccount?.address);
-      const context = SingletonContext.getInstance();
-      if (selectedAccount?.address) {
-        context.setSelectedAccount(selectedAccount?.address);
-      }
-      setShowselectedAccount(true);
     };
     fetchSelectedAccount();
   }, [selectedAccount]);
