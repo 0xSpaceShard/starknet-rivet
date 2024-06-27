@@ -77,7 +77,6 @@ window.addEventListener('message', async function (event: MessageEvent) {
             type: 'SIMULATE_RIVET_TRANSACTION',
             data: eventData.data,
           });
-          console.log('CONTENT RES : ', res);
           break;
         default:
           console.warn('Unhandled message type:', eventData.type);

@@ -1,4 +1,13 @@
-import { Account, RpcProvider, stark, TransactionType } from 'starknet-6';
+import {
+  Account,
+  cairo,
+  Calldata,
+  CallData,
+  RpcProvider,
+  stark,
+  TransactionType,
+  Uint256,
+} from 'starknet-6';
 
 console.log('Background script is running');
 
@@ -32,6 +41,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'SIGN_RIVET_MESSAGE':
       signRivetMessage(message, sendResponse);
+      break;
+
+    case 'RIVET_DECLARE_CONTRACT':
+      declareContract(message, sendResponse);
+      break;
+
+    case 'RIVET_DEPLOY_CONTRACT':
+      deployContract(message, sendResponse);
       break;
 
     default:
@@ -105,10 +122,7 @@ async function simulateRivetTransaction(message: any, sendResponse: (response?: 
     const { selectedAccount } = result;
 
     if (selectedAccount) {
-      const resultUrl = await chrome.storage.sync.get(['url']);
-      const { url } = resultUrl;
-      const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
-      const acc = new Account(provider, selectedAccount.address, selectedAccount.private_key);
+      const acc = await getSelectedAccount();
 
       const res = await acc.simulateTransaction([
         { type: TransactionType.INVOKE, payload: message.data.transactions },
@@ -166,14 +180,8 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
             const onResponseListener = async (responseMessage: any) => {
               try {
                 if (responseMessage.type === 'EXECUTE_RIVET_TRANSACTION_RES') {
-                  const resultUrl = await chrome.storage.sync.get(['url']);
-                  const url = resultUrl.url;
-                  const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
-                  const acc = new Account(
-                    provider,
-                    selectedAccount.address,
-                    selectedAccount.private_key
-                  );
+                  const provider = await getProvider();
+                  const acc = await getSelectedAccount();
 
                   const tx = await acc.execute(message.data.transactions);
                   await provider.waitForTransaction(tx.transaction_hash);
@@ -267,14 +275,7 @@ async function signRivetMessage(message: any, sendResponse: (response?: any) => 
             const onResponseListener = async (responseMessage: any) => {
               try {
                 if (responseMessage.type === 'SIGN_RIVET_MESSAGE_RES') {
-                  const resultUrl = await chrome.storage.sync.get(['url']);
-                  const url = resultUrl.url;
-                  const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
-                  const acc = new Account(
-                    provider,
-                    selectedAccount.address,
-                    selectedAccount.private_key
-                  );
+                  const acc = await getSelectedAccount();
 
                   const signature = await acc.signMessage(responseMessage.data.typedData);
                   const formattedSignature = stark.signatureToDecimalArray(signature);
@@ -308,6 +309,49 @@ async function signRivetMessage(message: any, sendResponse: (response?: any) => 
   }
 }
 
+async function declareContract(message: any, sendResponse: (response?: any) => void) {
+  try {
+    const provider = await getProvider();
+    const acc = await getSelectedAccount();
+
+    const declareResponse = await acc.declareIfNot({
+      contract: message.data.sierra,
+      casm: message.data.casm,
+    });
+    if (declareResponse.transaction_hash != '') {
+      await provider.waitForTransaction(declareResponse.transaction_hash);
+    }
+    sendResponse({ class_hash: declareResponse.class_hash });
+  } catch (error) {
+    sendResponse({ error: parseErrorMessage(error) });
+  }
+}
+
+async function deployContract(message: any, sendResponse: (response?: any) => void) {
+  try {
+    const provider = await getProvider();
+    const acc = await getSelectedAccount();
+
+    const { abi: testAbi } = await provider.getClassByHash(message.data.class_hash);
+    const contractCallData: CallData = new CallData(testAbi);
+
+    const ConstructorCallData: Calldata = contractCallData.compile(
+      'constructor',
+      message.data.call_data
+    );
+
+    const deployResponse = await acc.deployContract({
+      classHash: message.data.class_hash,
+      constructorCalldata: ConstructorCallData,
+    });
+    await provider.waitForTransaction(deployResponse.transaction_hash);
+
+    sendResponse({ contract_address: deployResponse.contract_address });
+  } catch (error) {
+    sendResponse({ error: parseErrorMessage(error) });
+  }
+}
+
 function parseErrorMessage(error: any): string {
   try {
     const errorObject = JSON.parse(error.message);
@@ -318,4 +362,19 @@ function parseErrorMessage(error: any): string {
   } catch (e) {
     return error.message;
   }
+}
+
+async function getSelectedAccount(): Promise<Account> {
+  const result = await chrome.storage.sync.get(['selectedAccount']);
+  const selectedAccount = result.selectedAccount;
+  const provider = await getProvider();
+
+  return new Account(provider, selectedAccount.address, selectedAccount.private_key);
+}
+
+async function getProvider(): Promise<RpcProvider> {
+  const resultUrl = await chrome.storage.sync.get(['url']);
+  const url = resultUrl.url;
+
+  return new RpcProvider({ nodeUrl: `http://${url}/rpc` });
 }
