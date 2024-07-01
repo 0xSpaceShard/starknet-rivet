@@ -16,7 +16,6 @@ interface BlockConfigurationProps {
 
 export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
   creatNewBlock,
-  fetchCurrentBlockNumber,
   abortBlock,
 }) => {
   const [newBlockInterval, setNewBlockInterval] = useState<number>(0);
