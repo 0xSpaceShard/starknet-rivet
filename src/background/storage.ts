@@ -73,7 +73,6 @@ export async function getBlockIntervalFromSyncStorage(): Promise<Map<string, num
       }
       const obj = result['blockInterval'] || {};
       const blockInterval = new Map<string, number>(Object.entries(obj));
-
       resolve(blockInterval);
     });
   });
@@ -93,31 +92,36 @@ export async function addIntervalToBlockIntervalInSyncStorage(
 export async function removeIntervalFromBlockIntervalInSyncStorage(url: string): Promise<void> {
   try {
     const blockInterval = await getBlockIntervalFromSyncStorage();
-
-    chrome.alarms.get(`mintBlockAlarm_${url}`, async (existingAlarm) => {
-      if (existingAlarm) {
-        chrome.alarms.clear(`mintBlockAlarm_${url}`, (cleared) => {
-          if (cleared) {
-            blockInterval.delete(url);
-            saveBlockIntervalToSyncStorage(blockInterval)
-              .then(() => {})
-              .catch((error) => {
-                console.error(`Failed to save updated block interval: ${error}`);
-              });
-          } else {
-            console.error(`Failed to clear alarm for URL: ${url}`);
-          }
-        });
-      } else {
-        blockInterval.delete(url);
-        saveBlockIntervalToSyncStorage(blockInterval)
-          .then(() => {})
-          .catch((error) => {
-            console.error(`Failed to save updated block interval: ${error}`);
+    await new Promise<void>((resolve, reject) => {
+      chrome.alarms.get(`mintBlockAlarm_${url}`, async (existingAlarm) => {
+        if (existingAlarm) {
+          chrome.alarms.clear(`mintBlockAlarm_${url}`, async (cleared) => {
+            if (cleared) {
+              blockInterval.delete(url);
+              await saveBlockIntervalToSyncStorage(blockInterval)
+                .then(resolve)
+                .catch((error) => {
+                  reject(error);
+                  console.error(`Failed to save updated block interval: ${error}`);
+                });
+            } else {
+              reject(`Failed to clear alarm for URL: ${url}`);
+              console.error(`Failed to clear alarm for URL: ${url}`);
+            }
           });
-      }
+        } else {
+          blockInterval.delete(url);
+          await saveBlockIntervalToSyncStorage(blockInterval)
+            .then(resolve)
+            .catch((error) => {
+              reject(error);
+              console.error(`Failed to save updated block interval: ${error}`);
+            });
+        }
+      });
     });
   } catch (error) {
     console.error('Error removing interval from block interval:', error);
+    throw error;
   }
 }
