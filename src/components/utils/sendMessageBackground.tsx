@@ -1,4 +1,54 @@
-import { ListOfDevnet } from '../context/interfaces';
+import { AccountData, ListOfDevnet } from '../context/interfaces';
+
+export function sendMessageToSetSelectedAccount(
+  selectedAccount: AccountData | null,
+  setSelectedAccount: React.Dispatch<React.SetStateAction<AccountData | null>>
+) {
+  chrome.runtime.sendMessage(
+    {
+      type: 'SET_SELECTED_ACCOUNT',
+      selectedAccount: selectedAccount,
+    },
+    (response) => {
+      if (!response.success) {
+        console.error('Failed to set selectedAccount');
+      }
+      setSelectedAccount(response.selectedAccount);
+    }
+  );
+}
+
+export function sendMessageToSetUrl(
+  url: string,
+  setUrl: React.Dispatch<React.SetStateAction<string>>
+) {
+  chrome.runtime.sendMessage(
+    {
+      type: 'SET_URL',
+      url: url,
+    },
+    (response) => {
+      if (!response.success) {
+        console.error('Failed to fetch url ');
+      }
+      setUrl(response.url);
+    }
+  );
+}
+
+export function sendMessageToGetUrl(setUrl: React.Dispatch<React.SetStateAction<string>>) {
+  chrome.runtime.sendMessage(
+    {
+      type: 'GET_URL',
+    },
+    (response) => {
+      if (!response.success) {
+        console.error('Failed to fetch url ');
+      }
+      setUrl(response.url);
+    }
+  );
+}
 
 export function sendMessageToUpdateUrlList(
   url: string,

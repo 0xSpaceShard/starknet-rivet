@@ -127,14 +127,14 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
             {'Set New Block Interval'}
           </Button>
           <Divider variant="middle" />
-          <Typography variant="h6">Reset Interval to none</Typography> 
+          <Typography variant="h6">Reset Interval to none</Typography>
           <Button variant="contained" color="primary" onClick={() => resetInterval()}>
             {'Reset Block Interval'}
           </Button>
           {configData.stateArchiveCapacity == 'full' && (
             <>
               <Divider variant="middle" />
-              <Typography variant="h6">Abort a block</Typography> 
+              <Typography variant="h6">Abort a block</Typography>
 
               <TextField
                 fullWidth

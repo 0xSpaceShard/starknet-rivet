@@ -1,5 +1,29 @@
 import { ListOfDevnet } from './interface';
 
+// Function to get current URL of devnet in Chrome storage
+export async function getUrlFromSyncStorage(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['url'], (result) => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve(result['url'] || '');
+    });
+  });
+}
+
+// Function to set current URL of devnet in Chrome storage
+export async function setUrlFromSyncStorage(url: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({ url: url }, () => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve();
+    });
+  });
+}
+
 // Function to save a new URL to the list of devnet networks in Chrome storage
 export async function saveUrlListToSyncStorage(urlList: ListOfDevnet[]): Promise<void> {
   return new Promise((resolve, reject) => {
