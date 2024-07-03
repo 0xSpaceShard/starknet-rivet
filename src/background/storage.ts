@@ -7,7 +7,7 @@ export async function getUrlFromSyncStorage(): Promise<string> {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      resolve(result['url'] || '');
+      resolve(result['url'] || 'https://devnet.spaceshard.io');
     });
   });
 }
@@ -43,7 +43,7 @@ export async function getUrlListFromSyncStorage(): Promise<ListOfDevnet[]> {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      resolve(result['urlList'] || []);
+      resolve(result['urlList'] || [{ url: 'https://devnet.spaceshard.io', isAlive: true }]);
     });
   });
 }

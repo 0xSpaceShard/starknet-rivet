@@ -15,11 +15,11 @@ export async function requestAccountsHandler(_params?: RequestAccountsParameters
   if (!result) {
     throw Error('No wallet account (should not be possible)');
   }
-  if (result === 'USER_ABORTED') {
+  if (result === 'USER_RIVET_ABORTED') {
     throw Error('User aborted');
   }
 
-  const { data } = result;
+  const { selectedAccount } = result;
 
-  return [data.address];
+  return [selectedAccount.address];
 }

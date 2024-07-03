@@ -25,7 +25,6 @@ import {
   sendMessageToGetUrlList,
   sendMessageToRemoveBlockInterval,
   sendMessageToRemoveUrlFromList,
-  sendMessageToSetBlockInterval,
   sendMessageToSetSelectedAccount,
   sendMessageToSetUrl,
   sendMessageToSetUrlList,
@@ -52,10 +51,11 @@ const RegisterRunningDocker: React.FC = () => {
 
   const handleAddUrl = () => {
     if (newUrl.trim() !== '') {
-      const urlExists = urlList.some((devnet) => devnet.url === newUrl);
+      const fullUrl =
+        newUrl != 'devnet.spaceshard.io' ? 'http://' + newUrl : 'https://devnet.spaceshard.io';
+      const urlExists = urlList.some((devnet) => devnet.url === fullUrl);
       if (!urlExists) {
-        sendMessageToSetUrlList({ url: newUrl, isAlive: true }, setUrlList);
-        sendMessageToSetBlockInterval(newUrl, 300000, setBlockInterval);
+        sendMessageToSetUrlList({ url: fullUrl, isAlive: true }, setUrlList);
         setNewUrl('');
       }
     }
@@ -67,7 +67,7 @@ const RegisterRunningDocker: React.FC = () => {
   ) => {
     event.stopPropagation(); // Stop event propagation here
     try {
-      await fetch(`http://${clickedUrl}/is_alive`);
+      await fetch(`${clickedUrl}/is_alive`);
       setDevnetIsAlive(true);
       sendMessageToSetUrl(clickedUrl, setUrl);
     } catch (error) {

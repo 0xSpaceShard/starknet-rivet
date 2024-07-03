@@ -31,14 +31,14 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
     chrome.storage.local.get(null, (data) => {
       if (data) {
         setAccounts(data.accounts || []);
-        setUrl(data.url || '');
+        setUrl(data.url || 'https://devnet.spaceshard.io');
         setSelectedAccount(data.selectedAccount || null);
         setCurrentBalance(data.currentBalance || 0n);
         setCurrentBlock(data.currentBlock || 0);
         setBlockInterval(new Map(Object.entries(data.blockInterval || {})));
         setCommandOptions(data.commandOptions || null);
         setConfigData(data.configData || null);
-        setUrlList(data.urlList || []);
+        setUrlList(data.urlList || [{ url: 'https://devnet.spaceshard.io', isAlive: false }]);
         setSelectedComponent(data.selectedComponent || '');
       }
     });

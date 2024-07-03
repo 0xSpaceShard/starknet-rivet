@@ -3,6 +3,7 @@ import { Component } from './enum';
 export interface AccountData {
   address: string;
   initial_balance: string;
+  balance?: string;
   private_key: string;
   public_key: string;
 }

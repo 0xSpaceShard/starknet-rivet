@@ -54,7 +54,7 @@ export const Popup = () => {
 
   async function fetchCurrentBlockNumber() {
     try {
-      const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
       const blockNumber = await provider.getBlockNumber();
       setCurrentBlock(blockNumber);
     } catch (error) {
@@ -64,7 +64,7 @@ export const Popup = () => {
 
   async function creatNewBlock() {
     try {
-      const response = await fetch(`http://${url}/create_block`, {
+      const response = await fetch(`${url}/create_block`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,14 +96,14 @@ export const Popup = () => {
           }
         }
       }
-      const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
       const tx = await provider.getBlockWithTxs(blockNumber);
 
       if (!isBlockWithTxs(tx)) {
         console.error('Error no block hash');
         return;
       }
-      const response = await fetch(`http://${url}/abort_blocks`, {
+      const response = await fetch(`${url}/abort_blocks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

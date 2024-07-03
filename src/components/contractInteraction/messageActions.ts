@@ -15,7 +15,7 @@ export interface ExecuteTransactionRequest {
 
 export type PreAuthorisationMessage =
   | { type: 'CONNECT_RIVET_DAPP'; data?: { silent?: boolean } }
-  | { type: 'CONNECT_RIVET_DAPP_RES'; data: any }
+  | { type: 'CONNECT_RIVET_DAPP_RES'; success: boolean; data: any }
   | { type: 'RIVET_IS_PREAUTHORIZED' }
   | { type: 'RIVET_IS_PREAUTHORIZED_RES'; data: boolean }
   | {

@@ -68,14 +68,14 @@ async function loadModules() {
             ),
           ]);
           const walletAccount = await walletAccountP;
-          if (!walletAccount || walletAccount === 'USER_ABORTED') {
+          if (!walletAccount || walletAccount === 'USER_RIVET_ABORTED') {
             sendMessage({ type: 'DISCONNECT_RIVET_ACCOUNT' });
             return;
           }
 
-          const { address, private_key } = walletAccount.data;
+          const { address, private_key } = walletAccount.selectedAccount;
           const { url } = walletAccount;
-          const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+          const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
 
           starknet.selectedAddress = address;
           starknet.chainId = await provider.getChainId();

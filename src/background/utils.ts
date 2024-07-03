@@ -26,5 +26,5 @@ export async function getProvider(): Promise<RpcProvider> {
   const resultUrl = await chrome.storage.sync.get(['url']);
   const url = resultUrl.url;
 
-  return new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+  return new RpcProvider({ nodeUrl: `${url}/rpc` });
 }

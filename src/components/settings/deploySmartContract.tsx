@@ -95,7 +95,7 @@ export const DeploySmartContract: React.FC = () => {
   }
 
   async function fetchAbiAndParseConstructor(selectedClassHash: string) {
-    const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
 
     try {
       const { abi: testAbi } = await provider.getClassByHash(selectedClassHash);

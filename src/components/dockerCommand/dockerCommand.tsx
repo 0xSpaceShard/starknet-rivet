@@ -159,10 +159,6 @@ const DockerCommandGenerator: React.FC = () => {
     const newUrl = `${options.host}:${options.port}`;
     sendMessageToSetUrlList({ url: newUrl, isAlive: true }, setUrlList);
 
-    const newMap = new Map(blockInterval);
-    newMap.set(newUrl, 300000);
-    sendMessageToSetBlockInterval(newUrl, 300000, setBlockInterval);
-
     command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:6fc953dbe2c76965d713e2d11339440d00d5b616`;
 
     const kebabCaseOptions = convertCamelToKebab(options);

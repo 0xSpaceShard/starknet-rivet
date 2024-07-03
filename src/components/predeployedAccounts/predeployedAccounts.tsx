@@ -44,7 +44,7 @@ export const PredeployedAccounts: React.FC = () => {
 
   async function fetchContainerLogs(): Promise<AccountData[] | null> {
     try {
-      const isAlive = await fetch(`http://${url}/is_alive`);
+      const isAlive = await fetch(`${url}/is_alive`);
       if (!isAlive.ok) throw new Error('Devnet is not alive');
 
       setDevnetIsAlive(true);
@@ -59,10 +59,10 @@ export const PredeployedAccounts: React.FC = () => {
     }
 
     try {
-      const configResponse = await fetch(`http://${url}/config`);
+      const configResponse = await fetch(`${url}/config`);
       const dataConfig = await configResponse.json();
       setConfigData(dataConfig);
-      const response = await fetch(`http://${url}/predeployed_accounts`);
+      const response = await fetch(`${url}/predeployed_accounts`);
       const data: AccountData[] = await response.json();
 
       return data;
@@ -97,18 +97,15 @@ export const PredeployedAccounts: React.FC = () => {
   async function fetchCurrentBalance(address: string | undefined) {
     try {
       let response: Response;
-
-      if (!configData?.blocks_on_demand) {
-        response = await fetch(`http://${url}/account_balance?address=${address}`);
+      if (configData?.block_generation_on === "demand") {
+        response = await fetch(`${url}/account_balance?address=${address}&block_tag=pending`);
       } else {
-        response = await fetch(
-          `http://${url}/account_balance?address=${address}&block_tag=pending`
-        );
+        response = await fetch(`${url}/account_balance?address=${address}`);
       }
       const array = await response.json();
       setCurrentBalance(array.amount);
     } catch (error) {
-      console.error('Error fetching container logs:', error);
+      console.error('Error fetching balance:', error);
     }
   }
 

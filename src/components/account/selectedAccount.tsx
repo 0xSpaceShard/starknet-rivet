@@ -43,7 +43,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
       return null;
     }
     try {
-      const res = await fetch(`http://${url}/is_alive`);
+      const res = await fetch(`${url}/is_alive`);
       setDevnetIsAlive(true);
     } catch (error) {
       setDevnetIsAlive(false);
@@ -51,7 +51,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
     }
 
     try {
-      const configResponse = await fetch(`http://${url}/config`);
+      const configResponse = await fetch(`${url}/config`);
       const data = await configResponse.json();
       setConfigData(data);
       return data;
@@ -119,7 +119,12 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   };
 
   useEffect(() => {
-    fetchAccountConfig();
+    const accountConfig = async () => {
+      try {
+        await fetchAccountConfig();
+      } catch (error) {}
+    };
+    accountConfig();
   }, []);
 
   const balanceBigInt = BigInt(currentBalance) / BigInt(10n ** 18n);
