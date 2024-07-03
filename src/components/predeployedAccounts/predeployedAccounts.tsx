@@ -97,7 +97,7 @@ export const PredeployedAccounts: React.FC = () => {
   async function fetchCurrentBalance(address: string | undefined) {
     try {
       let response: Response;
-      if (configData?.block_generation_on === "demand") {
+      if (configData?.block_generation_on === 'demand') {
         response = await fetch(`${url}/account_balance?address=${address}&block_tag=pending`);
       } else {
         response = await fetch(`${url}/account_balance?address=${address}`);

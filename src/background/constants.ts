@@ -1,1 +1,1 @@
-export const DEFAULT_DEVNET_URL = 'https://devnet.spaceshard.io'
+export const DEFAULT_DEVNET_URL = 'https://devnet.spaceshard.io';
