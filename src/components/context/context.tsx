@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AccountData, ListOfDevnet, MyContextValue, Options } from './interfaces';
 import { Component } from './enum';
+import { DEFAULT_DEVNET_URL } from '../../background/constants';
 
 export const Context = createContext<MyContextValue | undefined>(undefined);
 
@@ -31,14 +32,14 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
     chrome.storage.local.get(null, (data) => {
       if (data) {
         setAccounts(data.accounts || []);
-        setUrl(data.url || 'https://devnet.spaceshard.io');
+        setUrl(data.url || DEFAULT_DEVNET_URL);
         setSelectedAccount(data.selectedAccount || null);
         setCurrentBalance(data.currentBalance || 0n);
         setCurrentBlock(data.currentBlock || 0);
         setBlockInterval(new Map(Object.entries(data.blockInterval || {})));
         setCommandOptions(data.commandOptions || null);
         setConfigData(data.configData || null);
-        setUrlList(data.urlList || [{ url: 'https://devnet.spaceshard.io', isAlive: false }]);
+        setUrlList(data.urlList || [{ url: DEFAULT_DEVNET_URL, isAlive: false }]);
         setSelectedComponent(data.selectedComponent || '');
       }
     });
