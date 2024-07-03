@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useCallback } from 'react';
+import React, { useState, ChangeEvent, useCallback, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -17,17 +17,32 @@ import {
 } from '@mui/material';
 import { AddBoxOutlined, ChevronLeft, Delete, List as ListIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import SingletonContext from '../../services/contextService';
 
 import { useSharedState } from '../context/context';
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
-import UrlContext from '../../services/urlService';
 import { darkTheme } from '../..';
+import {
+  sendMessageToGetUrlList,
+  sendMessageToRemoveBlockInterval,
+  sendMessageToRemoveUrlFromList,
+  sendMessageToSetBlockInterval,
+  sendMessageToSetSelectedAccount,
+  sendMessageToSetUrl,
+  sendMessageToSetUrlList,
+} from '../utils/sendMessageBackground';
 
 const RegisterRunningDocker: React.FC = () => {
   const context = useSharedState();
-  const { setUrlList, urlList, devnetIsAlive, setDevnetIsAlive, url, setUrl, setSelectedAccount } =
-    context;
+  const {
+    setUrlList,
+    urlList,
+    devnetIsAlive,
+    setDevnetIsAlive,
+    url,
+    setUrl,
+    setSelectedAccount,
+    setBlockInterval,
+  } = context;
   const [newUrl, setNewUrl] = useState('');
   const navigate = useNavigate();
 
@@ -39,7 +54,8 @@ const RegisterRunningDocker: React.FC = () => {
     if (newUrl.trim() !== '') {
       const urlExists = urlList.some((devnet) => devnet.url === newUrl);
       if (!urlExists) {
-        setUrlList([...urlList, { url: newUrl, isAlive: true }]);
+        sendMessageToSetUrlList({ url: newUrl, isAlive: true }, setUrlList);
+        sendMessageToSetBlockInterval(newUrl, 300000, setBlockInterval);
         setNewUrl('');
       }
     }
@@ -53,13 +69,7 @@ const RegisterRunningDocker: React.FC = () => {
     try {
       await fetch(`http://${clickedUrl}/is_alive`);
       setDevnetIsAlive(true);
-      setUrl(clickedUrl);
-      const contextInstance = UrlContext.getInstance();
-      contextInstance.setSelectedUrl(url);
-      chrome.runtime.sendMessage({
-        type: 'SET_URL',
-        url: clickedUrl,
-      });
+      sendMessageToSetUrl(clickedUrl, setUrl);
     } catch (error) {
       console.error('Error fetching URL status:', error);
       setDevnetIsAlive(false);
@@ -72,49 +82,22 @@ const RegisterRunningDocker: React.FC = () => {
 
   const handleDeleteUrl = (urlToDelete: string) => {
     const updatedUrlList = urlList.filter((item) => item.url !== urlToDelete);
-    setUrlList(updatedUrlList);
+    sendMessageToRemoveUrlFromList(urlToDelete, setUrlList);
+    sendMessageToRemoveBlockInterval(urlToDelete, setBlockInterval);
 
     if (url === urlToDelete) {
       if (updatedUrlList.length > 0) {
         const firstAliveUrl = updatedUrlList.find((devnet) => devnet.isAlive);
         if (firstAliveUrl) {
-          setUrl(firstAliveUrl.url);
-
-          const urlContext = UrlContext.getInstance();
-          urlContext.setSelectedUrl(firstAliveUrl.url);
-
-          chrome.runtime.sendMessage({
-            type: 'SET_URL',
-            url: firstAliveUrl.url,
-          });
-
-          const accountContext = SingletonContext.getInstance();
-          accountContext.setSelectedAccount(null);
-          setSelectedAccount(null);
-
-          chrome.runtime.sendMessage({
-            type: 'SET_SELECTED_ACCOUNT',
-            selectedAccount: null,
-          });
+          sendMessageToSetUrl(firstAliveUrl.url, setUrl);
+          sendMessageToSetSelectedAccount(null, setSelectedAccount);
 
           return;
         }
       }
-
-      setUrl('');
+      sendMessageToSetUrl('', setUrl);
       setDevnetIsAlive(false);
-
-      const urlContext = UrlContext.getInstance();
-      urlContext.setSelectedUrl(null);
-
-      const accountContext = SingletonContext.getInstance();
-      accountContext.setSelectedAccount(null);
-      setSelectedAccount(null);
-
-      chrome.runtime.sendMessage({
-        type: 'SET_SELECTED_ACCOUNT',
-        selectedAccount: null,
-      });
+      sendMessageToSetSelectedAccount(null, setSelectedAccount);
     }
   };
 
@@ -123,6 +106,10 @@ const RegisterRunningDocker: React.FC = () => {
       navigate('/accounts');
     }
   }, [devnetIsAlive]);
+
+  useEffect(() => {
+    sendMessageToGetUrlList(setUrlList);
+  }, []);
 
   return (
     <>

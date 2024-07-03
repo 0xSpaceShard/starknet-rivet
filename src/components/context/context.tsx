@@ -1,68 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-export interface AccountData {
-  address: string;
-  initial_balance: string;
-  private_key: string;
-  public_key: string;
-}
-
-export interface ListOfDevnet {
-  url: string;
-  isAlive: boolean;
-}
-
-export interface Options {
-  accounts: number;
-  accountClass: string;
-  accountClassCustom: string;
-  initialBalance: string;
-  seed: string;
-  host: string;
-  port: number;
-  startTime: number;
-  timeout: number;
-  gasPrice: number;
-  dataGasPrice: number;
-  chainId: string;
-  dumpOn: string;
-  dumpPath: string;
-  stateArchiveCapacity: string;
-  forkNetwork: string;
-  forkBlock: number;
-  requestBodySizeLimit: number;
-}
-
-export interface TransactionInfo {
-  data: any;
-  gas_fee?: string;
-  error?: any;
-}
-
-interface MyContextValue {
-  accounts: AccountData[];
-  setAccounts: React.Dispatch<React.SetStateAction<AccountData[]>>;
-  url: string;
-  setUrl: React.Dispatch<React.SetStateAction<string>>;
-  devnetIsAlive: boolean;
-  setDevnetIsAlive: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedAccount: AccountData | null;
-  setSelectedAccount: React.Dispatch<React.SetStateAction<AccountData | null>>;
-  currentBalance: bigint;
-  setCurrentBalance: React.Dispatch<React.SetStateAction<bigint>>;
-  commandOptions: Options | null;
-  setCommandOptions: React.Dispatch<React.SetStateAction<Options | null>>;
-  configData: any | null;
-  setConfigData: React.Dispatch<React.SetStateAction<any | null>>;
-  urlList: ListOfDevnet[];
-  setUrlList: React.Dispatch<React.SetStateAction<ListOfDevnet[]>>;
-  selectedComponent: Component | null;
-  setSelectedComponent: React.Dispatch<React.SetStateAction<Component | null>>;
-  transactionData: TransactionInfo | null;
-  setTransactionData: React.Dispatch<React.SetStateAction<TransactionInfo | null>>;
-  signatureData: any;
-  setSignatureData: React.Dispatch<React.SetStateAction<any>>;
-}
+import { AccountData, ListOfDevnet, MyContextValue, Options } from './interfaces';
+import { Component } from './enum';
 
 export const Context = createContext<MyContextValue | undefined>(undefined);
 
@@ -74,18 +12,14 @@ export const useSharedState = () => {
   return context;
 };
 
-export enum Component {
-  CommandGenerator = 'DockerCommandGenerator',
-  DockerRegister = 'RegisterRunningDocker',
-  Accounts = 'PredeployedAccounts',
-}
-
 export function MyContextProvider({ children }: { children: React.ReactNode }) {
   const [accounts, setAccounts] = useState<AccountData[]>([]);
   const [url, setUrl] = useState<string>('');
   const [devnetIsAlive, setDevnetIsAlive] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<AccountData | null>(null);
   const [currentBalance, setCurrentBalance] = useState(0n);
+  const [currentBlock, setCurrentBlock] = useState(0);
+  const [blockInterval, setBlockInterval] = useState<Map<string, number>>(new Map());
   const [commandOptions, setCommandOptions] = useState<Options | null>(null);
   const [configData, setConfigData] = useState<any | null>(null);
   const [urlList, setUrlList] = useState<ListOfDevnet[]>([]);
@@ -100,6 +34,8 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
         setUrl(data.url || '');
         setSelectedAccount(data.selectedAccount || null);
         setCurrentBalance(data.currentBalance || 0n);
+        setCurrentBlock(data.currentBlock || 0);
+        setBlockInterval(new Map(Object.entries(data.blockInterval || {})));
         setCommandOptions(data.commandOptions || null);
         setConfigData(data.configData || null);
         setUrlList(data.urlList || []);
@@ -114,6 +50,8 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
       url,
       selectedAccount,
       currentBalance,
+      currentBlock,
+      blockInterval: Object.fromEntries(blockInterval),
       commandOptions,
       configData,
       urlList,
@@ -125,6 +63,8 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
     url,
     selectedAccount,
     currentBalance,
+    currentBlock,
+    blockInterval,
     commandOptions,
     configData,
     urlList,
@@ -144,6 +84,10 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
         setSelectedAccount,
         currentBalance,
         setCurrentBalance,
+        currentBlock,
+        setCurrentBlock,
+        blockInterval,
+        setBlockInterval,
         commandOptions,
         setCommandOptions,
         configData,

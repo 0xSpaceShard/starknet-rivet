@@ -1,16 +1,14 @@
-import {
-  Account,
-  cairo,
-  Calldata,
-  CallData,
-  RpcProvider,
-  stark,
-  TransactionType,
-  Uint256,
-} from 'starknet-6';
+import { stark, TransactionType } from 'starknet-6';
+import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
+import { getUrl, setUrl } from './url';
+import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } from './urlList';
+import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
+import { declareContract, deployContract } from './contracts';
+import { getUrlFromSyncStorage } from './storage';
 
 console.log('Background script is running');
 
+// Listener for incoming messages from the extension popup or content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Message received:', message);
 
@@ -33,6 +31,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'SET_URL':
       setUrl(message, sendResponse);
+      break;
+
+    case 'GET_URL':
+      getUrl(message, sendResponse);
+      break;
+
+    case 'SET_NEW_URL_TO_LIST':
+      setNewUrlToList(message, sendResponse);
+      break;
+
+    case 'GET_URL_LIST':
+      getUrlList(sendResponse);
+      break;
+
+    case 'REMOVE_URL_FROM_LIST':
+      removeUrlFromList(message, sendResponse);
+      break;
+
+    case 'UPDATE_URL_FROM_LIST':
+      updateUrlFromList(message, sendResponse);
+      break;
+
+    case 'SET_URL_BLOCK_INTERVAL':
+      setUrlBlockInterval(message, sendResponse);
+      break;
+
+    case 'REMOVE_URL_BLOCK_INTERVAL':
+      removeUrlBlockInterval(message, sendResponse);
       break;
 
     case 'SET_SELECTED_ACCOUNT':
@@ -58,11 +84,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
+// Function to connect Rivet Dapp
 async function connectRivetDapp(sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
-    const urlResult = await chrome.storage.sync.get(['url']);
-    const url = urlResult.url;
+    const url = await getUrlFromSyncStorage();
     const selectedAccount = result.selectedAccount || '';
 
     let accountTabId: number | undefined;
@@ -77,9 +103,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
           urlTabId = tab.id;
         }
       );
-    }
-
-    if (selectedAccount === '') {
+    } else if (selectedAccount === '') {
       chrome.tabs.create(
         {
           url: chrome.runtime.getURL('popup.html#/accounts'),
@@ -106,7 +130,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
           if (urlTabId !== undefined) {
             chrome.tabs.remove(urlTabId);
           }
-          sendResponse({ success: true });
+          sendResponse({ success: true, selectedAccount: message.selectedAccount });
           chrome.runtime.onMessage.removeListener(onResponseListener);
         }
       }
@@ -116,6 +140,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
   }
 }
 
+// Function to simulate a Rivet transaction
 async function simulateRivetTransaction(message: any, sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -150,6 +175,7 @@ async function simulateRivetTransaction(message: any, sendResponse: (response?: 
   }
 }
 
+// Function to execute a Rivet transaction
 async function executeRivetTransaction(message: any, sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -185,7 +211,9 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
 
                   const tx = await acc.execute(message.data.transactions);
                   await provider.waitForTransaction(tx.transaction_hash);
-
+                  for (let index = 0; index <= 3; index++) {
+                    await provider.getBlockTransactionsTraces(index);
+                  }
                   sendResponse({ type: 'EXECUTE_RIVET_TRANSACTION_RES', data: tx });
                 }
                 if (responseMessage.type === 'RIVET_TRANSACTION_FAILED') {
@@ -223,31 +251,33 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
   }
 }
 
-async function setUrl(message: any, sendResponse: (response?: any) => void) {
-  try {
-    await chrome.storage.sync.set({ url: message.url });
-    sendResponse({ success: true });
-  } catch (error) {
-    sendResponse({ error: parseErrorMessage(error) });
-  }
-}
-
+// Function to set selected account address
 async function setSelectedAccount(message: any, sendResponse: (response?: any) => void) {
   try {
     await chrome.storage.sync.set({ selectedAccount: message.selectedAccount });
     const tabs = await chrome.tabs.query({});
     tabs.forEach((tab) => {
-      chrome.tabs.sendMessage(tab.id as number, {
-        type: 'UPDATE_SELECTED_ACCOUNT',
-        data: { data: message.selectedAccount },
-      });
+      chrome.tabs.sendMessage(
+        tab.id as number,
+        {
+          type: 'UPDATE_SELECTED_ACCOUNT',
+          data: { data: message.selectedAccount },
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+          } else {
+            console.log(`Message sent to tab ${tab.id}:`, response);
+          }
+        }
+      );
     });
-    sendResponse({ success: true });
+    sendResponse({ success: true, selectedAccount: message.selectedAccount });
   } catch (error) {
     sendResponse({ error: parseErrorMessage(error) });
   }
 }
 
+// Function to sign a Rivet message
 async function signRivetMessage(message: any, sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -307,74 +337,4 @@ async function signRivetMessage(message: any, sendResponse: (response?: any) => 
     console.error('Error retrieving selected account from storage.', error);
     sendResponse({ error: 'Error retrieving selected account from storage.' });
   }
-}
-
-async function declareContract(message: any, sendResponse: (response?: any) => void) {
-  try {
-    const provider = await getProvider();
-    const acc = await getSelectedAccount();
-
-    const declareResponse = await acc.declareIfNot({
-      contract: message.data.sierra,
-      casm: message.data.casm,
-    });
-    if (declareResponse.transaction_hash != '') {
-      await provider.waitForTransaction(declareResponse.transaction_hash);
-    }
-    sendResponse({ class_hash: declareResponse.class_hash });
-  } catch (error) {
-    sendResponse({ error: parseErrorMessage(error) });
-  }
-}
-
-async function deployContract(message: any, sendResponse: (response?: any) => void) {
-  try {
-    const provider = await getProvider();
-    const acc = await getSelectedAccount();
-
-    const { abi: testAbi } = await provider.getClassByHash(message.data.class_hash);
-    const contractCallData: CallData = new CallData(testAbi);
-
-    const ConstructorCallData: Calldata = contractCallData.compile(
-      'constructor',
-      message.data.call_data
-    );
-
-    const deployResponse = await acc.deployContract({
-      classHash: message.data.class_hash,
-      constructorCalldata: ConstructorCallData,
-    });
-    await provider.waitForTransaction(deployResponse.transaction_hash);
-
-    sendResponse({ contract_address: deployResponse.contract_address });
-  } catch (error) {
-    sendResponse({ error: parseErrorMessage(error) });
-  }
-}
-
-function parseErrorMessage(error: any): string {
-  try {
-    const errorObject = JSON.parse(error.message);
-    if (errorObject.revert_error) {
-      return errorObject.revert_error;
-    }
-    return error.message;
-  } catch (e) {
-    return error.message;
-  }
-}
-
-async function getSelectedAccount(): Promise<Account> {
-  const result = await chrome.storage.sync.get(['selectedAccount']);
-  const selectedAccount = result.selectedAccount;
-  const provider = await getProvider();
-
-  return new Account(provider, selectedAccount.address, selectedAccount.private_key);
-}
-
-async function getProvider(): Promise<RpcProvider> {
-  const resultUrl = await chrome.storage.sync.get(['url']);
-  const url = resultUrl.url;
-
-  return new RpcProvider({ nodeUrl: `http://${url}/rpc` });
 }

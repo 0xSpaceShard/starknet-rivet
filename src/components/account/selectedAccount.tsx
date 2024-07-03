@@ -43,7 +43,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
       return null;
     }
     try {
-      await fetch(`http://${url}/is_alive`);
+      const res = await fetch(`http://${url}/is_alive`);
       setDevnetIsAlive(true);
     } catch (error) {
       setDevnetIsAlive(false);

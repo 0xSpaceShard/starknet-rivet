@@ -22,6 +22,10 @@ export const Settings: React.FC = () => {
     navigate(`/accounts/${selectedAccount?.address}/deploy`);
   };
 
+  const handleBlockConfiguration = () => {
+    navigate(`/accounts/${selectedAccount?.address}/blockConfiguration`);
+  };
+
   return (
     <section>
       <PageHeader title="Settings" backButtonHandler={handleBack}>
@@ -45,6 +49,14 @@ export const Settings: React.FC = () => {
             sx={{ width: '100%' }}
           >
             Deploy smart contract
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => handleBlockConfiguration()}
+            sx={{ width: '100%' }}
+          >
+            Block configuration
           </Button>
         </Stack>
       </PageHeader>

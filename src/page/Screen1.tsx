@@ -2,7 +2,8 @@ import './Screen1.css';
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
 import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker';
-import { Component, useSharedState } from '../components/context/context';
+import { useSharedState } from '../components/context/context';
+import { Component } from '../components/context/enum';
 
 export const Screen1 = () => {
   const context = useSharedState();
