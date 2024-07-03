@@ -45,7 +45,6 @@ interface ExtensionMessage {
 // Event listener for messages
 window.addEventListener('message', async function (event: MessageEvent) {
   if (event.origin !== window.location.origin) {
-    console.warn('Message received from an unexpected origin:', event.origin);
     return;
   }
 

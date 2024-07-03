@@ -26,6 +26,8 @@ import {
   sendMessageToRemoveBlockInterval,
   sendMessageToRemoveUrlFromList,
   sendMessageToSetBlockInterval,
+  sendMessageToSetSelectedAccount,
+  sendMessageToSetUrl,
   sendMessageToSetUrlList,
 } from '../utils/sendMessageBackground';
 
@@ -39,7 +41,6 @@ const RegisterRunningDocker: React.FC = () => {
     url,
     setUrl,
     setSelectedAccount,
-    blockInterval,
     setBlockInterval,
   } = context;
   const [newUrl, setNewUrl] = useState('');
@@ -55,7 +56,6 @@ const RegisterRunningDocker: React.FC = () => {
       if (!urlExists) {
         sendMessageToSetUrlList({ url: newUrl, isAlive: true }, setUrlList);
         sendMessageToSetBlockInterval(newUrl, 300000, setBlockInterval);
-
         setNewUrl('');
       }
     }
@@ -69,11 +69,7 @@ const RegisterRunningDocker: React.FC = () => {
     try {
       await fetch(`http://${clickedUrl}/is_alive`);
       setDevnetIsAlive(true);
-      setUrl(clickedUrl);
-      chrome.runtime.sendMessage({
-        type: 'SET_URL',
-        url: clickedUrl,
-      });
+      sendMessageToSetUrl(clickedUrl, setUrl);
     } catch (error) {
       console.error('Error fetching URL status:', error);
       setDevnetIsAlive(false);
@@ -93,33 +89,15 @@ const RegisterRunningDocker: React.FC = () => {
       if (updatedUrlList.length > 0) {
         const firstAliveUrl = updatedUrlList.find((devnet) => devnet.isAlive);
         if (firstAliveUrl) {
-          setUrl(firstAliveUrl.url);
-
-          chrome.runtime.sendMessage({
-            type: 'SET_URL',
-            url: firstAliveUrl.url,
-          });
-
-          setSelectedAccount(null);
-
-          chrome.runtime.sendMessage({
-            type: 'SET_SELECTED_ACCOUNT',
-            selectedAccount: null,
-          });
+          sendMessageToSetUrl(firstAliveUrl.url, setUrl);
+          sendMessageToSetSelectedAccount(null, setSelectedAccount);
 
           return;
         }
       }
-
-      setUrl('');
+      sendMessageToSetUrl('', setUrl);
       setDevnetIsAlive(false);
-
-      setSelectedAccount(null);
-
-      chrome.runtime.sendMessage({
-        type: 'SET_SELECTED_ACCOUNT',
-        selectedAccount: null,
-      });
+      sendMessageToSetSelectedAccount(null, setSelectedAccount);
     }
   };
 

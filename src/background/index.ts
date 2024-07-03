@@ -1,9 +1,10 @@
 import { stark, TransactionType } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
-import { setUrl } from './url';
+import { getUrl, setUrl } from './url';
 import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } from './urlList';
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
 import { declareContract, deployContract } from './contracts';
+import { getUrlFromSyncStorage } from './storage';
 
 console.log('Background script is running');
 
@@ -30,6 +31,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'SET_URL':
       setUrl(message, sendResponse);
+      break;
+
+    case 'GET_URL':
+      getUrl(message, sendResponse);
       break;
 
     case 'SET_NEW_URL_TO_LIST':
@@ -83,8 +88,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function connectRivetDapp(sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
-    const urlResult = await chrome.storage.sync.get(['url']);
-    const url = urlResult.url;
+    const url = await getUrlFromSyncStorage();
     const selectedAccount = result.selectedAccount || '';
 
     let accountTabId: number | undefined;
@@ -99,9 +103,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
           urlTabId = tab.id;
         }
       );
-    }
-
-    if (selectedAccount === '') {
+    } else if (selectedAccount === '') {
       chrome.tabs.create(
         {
           url: chrome.runtime.getURL('popup.html#/accounts'),
@@ -128,7 +130,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
           if (urlTabId !== undefined) {
             chrome.tabs.remove(urlTabId);
           }
-          sendResponse({ success: true });
+          sendResponse({ success: true, selectedAccount: message.selectedAccount });
           chrome.runtime.onMessage.removeListener(onResponseListener);
         }
       }
@@ -255,12 +257,21 @@ async function setSelectedAccount(message: any, sendResponse: (response?: any) =
     await chrome.storage.sync.set({ selectedAccount: message.selectedAccount });
     const tabs = await chrome.tabs.query({});
     tabs.forEach((tab) => {
-      chrome.tabs.sendMessage(tab.id as number, {
-        type: 'UPDATE_SELECTED_ACCOUNT',
-        data: { data: message.selectedAccount },
-      });
+      chrome.tabs.sendMessage(
+        tab.id as number,
+        {
+          type: 'UPDATE_SELECTED_ACCOUNT',
+          data: { data: message.selectedAccount },
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+          } else {
+            console.log(`Message sent to tab ${tab.id}:`, response);
+          }
+        }
+      );
     });
-    sendResponse({ success: true });
+    sendResponse({ success: true, selectedAccount: message.selectedAccount });
   } catch (error) {
     sendResponse({ error: parseErrorMessage(error) });
   }
