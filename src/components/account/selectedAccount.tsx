@@ -1,14 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useSharedState } from '../context/context';
-import { Box, Button, Container, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft } from '@mui/icons-material';
 import { num } from 'starknet-6';
 import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  Link,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { handleCopyAddress, shortenAddress } from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
+import { getTokenBalance } from '../../background/contracts';
+import { useSharedState } from '../context/context';
 
-export const SelectedAccountInfo: React.FC<{}> = ({}) => {
+export const SelectedAccountInfo: React.FC<{}> = () => {
   const context = useSharedState();
   const {
     url,
@@ -22,7 +35,30 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
     setTransactionData,
     signatureData,
     setSignatureData,
+    accountContracts,
   } = context;
+
+  const [tokenBalances, setTokenBalances] = useState<string[]>([]);
+
+  const contracts = useMemo(
+    () => accountContracts.get(selectedAccount?.address ?? '') ?? [],
+    [accountContracts, selectedAccount]
+  );
+
+  useEffect(() => {
+    if (!contracts?.length) return;
+
+    const balancePromises = contracts.map(async (address) => {
+      const resp = await getTokenBalance(address);
+      if (!resp) return '';
+
+      const balance = resp.balance / BigInt(10n ** 18n);
+      const balanceStr = balance.toString();
+      return `${balanceStr} ${resp.symbol}`;
+    });
+
+    Promise.all(balancePromises).then(setTokenBalances);
+  }, [contracts]);
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
@@ -128,7 +164,7 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
 
   return (
     <section>
-      <Box paddingBottom={transactionData || signatureData ? 3 : 6}>
+      <Box paddingBottom={transactionData || signatureData || tokenBalances?.length ? 3 : 6}>
         <Stack direction={'row'} justifyContent={'center'} position={'relative'}>
           <Box position={'absolute'} top={0} left={0}>
             <Button
@@ -209,6 +245,23 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
             )}
           </>
         )}
+        {tokenBalances?.length ? (
+          <>
+            <Divider sx={{ marginY: 2 }} variant="middle" />
+            <Box>
+              <Typography variant="h6">Tokens</Typography>
+            </Box>
+            <Box>
+              <List sx={{ padding: 0 }}>
+                {tokenBalances.map((balance, idx) => (
+                  <ListItem key={idx}>
+                    <ListItemText sx={{ paddingLeft: 2 }}>{balance}</ListItemText>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </>
+        ) : null}
         {transactionData && (
           <>
             <Divider sx={{ marginY: 3 }} variant="middle" />

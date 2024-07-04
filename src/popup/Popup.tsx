@@ -14,6 +14,7 @@ import { DeclareSmartContract } from '../components/settings/declareSmartContrac
 import { BlockConfiguration } from '../components/settings/blockConfiguration';
 import { RpcProvider } from 'starknet-6';
 import { Component } from '../components/context/enum';
+import { AddTokenContract } from '../components/settings/addTokenContract';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -222,6 +223,7 @@ export const Popup = () => {
         <Route path="/accounts/:address/settings" element={<Settings />} />
         <Route path="/accounts/:address/declare" element={<DeclareSmartContract />} />
         <Route path="/accounts/:address/deploy" element={<DeploySmartContract />} />
+        <Route path="/accounts/:address/add-token-contract" element={<AddTokenContract />} />
         <Route
           path="/accounts/:address/blockConfiguration"
           element={

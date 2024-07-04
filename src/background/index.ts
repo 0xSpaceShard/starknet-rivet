@@ -3,7 +3,7 @@ import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
 import { getUrl, setUrl } from './url';
 import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } from './urlList';
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
-import { declareContract, deployContract } from './contracts';
+import { declareContract, deployContract, updateAccountContracts } from './contracts';
 import { getUrlFromSyncStorage } from './storage';
 
 console.log('Background script is running');
@@ -75,6 +75,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'RIVET_DEPLOY_CONTRACT':
       deployContract(message, sendResponse);
+      break;
+
+    case 'UPDATE_ACCOUNT_CONTRACTS':
+      updateAccountContracts(message, sendResponse);
       break;
 
     default:

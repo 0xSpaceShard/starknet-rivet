@@ -1,5 +1,6 @@
-import { Calldata, CallData } from 'starknet-6';
+import { Calldata, CallData, Contract } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
+import { getAccountContractsFromSyncStorage, updateAccountContractsInSyncStorage } from './storage';
 
 // Function to declare a Contract from Rivet extension
 export async function declareContract(message: any, sendResponse: (response?: any) => void) {
@@ -43,5 +44,40 @@ export async function deployContract(message: any, sendResponse: (response?: any
     sendResponse({ contract_address: deployResponse.contract_address });
   } catch (error) {
     sendResponse({ error: parseErrorMessage(error) });
+  }
+}
+
+export async function updateAccountContracts(message: any, sendResponse: (response?: any) => void) {
+  try {
+    await updateAccountContractsInSyncStorage(message.accountContracts);
+    const accountContracts = await getAccountContractsFromSyncStorage();
+    sendResponse({ success: true, accountContracts });
+  } catch (error) {
+    sendResponse({ success: false });
+    return false;
+  }
+  return true;
+}
+
+export async function getTokenBalance(contractAddr: string) {
+  try {
+    const provider = await getProvider();
+    const acc = await getSelectedAccount();
+
+    const contract = await provider.getClassAt(contractAddr);
+    const erc20 = new Contract(contract.abi, contractAddr, provider);
+
+    erc20.connect(acc);
+
+    const balance = await erc20.balanceOf(acc.address);
+    const symbol = await erc20.symbol();
+
+    return {
+      balance,
+      symbol,
+    };
+  } catch (error) {
+    console.log('ERR: ', error);
+    return null;
   }
 }
