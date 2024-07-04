@@ -174,7 +174,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
               onClick={handleBack}
               sx={{
                 padding: '8px 10px',
-                // "&:hover": { backgroundColor: "transparent" },
               }}
             >
               Back
@@ -194,7 +193,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 onClick={handleSettings}
                 sx={{
                   padding: '8px 10px',
-                  // "&:hover": { backgroundColor: "transparent" },
                 }}
               ></Button>
             </Tooltip>

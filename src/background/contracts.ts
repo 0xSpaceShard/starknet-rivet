@@ -77,7 +77,7 @@ export async function getTokenBalance(contractAddr: string) {
       symbol,
     };
   } catch (error) {
-    console.log('ERR: ', error);
+    console.error('ERR: ', error);
     return null;
   }
 }

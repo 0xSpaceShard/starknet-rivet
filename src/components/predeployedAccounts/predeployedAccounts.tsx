@@ -65,6 +65,8 @@ export const PredeployedAccounts: React.FC = () => {
       const response = await fetch(`http://${url}/predeployed_accounts`);
       const data: AccountData[] = await response.json();
 
+      console.log('THIS IS THE DATA', data);
+
       return data;
     } catch (error) {
       console.error('Error fetching container logs:', error);
@@ -147,7 +149,6 @@ export const PredeployedAccounts: React.FC = () => {
                 onClick={handleBack}
                 sx={{
                   padding: '8px 10px',
-                  // "&:hover": { backgroundColor: "transparent" },
                 }}
               >
                 Back
