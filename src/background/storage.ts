@@ -1,3 +1,4 @@
+import { DEFAULT_DEVNET_URL } from './constants';
 import { ListOfDevnet } from './interface';
 
 // Function to get current URL of devnet in Chrome storage
@@ -7,7 +8,7 @@ export async function getUrlFromSyncStorage(): Promise<string> {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      resolve(result['url'] || '');
+      resolve(result['url'] || DEFAULT_DEVNET_URL);
     });
   });
 }
@@ -43,7 +44,7 @@ export async function getUrlListFromSyncStorage(): Promise<ListOfDevnet[]> {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      resolve(result['urlList'] || []);
+      resolve(result['urlList'] || [{ url: DEFAULT_DEVNET_URL, isAlive: true }]);
     });
   });
 }

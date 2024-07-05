@@ -36,7 +36,7 @@ export const starknetWindowObject: StarknetWindowObject = {
     if (!walletAccount) {
       throw Error('No wallet account (should not be possible)');
     }
-    if (walletAccount === 'USER_ABORTED') {
+    if (walletAccount === 'USER_RIVET_ABORTED') {
       throw Error('User aborted');
     }
 
@@ -46,9 +46,9 @@ export const starknetWindowObject: StarknetWindowObject = {
 
     const starknet = window.starknet_rivet as StarknetWindowObject;
 
-    const { address, private_key } = walletAccount.data;
+    const { address, private_key } = walletAccount.selectedAccount;
     const { url } = walletAccount;
-    const provider = new RpcProvider({ nodeUrl: `http://${url}/rpc` });
+    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
     starknet.provider = provider;
     starknet.account = new RivetAccount(address, private_key, provider);
     starknet.selectedAddress = address;

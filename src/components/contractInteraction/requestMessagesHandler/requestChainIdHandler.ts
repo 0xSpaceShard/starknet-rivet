@@ -8,7 +8,7 @@ export async function requestChainIdHandler() {
   const url = context.getSelectedUrl();
 
   if (url) {
-    const configResponse = await fetch(`http://${url}/config`);
+    const configResponse = await fetch(`${url}/config`);
     const configData = await configResponse.json();
     return configData.chain_id;
   }

@@ -12,8 +12,9 @@ export function sendMessageToSetSelectedAccount(
     (response) => {
       if (!response.success) {
         console.error('Failed to set selectedAccount');
+      } else {
+        setSelectedAccount(response.selectedAccount);
       }
-      setSelectedAccount(response.selectedAccount);
     }
   );
 }
@@ -30,8 +31,9 @@ export function sendMessageToSetUrl(
     (response) => {
       if (!response.success) {
         console.error('Failed to fetch url ');
+      } else {
+        setUrl(response.url);
       }
-      setUrl(response.url);
     }
   );
 }
@@ -44,8 +46,9 @@ export function sendMessageToGetUrl(setUrl: React.Dispatch<React.SetStateAction<
     (response) => {
       if (!response.success) {
         console.error('Failed to fetch url ');
+      } else {
+        setUrl(response.url);
       }
-      setUrl(response.url);
     }
   );
 }
@@ -64,8 +67,9 @@ export function sendMessageToUpdateUrlList(
     (response) => {
       if (!response.success) {
         console.error('Failed to update url list');
+      } else {
+        setUrlList(response.urlList);
       }
-      setUrlList(response.urlList);
     }
   );
 }
@@ -82,8 +86,9 @@ export function sendMessageToSetUrlList(
     (response) => {
       if (!response.success) {
         console.error('Failed to set new url into list');
+      } else {
+        setUrlList(response.urlList);
       }
-      setUrlList(response.urlList);
     }
   );
 }
@@ -100,8 +105,9 @@ export function sendMessageToRemoveUrlFromList(
     (response) => {
       if (!response.success) {
         console.error('Failed to remove url from list');
+      } else {
+        setUrlList(response.urlList);
       }
-      setUrlList(response.urlList);
     }
   );
 }
@@ -116,8 +122,9 @@ export function sendMessageToGetUrlList(
     (response) => {
       if (!response.success) {
         console.error('Failed to get url list');
+      } else {
+        setUrlList(response.urlList);
       }
-      setUrlList(response.urlList);
     }
   );
 }
@@ -136,9 +143,10 @@ export function sendMessageToSetBlockInterval(
     (response) => {
       if (!response.success) {
         console.error('Failed to set new block inteval');
+      } else {
+        const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
+        setBlockInterval(newBlockInterval);
       }
-      const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
-      setBlockInterval(newBlockInterval);
     }
   );
 }
@@ -155,9 +163,10 @@ export function sendMessageToRemoveBlockInterval(
     (response) => {
       if (!response.success) {
         console.error('Failed to remove block interval');
+      } else {
+        const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
+        setBlockInterval(newBlockInterval);
       }
-      const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
-      setBlockInterval(newBlockInterval);
     }
   );
 }

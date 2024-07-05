@@ -53,7 +53,7 @@ export function updateAndSetAlarm(
 // Function that mint new block for the given devnet URL
 export async function mintBlock(url: string): Promise<void> {
   try {
-    const response = await fetch(`http://${url}/create_block`, {
+    const response = await fetch(`${url}/create_block`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -117,7 +117,8 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
     if (url && selectedAccount) {
       sendResponse({
         type: 'CONNECT_RIVET_DAPP_RES',
-        data: { data: selectedAccount, url: url },
+        success: true,
+        data: { selectedAccount: selectedAccount, url: url },
       });
     }
 
@@ -261,7 +262,7 @@ async function setSelectedAccount(message: any, sendResponse: (response?: any) =
         tab.id as number,
         {
           type: 'UPDATE_SELECTED_ACCOUNT',
-          data: { data: message.selectedAccount },
+          data: message.selectedAccount,
         },
         (response) => {
           if (chrome.runtime.lastError) {
