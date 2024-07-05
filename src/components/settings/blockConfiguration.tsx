@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Stack, styled, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
@@ -24,11 +24,20 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingAbort, setLoadingAbort] = useState<boolean>(true);
   const [errorNewInterval, setErrorNewInterval] = useState('');
-
-  const navigate = useNavigate();
-  const context = useSharedState();
   const { selectedAccount, url, currentBlock, blockInterval, setBlockInterval, configData } =
-    context;
+    useSharedState();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCurrentBlock = async () => {
+      try {
+        await fetchCurrentBlockNumber();
+      } catch (error) {
+        console.error('Error fetching current block number:', error);
+      }
+    };
+    fetchCurrentBlock();
+  }, []);
 
   const handleBack = () => {
     navigate(`/accounts/${selectedAccount?.address}`);
@@ -71,17 +80,6 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
     setBlockToAbort(parseInt(event.target.value, 10));
     setLoadingAbort(false);
   };
-
-  useEffect(() => {
-    const fetchCurrentBlock = async () => {
-      try {
-        await fetchCurrentBlockNumber();
-      } catch (error) {
-        console.error('Error fetching current block number:', error);
-      }
-    };
-    fetchCurrentBlock();
-  }, []);
 
   return (
     <section>

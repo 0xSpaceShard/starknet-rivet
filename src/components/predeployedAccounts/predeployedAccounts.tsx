@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSharedState } from '../context/context';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
@@ -11,8 +11,7 @@ import {
 } from '../utils/sendMessageBackground';
 import { AccountData } from '../context/interfaces';
 
-export const PredeployedAccounts: React.FC = () => {
-  const context = useSharedState();
+const PredeployedAccounts: React.FC = () => {
   const {
     accounts,
     setAccounts,
@@ -27,63 +26,72 @@ export const PredeployedAccounts: React.FC = () => {
     setUrlList,
     configData,
     setConfigData,
-  } = context;
+  } = useSharedState();
   const navigate = useNavigate();
 
-  async function fetchDataAndPrintAccounts() {
+  useEffect(() => {
+    sendMessageToGetUrl(setUrl);
+  }, [setUrl]);
+
+  useEffect(() => {
+    if (url) {
+      fetchDataAndPrintAccounts();
+    }
+  }, [url]);
+
+  useEffect(() => {
+    if (selectedAccount) {
+      fetchCurrentBalance(selectedAccount.address);
+    }
+  }, [selectedAccount]);
+
+  const fetchDataAndPrintAccounts = async () => {
     try {
       const data = await fetchContainerLogs();
-      if (data == null) {
-        return;
+      if (data) {
+        setAccounts(data);
       }
-      setAccounts(data);
     } catch (error) {
       console.error('Error fetching container logs:', error);
     }
-  }
+  };
 
-  async function fetchContainerLogs(): Promise<AccountData[] | null> {
+  const fetchContainerLogs = async (): Promise<AccountData[] | null> => {
     try {
-      const isAlive = await fetch(`${url}/is_alive`);
-      if (!isAlive.ok) throw new Error('Devnet is not alive');
-
+      const isAliveResponse = await fetch(`${url}/is_alive`);
+      if (!isAliveResponse.ok) throw new Error('Devnet is not alive');
       setDevnetIsAlive(true);
-      const urlExists = urlList.some((devnet) => devnet.url === url);
-      if (!urlExists) {
+
+      if (!urlList.some((devnet) => devnet.url === url)) {
         sendMessageToSetUrlList({ url, isAlive: true }, setUrlList);
       }
+
+      const configResponse = await fetch(`${url}/config`);
+      const dataConfig = await configResponse.json();
+      setConfigData(dataConfig);
+
+      const accountsResponse = await fetch(`${url}/predeployed_accounts`);
+      return accountsResponse.json();
     } catch (error) {
       setDevnetIsAlive(false);
       navigate('/docker-register');
       return null;
     }
+  };
 
+  const fetchCurrentBalance = async (address?: string) => {
     try {
-      const configResponse = await fetch(`${url}/config`);
-      const dataConfig = await configResponse.json();
-      setConfigData(dataConfig);
-      const response = await fetch(`${url}/predeployed_accounts`);
-      const data: AccountData[] = await response.json();
+      if (!address) return;
 
-      return data;
+      const response = await fetch(
+        `${url}/account_balance?address=${address}&block_tag=${configData?.block_generation_on === 'demand' ? 'pending' : ''}`
+      );
+      const data = await response.json();
+      setCurrentBalance(data.amount);
     } catch (error) {
-      console.error('Error fetching container logs:', error);
-      return null;
+      console.error('Error fetching balance:', error);
     }
-  }
-
-  useEffect(() => {
-    sendMessageToGetUrl(setUrl);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchDataAndPrintAccounts();
-    };
-    if (url) {
-      fetchData();
-    }
-  }, [url]);
+  };
 
   const handleAccountClick = async (clickedAddress: string) => {
     const clickedAccount = accounts.find((account) => account.address === clickedAddress);
@@ -93,31 +101,6 @@ export const PredeployedAccounts: React.FC = () => {
       navigate(`/accounts/${clickedAccount.address}`);
     }
   };
-
-  async function fetchCurrentBalance(address: string | undefined) {
-    try {
-      let response: Response;
-      if (configData?.block_generation_on === 'demand') {
-        response = await fetch(`${url}/account_balance?address=${address}&block_tag=pending`);
-      } else {
-        response = await fetch(`${url}/account_balance?address=${address}`);
-      }
-      const array = await response.json();
-      setCurrentBalance(array.amount);
-    } catch (error) {
-      console.error('Error fetching balance:', error);
-    }
-  }
-
-  useEffect(() => {
-    const fetchSelectedAccount = async () => {
-      if (!selectedAccount) {
-        return;
-      }
-      await fetchCurrentBalance(selectedAccount?.address);
-    };
-    fetchSelectedAccount();
-  }, [selectedAccount]);
 
   const handleBack = () => {
     navigate('/');
@@ -139,19 +122,16 @@ export const PredeployedAccounts: React.FC = () => {
             <Box position={'absolute'} top={0} left={0}>
               <Button
                 size="small"
-                variant={'text'}
+                variant="text"
                 startIcon={<ChevronLeft />}
                 onClick={handleBack}
-                sx={{
-                  padding: '8px 10px',
-                  // "&:hover": { backgroundColor: "transparent" },
-                }}
+                sx={{ padding: '8px 10px' }}
               >
                 Back
               </Button>
             </Box>
             <Container>
-              <Typography variant="h6" margin={0} marginY={2}>
+              <Typography variant="h6" marginY={2}>
                 Accounts
               </Typography>
             </Container>
@@ -170,10 +150,10 @@ export const PredeployedAccounts: React.FC = () => {
                   }}
                   onClick={() => handleAccountClick(account.address)}
                 >
-                  <Typography width={'70%'} whiteSpace={'nowrap'}>
+                  <Typography width="70%" whiteSpace="nowrap">
                     {shortenAddress(account.address)}
                   </Typography>
-                  <Stack direction="row" justifyContent="flex-end" width={'30%'}>
+                  <Stack direction="row" justifyContent="flex-end" width="30%">
                     {getBalanceStr(account.initial_balance)} ETH
                   </Stack>
                 </Button>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PageHeader from './pageHeader';
-import { CompiledSierraCasm, hash, isSierra } from 'starknet-6';
+import { CompiledSierraCasm, isSierra } from 'starknet-6';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 
 export const DeclareSmartContract: React.FC = () => {
@@ -12,17 +12,13 @@ export const DeclareSmartContract: React.FC = () => {
   const [selectedCasmFile, setSelectedCasmFile] = useState<CompiledSierraCasm | null>(null);
   const [declareClassHash, setDeclareClassHash] = useState('');
   const [errorDeclaration, setErrorDeclaration] = useState('');
-
   const [selectedSierraFileName, setSelectedSierraFileName] = useState(
     'Click to upload sierra JSON'
   );
   const [selectedCasmFileName, setSelectedCasmFileName] = useState('Click to upload casm JSON');
   const [checkSierra, setCheckSierra] = useState(true);
-
+  const { selectedAccount } = useSharedState();
   const navigate = useNavigate();
-  const context = useSharedState();
-
-  const { selectedAccount } = context;
 
   const handleSierraFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;

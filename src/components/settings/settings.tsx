@@ -5,10 +5,8 @@ import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 
 export const Settings: React.FC = () => {
+  const { selectedAccount } = useSharedState();
   const navigate = useNavigate();
-  const context = useSharedState();
-
-  const { selectedAccount } = context;
 
   const handleBack = () => {
     navigate(`/accounts/${selectedAccount?.address}`);

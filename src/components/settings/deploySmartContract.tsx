@@ -22,13 +22,15 @@ export const DeploySmartContract: React.FC = () => {
   const [selectedClassHash, setSelectedClassHash] = useState('');
   const [deployedContractAddress, setDeployedContractAddress] = useState('');
   const [errorDeployment, setErrorDeployment] = useState('');
-
   const [constructorParams, setConstructorParams] = useState<ConstructorParam[]>([]);
-
+  const { selectedAccount, url } = useSharedState();
   const navigate = useNavigate();
-  const context = useSharedState();
 
-  const { selectedAccount, url } = context;
+  useEffect(() => {
+    if (selectedClassHash) {
+      fetchAbiAndParseConstructor(selectedClassHash);
+    }
+  }, [selectedClassHash]);
 
   const handleBack = () => {
     navigate(`/accounts/${selectedAccount?.address}/settings`);
@@ -110,12 +112,6 @@ export const DeploySmartContract: React.FC = () => {
       console.error('Error fetching ABI or parsing constructor:', error);
     }
   }
-
-  useEffect(() => {
-    if (selectedClassHash) {
-      fetchAbiAndParseConstructor(selectedClassHash);
-    }
-  }, [selectedClassHash]);
 
   return (
     <section>

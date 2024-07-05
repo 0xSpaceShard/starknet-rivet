@@ -29,15 +29,10 @@ import {
   REQUEST_BODY_SIZE_LIMIT,
 } from '../../info';
 import { useSharedState } from '../context/context';
-import {
-  sendMessageToSetBlockInterval,
-  sendMessageToSetUrlList,
-} from '../utils/sendMessageBackground';
+import { sendMessageToSetUrlList } from '../utils/sendMessageBackground';
 import { Options } from '../context/interfaces';
 
 const DockerCommandGenerator: React.FC = () => {
-  const context = useSharedState();
-
   const defaultOptions: Options = {
     accounts: 10,
     accountClass: 'cairo1',
@@ -66,9 +61,8 @@ const DockerCommandGenerator: React.FC = () => {
   const [timeoutError, setTimeOutError] = useState('');
   const [generalError, setGeneralError] = useState(false);
   const [generateCommand, setGenerateCommand] = useState(false);
+  const { setUrlList, setCommandOptions } = useSharedState();
   const navigate = useNavigate();
-
-  const { setUrlList, setCommandOptions, blockInterval, setBlockInterval } = context;
 
   const isValidInitialBalance = (value: string): boolean => {
     const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
@@ -192,385 +186,382 @@ const DockerCommandGenerator: React.FC = () => {
   };
 
   return (
-    <>
-      <section>
-        <Stack direction={'row'} justifyContent={'center'} position={'relative'}>
-          <Box position={'absolute'} top={0} left={0}>
-            <Button
-              size="small"
-              variant={'text'}
-              startIcon={<ChevronLeft />}
-              onClick={handleBack}
-              sx={{
-                padding: '8px 10px',
-                // "&:hover": { backgroundColor: "transparent" },
-              }}
-            >
-              Back
-            </Button>
-          </Box>
-          <Container>
-            <Typography variant="h6" margin={0} marginY={2}>
-              Generator
-            </Typography>
-          </Container>
-        </Stack>
-        <Box paddingTop={1} paddingBottom={3}>
-          <form id="docker-command-form">
-            <Stack textAlign={'left'} paddingLeft={4} spacing={3}>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="accounts"
-                    value={options.accounts}
-                    label={'Account'}
-                    onChange={handleInputChange}
-                    error={!options?.accounts || options.accounts > 255}
-                    variant={'outlined'}
-                    size={'small'}
-                    helperText={
-                      !options?.accounts
-                        ? 'Field is required'
-                        : options.accounts > 255
-                          ? 'Max predeployed accounts is 255'
-                          : ''
-                    }
-                  ></TextField>
-                </Box>
-                <Tooltip title={ACCOUNT_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Box marginTop={'10px !important'}>
-                <FormHelperText style={{ marginBottom: '2px' }}>Account Class</FormHelperText>
-                <Stack direction={'row'}>
-                  <Box flex={1}>
-                    <Select
-                      fullWidth
-                      name="accountClass"
-                      value={options.accountClass}
-                      label={'Account Class'}
-                      onChange={handleInputChange}
-                      size={'small'}
-                    >
-                      <MenuItem value={'cairo0'}>cairo0</MenuItem>
-                      <MenuItem value={'cairo1'}>cairo1</MenuItem>
-                    </Select>
-                  </Box>
-                  <Tooltip title={ACCOUNT_CLASS_INFO} sx={{ marginX: 2 }}>
-                    <IconButton>
-                      <InfoOutlined />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              </Box>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="accountClassCustom"
-                    value={options.accountClassCustom}
-                    label={'Custom Account Class'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={ACCOUNT_CLASS_CUSTOM_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="initialBalance"
-                    value={options.initialBalance}
-                    label={'Initial Balance'}
-                    onChange={handleInputChange}
-                    error={!!initialBalanceError}
-                    variant={'outlined'}
-                    size={'small'}
-                    helperText={initialBalanceError}
-                  ></TextField>
-                </Box>
-                <Box width={'40px'} marginX={2} marginY={0} />
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="seed"
-                    value={options.seed}
-                    label={'Seed'}
-                    onChange={handleInputChange}
-                    error={!!seedError}
-                    helperText={seedError}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={SEED_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="host"
-                    value={options.host}
-                    label={'Host'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Box width={'40px'} marginX={2} marginY={0} />
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="port"
-                    value={options.port}
-                    label={'Port'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Box width={'40px'} marginX={2} marginY={0} />
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="startTime"
-                    value={options.startTime}
-                    label={'Start Time'}
-                    onChange={handleInputChange}
-                    error={!!startTimeError}
-                    helperText={startTimeError}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={START_TIME_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="timeout"
-                    value={options.timeout}
-                    label={'Timeout'}
-                    onChange={handleInputChange}
-                    error={!!timeoutError}
-                    helperText={timeoutError}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Box width={'40px'} marginX={2} marginY={0} />
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="gasPrice"
-                    value={options.gasPrice}
-                    label={'Gas price'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Box width={'40px'} marginX={2} marginY={0} />
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="dataGasPrice"
-                    value={options.dataGasPrice}
-                    label={'Data Gas Price'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Box width={'40px'} marginX={2} marginY={0} />
-              </Stack>
-              <Box marginTop={'10px !important'}>
-                <FormHelperText style={{ marginBottom: '2px' }}>Chain Id</FormHelperText>
-                <Stack direction={'row'}>
-                  <Box flex={1}>
-                    <Select
-                      fullWidth
-                      name="chainId"
-                      value={options.chainId}
-                      label={'Chain Id'}
-                      onChange={handleInputChange}
-                      size={'small'}
-                    >
-                      <MenuItem value={'TESTNET'}>TESTNET</MenuItem>
-                      <MenuItem value={'MAINNET'}>MAINNET</MenuItem>
-                    </Select>
-                  </Box>
-                  <Box width={'40px'} marginX={2} marginY={0} />
-                </Stack>
-              </Box>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="dumpOn"
-                    value={options.dumpOn}
-                    label={'Dump On'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={DUMP_ON_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="dumpPath"
-                    value={options.dumpPath}
-                    label={'Dump Path'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={DUMP_PATH_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Box marginTop={'10px !important'}>
-                <FormHelperText style={{ marginBottom: '2px' }}>Archive Capacity</FormHelperText>
-                <Stack direction={'row'}>
-                  <Box flex={1}>
-                    <Select
-                      fullWidth
-                      name="stateArchiveCapacity"
-                      value={options.stateArchiveCapacity}
-                      label={'Archive Capacity'}
-                      onChange={handleInputChange}
-                      size={'small'}
-                    >
-                      <MenuItem value={'none'}>none</MenuItem>
-                      <MenuItem value={'full'}>full</MenuItem>
-                    </Select>
-                  </Box>
-                  <Tooltip title={STATE_ARCHIVE_CAPACITY_INFO} sx={{ marginX: 2 }}>
-                    <IconButton>
-                      <InfoOutlined />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              </Box>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="forkNetwork"
-                    value={options.forkNetwork}
-                    label={'Fork Network'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={FORK_NETWORK_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="forkBlock"
-                    value={options.forkBlock}
-                    label={'Fork Block'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={FORK_BLOCK_INFO} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Stack direction={'row'}>
-                <Box flex={1}>
-                  <TextField
-                    fullWidth
-                    name="requestBodySizeLimit"
-                    value={options.requestBodySizeLimit}
-                    label={'Request Body Size Limit'}
-                    onChange={handleInputChange}
-                    variant={'outlined'}
-                    size={'small'}
-                  ></TextField>
-                </Box>
-                <Tooltip title={REQUEST_BODY_SIZE_LIMIT} sx={{ marginX: 2 }}>
-                  <IconButton>
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Stack>
-            <Box marginTop={3}>
-              <Container>
-                {!generateCommand && (
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => alert(generateDockerCommand())}
-                    disabled={generalError}
-                  >
-                    Generate Docker Command
-                  </Button>
-                )}
-                {generateCommand && (
-                  <Box>
-                    <Button variant="outlined" color="primary" onClick={handleBack}>
-                      Continue
-                    </Button>
-                  </Box>
-                )}
-              </Container>
-            </Box>
-          </form>
+    <section>
+      <Stack direction={'row'} justifyContent={'center'} position={'relative'}>
+        <Box position={'absolute'} top={0} left={0}>
+          <Button
+            size="small"
+            variant={'text'}
+            startIcon={<ChevronLeft />}
+            onClick={handleBack}
+            sx={{
+              padding: '8px 10px',
+            }}
+          >
+            Back
+          </Button>
         </Box>
-      </section>
-    </>
+        <Container>
+          <Typography variant="h6" margin={0} marginY={2}>
+            Generator
+          </Typography>
+        </Container>
+      </Stack>
+      <Box paddingTop={1} paddingBottom={3}>
+        <form id="docker-command-form">
+          <Stack textAlign={'left'} paddingLeft={4} spacing={3}>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="accounts"
+                  value={options.accounts}
+                  label={'Account'}
+                  onChange={handleInputChange}
+                  error={!options?.accounts || options.accounts > 255}
+                  variant={'outlined'}
+                  size={'small'}
+                  helperText={
+                    !options?.accounts
+                      ? 'Field is required'
+                      : options.accounts > 255
+                        ? 'Max predeployed accounts is 255'
+                        : ''
+                  }
+                ></TextField>
+              </Box>
+              <Tooltip title={ACCOUNT_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Box marginTop={'10px !important'}>
+              <FormHelperText style={{ marginBottom: '2px' }}>Account Class</FormHelperText>
+              <Stack direction={'row'}>
+                <Box flex={1}>
+                  <Select
+                    fullWidth
+                    name="accountClass"
+                    value={options.accountClass}
+                    label={'Account Class'}
+                    onChange={handleInputChange}
+                    size={'small'}
+                  >
+                    <MenuItem value={'cairo0'}>cairo0</MenuItem>
+                    <MenuItem value={'cairo1'}>cairo1</MenuItem>
+                  </Select>
+                </Box>
+                <Tooltip title={ACCOUNT_CLASS_INFO} sx={{ marginX: 2 }}>
+                  <IconButton>
+                    <InfoOutlined />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            </Box>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="accountClassCustom"
+                  value={options.accountClassCustom}
+                  label={'Custom Account Class'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={ACCOUNT_CLASS_CUSTOM_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="initialBalance"
+                  value={options.initialBalance}
+                  label={'Initial Balance'}
+                  onChange={handleInputChange}
+                  error={!!initialBalanceError}
+                  variant={'outlined'}
+                  size={'small'}
+                  helperText={initialBalanceError}
+                ></TextField>
+              </Box>
+              <Box width={'40px'} marginX={2} marginY={0} />
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="seed"
+                  value={options.seed}
+                  label={'Seed'}
+                  onChange={handleInputChange}
+                  error={!!seedError}
+                  helperText={seedError}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={SEED_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="host"
+                  value={options.host}
+                  label={'Host'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Box width={'40px'} marginX={2} marginY={0} />
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="port"
+                  value={options.port}
+                  label={'Port'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Box width={'40px'} marginX={2} marginY={0} />
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="startTime"
+                  value={options.startTime}
+                  label={'Start Time'}
+                  onChange={handleInputChange}
+                  error={!!startTimeError}
+                  helperText={startTimeError}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={START_TIME_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="timeout"
+                  value={options.timeout}
+                  label={'Timeout'}
+                  onChange={handleInputChange}
+                  error={!!timeoutError}
+                  helperText={timeoutError}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Box width={'40px'} marginX={2} marginY={0} />
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="gasPrice"
+                  value={options.gasPrice}
+                  label={'Gas price'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Box width={'40px'} marginX={2} marginY={0} />
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="dataGasPrice"
+                  value={options.dataGasPrice}
+                  label={'Data Gas Price'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Box width={'40px'} marginX={2} marginY={0} />
+            </Stack>
+            <Box marginTop={'10px !important'}>
+              <FormHelperText style={{ marginBottom: '2px' }}>Chain Id</FormHelperText>
+              <Stack direction={'row'}>
+                <Box flex={1}>
+                  <Select
+                    fullWidth
+                    name="chainId"
+                    value={options.chainId}
+                    label={'Chain Id'}
+                    onChange={handleInputChange}
+                    size={'small'}
+                  >
+                    <MenuItem value={'TESTNET'}>TESTNET</MenuItem>
+                    <MenuItem value={'MAINNET'}>MAINNET</MenuItem>
+                  </Select>
+                </Box>
+                <Box width={'40px'} marginX={2} marginY={0} />
+              </Stack>
+            </Box>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="dumpOn"
+                  value={options.dumpOn}
+                  label={'Dump On'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={DUMP_ON_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="dumpPath"
+                  value={options.dumpPath}
+                  label={'Dump Path'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={DUMP_PATH_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Box marginTop={'10px !important'}>
+              <FormHelperText style={{ marginBottom: '2px' }}>Archive Capacity</FormHelperText>
+              <Stack direction={'row'}>
+                <Box flex={1}>
+                  <Select
+                    fullWidth
+                    name="stateArchiveCapacity"
+                    value={options.stateArchiveCapacity}
+                    label={'Archive Capacity'}
+                    onChange={handleInputChange}
+                    size={'small'}
+                  >
+                    <MenuItem value={'none'}>none</MenuItem>
+                    <MenuItem value={'full'}>full</MenuItem>
+                  </Select>
+                </Box>
+                <Tooltip title={STATE_ARCHIVE_CAPACITY_INFO} sx={{ marginX: 2 }}>
+                  <IconButton>
+                    <InfoOutlined />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            </Box>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="forkNetwork"
+                  value={options.forkNetwork}
+                  label={'Fork Network'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={FORK_NETWORK_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="forkBlock"
+                  value={options.forkBlock}
+                  label={'Fork Block'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={FORK_BLOCK_INFO} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+            <Stack direction={'row'}>
+              <Box flex={1}>
+                <TextField
+                  fullWidth
+                  name="requestBodySizeLimit"
+                  value={options.requestBodySizeLimit}
+                  label={'Request Body Size Limit'}
+                  onChange={handleInputChange}
+                  variant={'outlined'}
+                  size={'small'}
+                ></TextField>
+              </Box>
+              <Tooltip title={REQUEST_BODY_SIZE_LIMIT} sx={{ marginX: 2 }}>
+                <IconButton>
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </Stack>
+          <Box marginTop={3}>
+            <Container>
+              {!generateCommand && (
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => alert(generateDockerCommand())}
+                  disabled={generalError}
+                >
+                  Generate Docker Command
+                </Button>
+              )}
+              {generateCommand && (
+                <Box>
+                  <Button variant="outlined" color="primary" onClick={handleBack}>
+                    Continue
+                  </Button>
+                </Box>
+              )}
+            </Container>
+          </Box>
+        </form>
+      </Box>
+    </section>
   );
 };
 

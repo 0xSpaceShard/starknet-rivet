@@ -1,5 +1,5 @@
 import './Popup.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
 import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker';
@@ -14,19 +14,9 @@ import { DeclareSmartContract } from '../components/settings/declareSmartContrac
 import { BlockConfiguration } from '../components/settings/blockConfiguration';
 import { RpcProvider } from 'starknet-6';
 import { Component } from '../components/context/enum';
-
-interface BlockWithTxs {
-  block_hash: string;
-}
-
-interface PendingBlockWithTxs {
-  starknet_version: string;
-}
-
-type BlockWithTxsUnion = BlockWithTxs | PendingBlockWithTxs;
+import { BlockWithTxs, BlockWithTxsUnion } from './interfaces';
 
 export const Popup = () => {
-  const context = useSharedState();
   const {
     setSelectedComponent,
     url,
@@ -35,7 +25,28 @@ export const Popup = () => {
     setCurrentBlock,
     blockInterval,
     configData,
-  } = context;
+  } = useSharedState();
+
+  useEffect(() => {
+    const fetchCurrentBlock = async () => {
+      try {
+        await fetchCurrentBlockNumber();
+      } catch (error) {
+        console.error('Error fetching current block number:', error);
+      }
+    };
+    if (url && blockInterval instanceof Map && blockInterval.has(url)) {
+      let interval = blockInterval.get(url);
+      if (interval && interval < 60000) {
+        interval = 60000;
+      }
+      const id = setInterval(() => {
+        fetchCurrentBlock();
+      }, interval);
+
+      return () => clearInterval(id);
+    }
+  }, [url, blockInterval]);
 
   const switchComponent = (newSelectedComponent: Component) => {
     if (newSelectedComponent === Component.Accounts && !url) {
@@ -121,27 +132,6 @@ export const Popup = () => {
       console.error('Error aborting block:', error);
     }
   }
-
-  useEffect(() => {
-    const fetchCurrentBlock = async () => {
-      try {
-        await fetchCurrentBlockNumber();
-      } catch (error) {
-        console.error('Error fetching current block number:', error);
-      }
-    };
-    if (url && blockInterval instanceof Map && blockInterval.has(url)) {
-      let interval = blockInterval.get(url);
-      if (interval && interval < 60000) {
-        interval = 60000;
-      }
-      const id = setInterval(() => {
-        fetchCurrentBlock();
-      }, interval);
-
-      return () => clearInterval(id);
-    }
-  }, [url, blockInterval]);
 
   const ComponentMenu = () => (
     <Stack spacing={0}>

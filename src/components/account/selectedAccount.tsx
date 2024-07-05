@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useSharedState } from '../context/context';
 import { Box, Button, Container, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
@@ -9,7 +9,6 @@ import { handleCopyAddress, shortenAddress } from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
 
 export const SelectedAccountInfo: React.FC<{}> = ({}) => {
-  const context = useSharedState();
   const {
     url,
     devnetIsAlive,
@@ -22,11 +21,18 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
     setTransactionData,
     signatureData,
     setSignatureData,
-  } = context;
-
+  } = useSharedState();
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
-
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const accountConfig = async () => {
+      try {
+        await fetchAccountConfig();
+      } catch (error) {}
+    };
+    accountConfig();
+  }, []);
 
   const weiToEth = (wei: string): string => {
     const weiNumber = BigInt(num.hexToDecimalString(wei));
@@ -117,15 +123,6 @@ export const SelectedAccountInfo: React.FC<{}> = ({}) => {
   const handleSettings = () => {
     navigate(`/accounts/${selectedAccount?.address}/settings`);
   };
-
-  useEffect(() => {
-    const accountConfig = async () => {
-      try {
-        await fetchAccountConfig();
-      } catch (error) {}
-    };
-    accountConfig();
-  }, []);
 
   const balanceBigInt = BigInt(currentBalance) / BigInt(10n ** 18n);
   const balanceString = balanceBigInt.toString();

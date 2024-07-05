@@ -7,13 +7,6 @@ const CheckDevnetStatus: React.FC<{ url: string }> = ({ url }) => {
   const [isAlive, setIsAlive] = useState(false);
   const { setUrlList } = useSharedState();
 
-  const updateIsAliveStatus = useCallback(
-    (newIsAlive: boolean) => {
-      sendMessageToUpdateUrlList(url, newIsAlive, setUrlList);
-    },
-    [url]
-  );
-
   useEffect(() => {
     const checkDevnetStatus = async () => {
       try {
@@ -32,6 +25,13 @@ const CheckDevnetStatus: React.FC<{ url: string }> = ({ url }) => {
     const interval = setInterval(checkDevnetStatus, 60000);
     return () => clearInterval(interval);
   }, [url]);
+
+  const updateIsAliveStatus = useCallback(
+    (newIsAlive: boolean) => {
+      sendMessageToUpdateUrlList(url, newIsAlive, setUrlList);
+    },
+    [url]
+  );
 
   return <span className={isAlive ? 'green-light' : 'red-light'}></span>;
 };

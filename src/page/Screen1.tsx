@@ -6,8 +6,7 @@ import { useSharedState } from '../components/context/context';
 import { Component } from '../components/context/enum';
 
 export const Screen1 = () => {
-  const context = useSharedState();
-  const { selectedComponent, setSelectedComponent } = context;
+  const { selectedComponent, setSelectedComponent } = useSharedState();
 
   window.addEventListener('message', (event) => {
     if (event.data.type === 'CHANGE_SELECTED_COMPONENT') {
