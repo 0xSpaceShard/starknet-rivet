@@ -7,11 +7,17 @@ import {
   sendMessageToRemoveBlockInterval,
   sendMessageToSetBlockInterval,
 } from '../utils/sendMessageBackground';
+import { RpcProvider } from 'starknet-6';
 
 interface BlockConfigurationProps {
   creatNewBlock: () => Promise<void>;
   fetchCurrentBlockNumber: () => Promise<void>;
   abortBlock: (blockNumber: number) => Promise<void>;
+}
+
+interface BlockInfo {
+  timestamp: number,
+  transactionsCount: number
 }
 
 export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
@@ -24,6 +30,7 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingAbort, setLoadingAbort] = useState<boolean>(true);
   const [errorNewInterval, setErrorNewInterval] = useState('');
+  const [blockTransactionsCount, setBlockTransactionsCount] = useState<BlockInfo[]>([]);
 
   const navigate = useNavigate();
   const context = useSharedState();
@@ -82,6 +89,22 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
     };
     fetchCurrentBlock();
   }, []);
+
+  async function fetchTransactionsCountByBlock() {
+    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
+    let newBlockTransactionsCount: BlockInfo[] = [...blockTransactionsCount];
+    for (let index = newBlockTransactionsCount.length; index <= currentBlock; index++) {
+      const transactionsCount = await provider.getBlockTransactionCount(index);
+      const tx = await provider.getBlockWithTxs(index);
+
+      newBlockTransactionsCount.push({ timestamp: tx.timestamp,  transactionsCount});
+    }
+    setBlockTransactionsCount(newBlockTransactionsCount);
+  }
+
+  useEffect(() => {
+    fetchTransactionsCountByBlock();
+  }, [currentBlock]);
 
   return (
     <section>
@@ -153,6 +176,30 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
             </>
           )}
         </Stack>
+        <Divider variant="middle" />
+        {blockTransactionsCount.length === 0 ? (
+          <Typography variant="caption">
+            No transactions available.
+          </Typography>
+        ) : (
+          blockTransactionsCount.reverse().map((info, index) => (
+            <>
+            <Divider variant="middle" />
+            <Stack key={index} direction="row" spacing={2}>
+              <Typography variant="caption">
+                Block Number {blockTransactionsCount.length - 1 - index}
+              </Typography>
+              <Typography variant="caption">
+                Timestamp {info.timestamp}
+              </Typography>
+              <Typography variant="caption">
+                Transactions {info.transactionsCount}
+              </Typography>
+          </Stack>
+          </>
+          ))
+        )}
+
       </PageHeader>
     </section>
   );
