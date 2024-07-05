@@ -171,6 +171,25 @@ export function sendMessageToRemoveBlockInterval(
   );
 }
 
+export function sendMessageToUpdateAccountContracts(
+  accountContracts: Map<string, string[]>,
+  setAccountContracts: React.Dispatch<React.SetStateAction<Map<string, string[]>>>
+) {
+  chrome.runtime.sendMessage(
+    {
+      type: 'UPDATE_ACCOUNT_CONTRACTS',
+      accountContracts: Object.fromEntries(accountContracts),
+    },
+    ({ success, accountContracts: updatedContracts }) => {
+      if (!success) {
+        console.error('Failed to update account contracts');
+      }
+      const map = new Map<string, string[]>(Object.entries(updatedContracts));
+      setAccountContracts(map);
+    }
+  );
+}
+
 function setBlockIntervalFromObject(obj: Record<string, number>): Map<string, number> {
   return new Map(Object.entries(obj));
 }

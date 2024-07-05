@@ -26,6 +26,10 @@ export const Settings: React.FC = () => {
     navigate(`/accounts/${selectedAccount?.address}/blockConfiguration`);
   };
 
+  const handleManageContracts = () => {
+    navigate(`/accounts/${selectedAccount?.address}/add-token-contract`);
+  };
+
   return (
     <section>
       <PageHeader title="Settings" backButtonHandler={handleBack}>
@@ -57,6 +61,14 @@ export const Settings: React.FC = () => {
             sx={{ width: '100%' }}
           >
             Block configuration
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => handleManageContracts()}
+            sx={{ width: '100%' }}
+          >
+            Manage Token Contracts
           </Button>
         </Stack>
       </PageHeader>

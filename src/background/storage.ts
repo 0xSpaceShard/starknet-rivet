@@ -150,3 +150,29 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
     throw error;
   }
 }
+
+// Function to update the account token contracts list in Chrome sync storage
+export async function updateAccountContractsInSyncStorage(
+  accountContracts: Record<string, string[]>
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({ accountContracts }, () => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve();
+    });
+  });
+}
+
+// Function to retrieve account token contracts list from Chrome sync storage
+export async function getAccountContractsFromSyncStorage(): Promise<Map<string, string[]>> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['accountContracts'], ({ accountContracts }) => {
+      if (chrome.runtime.lastError) {
+        return reject(chrome.runtime.lastError);
+      }
+      resolve(accountContracts ?? {});
+    });
+  });
+}

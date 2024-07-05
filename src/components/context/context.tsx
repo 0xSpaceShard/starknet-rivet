@@ -27,6 +27,7 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [transactionData, setTransactionData] = useState<any>(null);
   const [signatureData, setSignatureData] = useState<any>(null);
+  const [accountContracts, setAccountContracts] = useState(new Map<string, string[]>());
 
   useEffect(() => {
     chrome.storage.local.get(null, (data) => {
@@ -41,6 +42,7 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
         setConfigData(data.configData || null);
         setUrlList(data.urlList || [{ url: DEFAULT_DEVNET_URL, isAlive: false }]);
         setSelectedComponent(data.selectedComponent || '');
+        setAccountContracts(new Map(Object.entries(data.accountContracts || {})));
       }
     });
   }, []);
@@ -57,6 +59,7 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
       configData,
       urlList,
       selectedComponent,
+      accountContracts: Object.fromEntries(accountContracts),
     };
     chrome.storage.local.set(dataToSave);
   }, [
@@ -70,6 +73,7 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
     configData,
     urlList,
     selectedComponent,
+    accountContracts,
   ]);
 
   return (
@@ -101,6 +105,8 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
         setTransactionData,
         signatureData,
         setSignatureData,
+        accountContracts,
+        setAccountContracts,
       }}
     >
       {children}
