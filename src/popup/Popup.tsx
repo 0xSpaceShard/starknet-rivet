@@ -246,7 +246,7 @@ export const Popup = () => {
                 RPC
               </Typography>
               <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                <CheckDevnetStatus url={url} initialIsAlive={true} />
+                <CheckDevnetStatus url={url} shouldSendMessage={false} initialIsAlive={true} />
                 <Typography fontSize={'0.9rem'}>{url}</Typography>
               </Stack>
             </Stack>
