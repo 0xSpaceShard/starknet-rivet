@@ -2,9 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSharedState } from '../context/context';
 import './checkDevnetStatus.css';
 import { sendMessageToUpdateUrlList } from '../utils/sendMessageBackground';
+import { Typography } from '@mui/material';
 
-const CheckDevnetStatus: React.FC<{ url: string }> = ({ url }) => {
-  const [isAlive, setIsAlive] = useState(false);
+const CheckDevnetStatus: React.FC<{
+  url: string;
+  shouldSendMessage?: boolean;
+  initialIsAlive?: boolean;
+}> = ({ url, shouldSendMessage = true, initialIsAlive = false }) => {
+  const [isAlive, setIsAlive] = useState(initialIsAlive);
   const { setUrlList } = useSharedState();
 
   const updateIsAliveStatus = useCallback(
@@ -18,10 +23,14 @@ const CheckDevnetStatus: React.FC<{ url: string }> = ({ url }) => {
     const checkDevnetStatus = async () => {
       try {
         await fetch(`${url}/is_alive`);
-        updateIsAliveStatus(true);
+        if (shouldSendMessage) {
+          updateIsAliveStatus(true);
+        }
         setIsAlive(true);
       } catch (error) {
-        updateIsAliveStatus(false);
+        if (shouldSendMessage) {
+          updateIsAliveStatus(false);
+        }
         setIsAlive(false);
         console.error('Error checking devnet status:', error);
       }
@@ -33,7 +42,7 @@ const CheckDevnetStatus: React.FC<{ url: string }> = ({ url }) => {
     return () => clearInterval(interval);
   }, [url]);
 
-  return <span className={isAlive ? 'green-light' : 'red-light'}></span>;
+  return <Typography className={isAlive ? 'green-light' : 'red-light'} />;
 };
 
 export default CheckDevnetStatus;

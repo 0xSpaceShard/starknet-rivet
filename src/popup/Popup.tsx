@@ -1,20 +1,24 @@
-import './Popup.css';
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { Route, Routes, Link as RouteLink, useNavigate } from 'react-router-dom';
+import { RpcProvider } from 'starknet-6';
+import { Box, Button, Divider, IconButton, Stack, Typography, Tabs, Tab } from '@mui/material';
+import { ChevronLeft, ChevronRight, SettingsApplicationsRounded } from '@mui/icons-material';
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
+import PredeployedAccountsInline from '../components/predeployedAccounts/predeployedAccountsInline';
+import BlockList from '../components/block/BlockList';
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
 import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker';
 import { useSharedState } from '../components/context/context';
-import { Box, Button, Stack, Typography } from '@mui/material';
-import { ChevronRight } from '@mui/icons-material';
-import { Route, Routes, Link as RouteLink, useLocation, Navigate } from 'react-router-dom';
 import SelectedAccountInfo from '../components/account/selectedAccount';
 import { Settings } from '../components/settings/settings';
 import { DeploySmartContract } from '../components/settings/deploySmartContract';
 import { DeclareSmartContract } from '../components/settings/declareSmartContract';
 import { BlockConfiguration } from '../components/settings/blockConfiguration';
-import { RpcProvider } from 'starknet-6';
 import { Component } from '../components/context/enum';
 import { AddTokenContract } from '../components/settings/addTokenContract';
+import CheckDevnetStatus from '../components/checkDevnetStatus/checkDevnetStatus';
+import { darkTheme } from '..';
+import './Popup.css';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -27,6 +31,7 @@ interface PendingBlockWithTxs {
 type BlockWithTxsUnion = BlockWithTxs | PendingBlockWithTxs;
 
 export const Popup = () => {
+  const navigate = useNavigate();
   const context = useSharedState();
   const {
     setSelectedComponent,
@@ -36,6 +41,7 @@ export const Popup = () => {
     setCurrentBlock,
     blockInterval,
     configData,
+    currentBlock,
   } = context;
 
   const switchComponent = (newSelectedComponent: Component) => {
@@ -45,7 +51,7 @@ export const Popup = () => {
     }
     setSelectedComponent(newSelectedComponent);
   };
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
     if (message.type === 'EXECUTE_RIVET_TRANSACTION') {
       setTransactionData({ data: message.data, gas_fee: message?.gas_fee, error: message?.error });
     } else if (message.type === 'SIGN_RIVET_MESSAGE') {
@@ -123,6 +129,7 @@ export const Popup = () => {
     }
   }
 
+  // eslint-disable-next-line consistent-return
   useEffect(() => {
     const fetchCurrentBlock = async () => {
       try {
@@ -145,77 +152,202 @@ export const Popup = () => {
   }, [url, blockInterval]);
 
   const ComponentMenu = () => (
-    <Stack spacing={0}>
-      <Box>
-        <Button
-          variant="text"
-          component={RouteLink}
-          to="/command-generator"
-          fullWidth
-          sx={{
-            height: 48,
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-          }}
-          onClick={() => switchComponent(Component.CommandGenerator)}
-        >
-          Docker Command Generator
-          <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
-            <ChevronRight />
-          </Box>
-        </Button>
-      </Box>
-      <Box>
-        <Button
-          variant="text"
-          component={RouteLink}
-          to="/docker-register"
-          fullWidth
-          sx={{
-            height: 48,
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-          }}
-          onClick={() => switchComponent(Component.DockerRegister)}
-        >
-          Register Running Docker
-          <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
-            <ChevronRight />
-          </Box>
-        </Button>
-      </Box>
-      {url ? (
+    <section>
+      <Stack direction={'row'} justifyContent={'flex-start'}>
+        <Box>
+          <Button
+            size="small"
+            variant={'text'}
+            startIcon={<ChevronLeft />}
+            onClick={() => navigate('/')}
+            sx={{
+              padding: '8px 10px',
+            }}
+          >
+            Back
+          </Button>
+        </Box>
+      </Stack>
+      <Stack spacing={0}>
         <Box>
           <Button
             variant="text"
             component={RouteLink}
-            to="/accounts"
+            to="/command-generator"
             fullWidth
             sx={{
               height: 48,
               justifyContent: 'flex-end',
               alignItems: 'center',
             }}
-            onClick={() => switchComponent(Component.Accounts)}
+            onClick={() => switchComponent(Component.CommandGenerator)}
           >
-            Show Predeployed Accounts
+            Docker Command Generator
             <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
               <ChevronRight />
             </Box>
           </Button>
         </Box>
-      ) : (
-        <Box height={48} display={'flex'} justifyContent={'center'} alignItems={'center'}>
-          <Typography variant="caption">No predeployed accounts</Typography>
+        <Box>
+          <Button
+            variant="text"
+            component={RouteLink}
+            to="/docker-register"
+            fullWidth
+            sx={{
+              height: 48,
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+            }}
+            onClick={() => switchComponent(Component.DockerRegister)}
+          >
+            Register Running Docker
+            <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
+              <ChevronRight />
+            </Box>
+          </Button>
         </Box>
-      )}
-    </Stack>
+        {/* {url ? (
+          <Box>
+            <Button
+              variant="text"
+              component={RouteLink}
+              to="/accounts"
+              fullWidth
+              sx={{
+                height: 48,
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+              }}
+              onClick={() => switchComponent(Component.Accounts)}
+            >
+              Show Predeployed Accounts
+              <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
+                <ChevronRight />
+              </Box>
+            </Button>
+          </Box>
+        ) : (
+          <Box height={48} display={'flex'} justifyContent={'center'} alignItems={'center'}>
+            <Typography variant="caption">No predeployed accounts</Typography>
+          </Box>
+        )} */}
+      </Stack>
+    </section>
   );
+
+  const StatusHeader = () => {
+    return (
+      <Box padding={1.2}>
+        <Stack spacing={1}>
+          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+            <Stack alignItems={'flex-start'}>
+              <Typography color={darkTheme.palette.text.secondary} variant="caption">
+                RPC
+              </Typography>
+              <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                <CheckDevnetStatus url={url} shouldSendMessage={false} initialIsAlive={true} />
+                <Typography fontSize={'0.9rem'}>{url}</Typography>
+              </Stack>
+            </Stack>
+            <Stack alignItems={'flex-start'}>
+              <Typography color={darkTheme.palette.text.secondary} variant="caption">
+                CHAIN
+              </Typography>
+              <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                <Typography fontSize={'0.9rem'}>{configData?.chain_id ?? 'Unknown'}</Typography>
+              </Stack>
+            </Stack>
+          </Stack>
+          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+            <Stack alignItems={'flex-start'}>
+              <Typography color={darkTheme.palette.text.secondary} variant="caption">
+                BLOCK
+              </Typography>
+              <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                <Typography fontSize={'0.9rem'}>{currentBlock ?? '??'}</Typography>
+              </Stack>
+            </Stack>
+            <Stack alignItems={'flex-start'}>
+              <Typography color={darkTheme.palette.text.secondary} variant="caption">
+                FEE
+              </Typography>
+              <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                <Typography fontSize={'0.9rem'}>12.345</Typography>
+              </Stack>
+            </Stack>
+            <Box marginX={1}>
+              <IconButton color="primary" component={RouteLink} to="/app-settings">
+                <SettingsApplicationsRounded />
+              </IconButton>
+            </Box>
+          </Stack>
+        </Stack>
+      </Box>
+    );
+  };
+
+  const Home = () => {
+    const [selectedTab, setSelectedTab] = useState(0);
+
+    const a11yProps = (index: number) => ({
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    });
+
+    if (!url) {
+      return (
+        <Box height={48} display={'flex'} justifyContent={'center'} alignItems={'center'}>
+          <Typography variant="caption">Not connected</Typography>
+        </Box>
+      );
+    }
+
+    const CustomTabPanel: React.FC<{ idx: number; children: ReactNode }> = ({ idx, children }) => {
+      return (
+        <div
+          role="tabpanel"
+          hidden={selectedTab !== idx}
+          id={`simple-tabpanel-${idx}`}
+          aria-labelledby={`simple-tab-${idx}`}
+        >
+          {selectedTab === idx && <Box sx={{ pt: 1 }}>{children}</Box>}
+        </div>
+      );
+    };
+
+    return (
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 0.1, borderColor: 'divider' }}>
+          <Tabs
+            centered
+            value={selectedTab}
+            onChange={(e, newValue) => setSelectedTab(newValue)}
+            aria-label="Home Tabs"
+          >
+            <Tab sx={{ fontSize: '0.8rem' }} label="Accounts" {...a11yProps(0)} />
+            <Tab sx={{ fontSize: '0.8rem' }} label="Blocks" {...a11yProps(1)} />
+            <Tab sx={{ fontSize: '0.8rem' }} label="Transactions" {...a11yProps(2)} />
+          </Tabs>
+        </Box>
+        <CustomTabPanel idx={0}>
+          <PredeployedAccountsInline />
+        </CustomTabPanel>
+        <CustomTabPanel idx={1}>
+          <BlockList />
+        </CustomTabPanel>
+        <CustomTabPanel idx={2}>Transactions</CustomTabPanel>
+      </Box>
+    );
+  };
 
   return (
     <main>
+      <StatusHeader />
+      <Divider variant="middle" sx={{ marginY: '0.1em' }} />
       <Routes>
-        <Route path="/" element={<ComponentMenu />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/app-settings" element={<ComponentMenu />} />
         <Route path="/command-generator" element={<DockerCommandGenerator />} />
         <Route path="/docker-register" element={<RegisterRunningDocker />} />
         <Route path="/accounts" element={<PredeployedAccounts />} />

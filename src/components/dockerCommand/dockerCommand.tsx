@@ -188,7 +188,7 @@ const DockerCommandGenerator: React.FC = () => {
   }, [options]);
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/app-settings');
   };
 
   return (

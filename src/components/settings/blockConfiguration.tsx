@@ -16,8 +16,8 @@ interface BlockConfigurationProps {
 }
 
 interface BlockInfo {
-  timestamp: number,
-  transactionsCount: number
+  timestamp: number;
+  transactionsCount: number;
 }
 
 export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
@@ -97,7 +97,7 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
       const transactionsCount = await provider.getBlockTransactionCount(index);
       const tx = await provider.getBlockWithTxs(index);
 
-      newBlockTransactionsCount.push({ timestamp: tx.timestamp,  transactionsCount});
+      newBlockTransactionsCount.push({ timestamp: tx.timestamp, transactionsCount });
     }
     setBlockTransactionsCount(newBlockTransactionsCount);
   }
@@ -176,30 +176,23 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
             </>
           )}
         </Stack>
-        <Divider variant="middle" />
+        {/* <Divider variant="middle" />
         {blockTransactionsCount.length === 0 ? (
-          <Typography variant="caption">
-            No transactions available.
-          </Typography>
+          <Typography variant="caption">No transactions available.</Typography>
         ) : (
           blockTransactionsCount.reverse().map((info, index) => (
             <>
-            <Divider variant="middle" />
-            <Stack key={index} direction="row" spacing={2}>
-              <Typography variant="caption">
-                Block Number {blockTransactionsCount.length - 1 - index}
-              </Typography>
-              <Typography variant="caption">
-                Timestamp {info.timestamp}
-              </Typography>
-              <Typography variant="caption">
-                Transactions {info.transactionsCount}
-              </Typography>
-          </Stack>
-          </>
+              <Divider variant="middle" />
+              <Stack key={index} direction="row" spacing={2}>
+                <Typography variant="caption">
+                  Block Number {blockTransactionsCount.length - 1 - index}
+                </Typography>
+                <Typography variant="caption">Timestamp {info.timestamp}</Typography>
+                <Typography variant="caption">Transactions {info.transactionsCount}</Typography>
+              </Stack>
+            </>
           ))
-        )}
-
+        )} */}
       </PageHeader>
     </section>
   );

@@ -79,7 +79,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
       return null;
     }
     try {
-      const res = await fetch(`${url}/is_alive`);
+      await fetch(`${url}/is_alive`);
       setDevnetIsAlive(true);
     } catch (error) {
       setDevnetIsAlive(false);
@@ -147,7 +147,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   );
 
   const handleBack = () => {
-    navigate('/accounts');
+    navigate('/');
   };
 
   const handleSettings = () => {
@@ -158,7 +158,9 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     const accountConfig = async () => {
       try {
         await fetchAccountConfig();
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+      }
     };
     accountConfig();
   }, []);
@@ -205,16 +207,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
         </Stack>
         {devnetIsAlive && selectedAccount && configData && (
           <>
-            <Divider variant="middle" />
-            <Box
-              width={'100%'}
-              display={'flex'}
-              justifyContent={'flex-end'}
-              alignItems={'center'}
-              padding={2}
-            >
-              <Typography variant="caption">Chain ID: {configData.chain_id}</Typography>
-            </Box>
             {selectedAccount.address && (
               <Container>
                 <Box padding={4}>

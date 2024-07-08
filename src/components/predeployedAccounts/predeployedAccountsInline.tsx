@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
-import { ChevronLeft } from '@mui/icons-material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { darkTheme } from '../..';
 import {
   sendMessageToGetUrl,
   sendMessageToSetSelectedAccount,
@@ -10,8 +8,9 @@ import {
 } from '../utils/sendMessageBackground';
 import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
+import { darkTheme } from '../..';
 
-export const PredeployedAccounts: React.FC = () => {
+export const PredeployedAccountsInline: React.FC = () => {
   const context = useSharedState();
   const {
     accounts,
@@ -73,17 +72,17 @@ export const PredeployedAccounts: React.FC = () => {
   }
 
   useEffect(() => {
-    sendMessageToGetUrl(setUrl);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchDataAndPrintAccounts();
-    };
-    if (url) {
+    if (!url) {
+      sendMessageToGetUrl(setUrl);
+      return;
+    }
+    if (!accounts?.length || !devnetIsAlive) {
+      const fetchData = async () => {
+        await fetchDataAndPrintAccounts();
+      };
       fetchData();
     }
-  }, [url]);
+  }, [url, accounts, devnetIsAlive]);
 
   const handleAccountClick = async (clickedAddress: string) => {
     const clickedAccount = accounts.find((account) => account.address === clickedAddress);
@@ -119,10 +118,6 @@ export const PredeployedAccounts: React.FC = () => {
     fetchSelectedAccount();
   }, [selectedAccount]);
 
-  const handleBack = () => {
-    navigate('/');
-  };
-
   const shortenAddress = (address: string, startCount = 12, endCount = 12) =>
     `${address.slice(0, startCount)}...${address.slice(-endCount)}`;
 
@@ -135,26 +130,6 @@ export const PredeployedAccounts: React.FC = () => {
     <>
       {devnetIsAlive && accounts.length > 0 && (
         <section>
-          <Stack direction={'row'} justifyContent={'center'} position={'relative'}>
-            <Box position={'absolute'} top={0} left={0}>
-              <Button
-                size="small"
-                variant={'text'}
-                startIcon={<ChevronLeft />}
-                onClick={handleBack}
-                sx={{
-                  padding: '8px 10px',
-                }}
-              >
-                Back
-              </Button>
-            </Box>
-            <Container>
-              <Typography variant="h6" margin={0} marginY={2}>
-                Accounts
-              </Typography>
-            </Container>
-          </Stack>
           <Stack marginBottom={1}>
             {accounts.map((account, index) => (
               <Box key={index}>
@@ -173,7 +148,7 @@ export const PredeployedAccounts: React.FC = () => {
                     {shortenAddress(account.address)}
                   </Typography>
                   <Stack direction="row" justifyContent="flex-end" width={'30%'}>
-                    {getBalanceStr(account.initial_balance)} ETH
+                    {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
                   </Stack>
                 </Button>
               </Box>
@@ -185,4 +160,4 @@ export const PredeployedAccounts: React.FC = () => {
   );
 };
 
-export default PredeployedAccounts;
+export default PredeployedAccountsInline;
