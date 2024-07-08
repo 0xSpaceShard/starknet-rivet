@@ -102,9 +102,9 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
     setBlockTransactionsCount(newBlockTransactionsCount);
   }
 
-  useEffect(() => {
-    fetchTransactionsCountByBlock();
-  }, [currentBlock]);
+  // useEffect(() => {
+  //   fetchTransactionsCountByBlock();
+  // }, [currentBlock]);
 
   return (
     <section>
