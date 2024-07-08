@@ -20,6 +20,8 @@ const CheckDevnetStatus: React.FC<{
   );
 
   useEffect(() => {
+    if (!url) return;
+
     const checkDevnetStatus = async () => {
       try {
         await fetch(`${url}/is_alive`);
