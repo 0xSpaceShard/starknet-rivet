@@ -8,7 +8,9 @@ interface BlockInfo {
   transactionsCount: number;
 }
 
-export const BlockList: React.FC = () => {
+export const BlockList: React.FC<{
+  fetchCurrentBlockNumber: () => Promise<void>;
+}> = ({ fetchCurrentBlockNumber }) => {
   const context = useSharedState();
   const { url, currentBlock } = context;
   const [blockTransactionsCount, setBlockTransactionsCount] = useState<BlockInfo[]>([]);
@@ -25,6 +27,17 @@ export const BlockList: React.FC = () => {
     }
     setBlockTransactionsCount(newBlockTransactionsCount);
   }
+
+  useEffect(() => {
+    const fetchCurrentBlock = async () => {
+      try {
+        await fetchCurrentBlockNumber();
+      } catch (error) {
+        console.error('Error fetching current block number:', error);
+      }
+    };
+    fetchCurrentBlock();
+  }, []);
 
   useEffect(() => {
     fetchTransactionsCountByBlock();

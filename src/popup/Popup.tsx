@@ -334,7 +334,7 @@ export const Popup = () => {
           <PredeployedAccountsInline />
         </CustomTabPanel>
         <CustomTabPanel idx={1}>
-          <BlockList />
+          <BlockList fetchCurrentBlockNumber={fetchCurrentBlockNumber} />
         </CustomTabPanel>
         <CustomTabPanel idx={2}>Transactions</CustomTabPanel>
       </Box>
