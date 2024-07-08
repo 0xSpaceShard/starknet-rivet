@@ -26,6 +26,8 @@ export const PredeployedAccountsInline: React.FC = () => {
     setUrlList,
     configData,
     setConfigData,
+    lastFetchedUrl,
+    setLastFetchedUrl,
   } = context;
   const navigate = useNavigate();
 
@@ -72,16 +74,24 @@ export const PredeployedAccountsInline: React.FC = () => {
   }
 
   useEffect(() => {
+    console.log(url, lastFetchedUrl);
     if (!url) {
       sendMessageToGetUrl(setUrl);
       return;
     }
-    if (!accounts?.length || !devnetIsAlive) {
-      const fetchData = async () => {
-        await fetchDataAndPrintAccounts();
-      };
-      fetchData();
-    }
+    if (url === lastFetchedUrl) return;
+    const fetchData = async () => {
+      await fetchDataAndPrintAccounts();
+      setLastFetchedUrl(url);
+    };
+    fetchData();
+    // if (!accounts?.length || !devnetIsAlive) {
+    //   const fetchData = async () => {
+    //     await fetchDataAndPrintAccounts();
+    //     setLastFetchedUrl(url);
+    //   };
+    //   fetchData();
+    // }
   }, [url, accounts, devnetIsAlive]);
 
   const handleAccountClick = async (clickedAddress: string) => {

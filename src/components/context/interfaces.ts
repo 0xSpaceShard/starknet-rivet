@@ -69,4 +69,6 @@ export interface MyContextValue {
   setSignatureData: React.Dispatch<React.SetStateAction<any>>;
   accountContracts: Map<string, string[]>;
   setAccountContracts: React.Dispatch<React.SetStateAction<Map<string, string[]>>>;
+  lastFetchedUrl: string | null;
+  setLastFetchedUrl: React.Dispatch<React.SetStateAction<string | null>>;
 }
