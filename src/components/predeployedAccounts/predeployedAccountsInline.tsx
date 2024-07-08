@@ -74,7 +74,6 @@ export const PredeployedAccountsInline: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log(url, lastFetchedUrl);
     if (!url) {
       sendMessageToGetUrl(setUrl);
       return;
@@ -92,7 +91,7 @@ export const PredeployedAccountsInline: React.FC = () => {
     //   };
     //   fetchData();
     // }
-  }, [url, accounts, devnetIsAlive]);
+  }, [url, lastFetchedUrl, accounts, devnetIsAlive]);
 
   const handleAccountClick = async (clickedAddress: string) => {
     const clickedAccount = accounts.find((account) => account.address === clickedAddress);
