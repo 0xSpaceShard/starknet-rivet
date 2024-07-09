@@ -76,7 +76,7 @@ export const DeclareSmartContract: React.FC = () => {
     }
   };
   const handleBack = () => {
-    navigate(`/accounts/${selectedAccount?.address}/settings`);
+    navigate(`/accounts/${selectedAccount?.address}`);
   };
 
   const handleDeclare = () => {

@@ -52,7 +52,7 @@ const RegisterRunningDocker: React.FC = () => {
   const handleAddUrl = () => {
     if (newUrl.trim() !== '') {
       const fullUrl =
-        newUrl != 'devnet.spaceshard.io' ? 'http://' + newUrl : 'https://devnet.spaceshard.io';
+        newUrl !== 'devnet.spaceshard.io' ? `http://${newUrl}` : 'https://devnet.spaceshard.io';
       const urlExists = urlList.some((devnet) => devnet.url === fullUrl);
       if (!urlExists) {
         sendMessageToSetUrlList({ url: fullUrl, isAlive: true }, setUrlList);
@@ -77,7 +77,7 @@ const RegisterRunningDocker: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/app-settings');
   };
 
   const handleDeleteUrl = (urlToDelete: string) => {

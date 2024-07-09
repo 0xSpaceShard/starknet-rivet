@@ -3,7 +3,7 @@ import { Component } from './enum';
 export interface AccountData {
   address: string;
   initial_balance: string;
-  balance?: string;
+  balance?: any;
   private_key: string;
   public_key: string;
 }
@@ -69,4 +69,6 @@ export interface MyContextValue {
   setSignatureData: React.Dispatch<React.SetStateAction<any>>;
   accountContracts: Map<string, string[]>;
   setAccountContracts: React.Dispatch<React.SetStateAction<Map<string, string[]>>>;
+  lastFetchedUrl: string | null;
+  setLastFetchedUrl: React.Dispatch<React.SetStateAction<string | null>>;
 }
