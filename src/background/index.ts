@@ -216,9 +216,6 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
 
                   const tx = await acc.execute(message.data.transactions);
                   await provider.waitForTransaction(tx.transaction_hash);
-                  for (let index = 0; index <= 3; index++) {
-                    await provider.getBlockTransactionsTraces(index);
-                  }
                   sendResponse({ type: 'EXECUTE_RIVET_TRANSACTION_RES', data: tx });
                 }
                 if (responseMessage.type === 'RIVET_TRANSACTION_FAILED') {
@@ -260,6 +257,8 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
 async function setSelectedAccount(message: any, sendResponse: (response?: any) => void) {
   try {
     await chrome.storage.sync.set({ selectedAccount: message.selectedAccount });
+    await chrome.storage.local.set({ selectedAccount: message.selectedAccount });
+
     const tabs = await chrome.tabs.query({});
     tabs.forEach((tab) => {
       chrome.tabs.sendMessage(
