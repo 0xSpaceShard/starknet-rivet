@@ -44,8 +44,13 @@ Now, the content of `build` folder will be the extension ready to be submitted t
 ## Structure
 
 page - Default page load screen
+
 newtab - override new tab screen
+
 devtools - devtools screen
+
 popup - chrome extension click screen
+
 options - chrome extensions options screen
+
 sidepanel - chrome sidepanel screen
