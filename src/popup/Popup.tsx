@@ -19,6 +19,7 @@ import { AddTokenContract } from '../components/settings/addTokenContract';
 import CheckDevnetStatus from '../components/checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '..';
 import './Popup.css';
+import { sendMessageToGetUrl } from '../components/utils/sendMessageBackground';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -42,6 +43,7 @@ export const Popup = () => {
     blockInterval,
     configData,
     currentBlock,
+    setUrl,
   } = context;
 
   const switchComponent = (newSelectedComponent: Component) => {
@@ -129,6 +131,10 @@ export const Popup = () => {
     }
   }
 
+  useEffect(() => {
+    sendMessageToGetUrl(setUrl);
+  }, []);
+
   // eslint-disable-next-line consistent-return
   useEffect(() => {
     const fetchCurrentBlock = async () => {
@@ -148,6 +154,9 @@ export const Popup = () => {
       }, interval);
 
       return () => clearInterval(id);
+    }
+    else if (url) {
+      fetchCurrentBlock();
     }
   }, [url, blockInterval]);
 
