@@ -23,7 +23,7 @@ $ npm run dev
 1. set your Chrome browser 'Developer mode' up
 2. click 'Load unpacked', and select `starknet-rivet/build` folder
 
-### Nomal FrontEnd Developer Mode
+### Nomal Front End Developer Mode
 
 1. access `http://0.0.0.0:3000/`
 2. when debugging popup page, open `http://0.0.0.0:3000//popup.html`
