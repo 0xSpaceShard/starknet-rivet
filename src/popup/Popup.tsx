@@ -131,10 +131,6 @@ export const Popup = () => {
     }
   }
 
-  useEffect(() => {
-    sendMessageToGetUrl(setUrl);
-  }, []);
-
   // eslint-disable-next-line consistent-return
   useEffect(() => {
     const fetchCurrentBlock = async () => {
@@ -154,8 +150,7 @@ export const Popup = () => {
       }, interval);
 
       return () => clearInterval(id);
-    }
-    else if (url) {
+    } else if (url) {
       fetchCurrentBlock();
     }
   }, [url, blockInterval]);
