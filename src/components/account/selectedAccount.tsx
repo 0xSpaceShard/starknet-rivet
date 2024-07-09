@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft } from '@mui/icons-material';
+import { ChevronLeft, Menu as MenuIcon } from '@mui/icons-material';
 import { num } from 'starknet-6';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,15 +7,17 @@ import {
   Button,
   Container,
   Divider,
+  IconButton,
   Link,
   List,
   ListItem,
   ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   Tooltip,
   Typography,
 } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { handleCopyAddress, shortenAddress } from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
 import { getTokenBalance } from '../../background/contracts';
@@ -39,6 +41,11 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   } = context;
 
   const [tokenBalances, setTokenBalances] = useState<string[]>([]);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const contracts = useMemo(
     () => accountContracts.get(selectedAccount?.address ?? '') ?? [],
@@ -172,8 +179,8 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   return (
     <section>
       <Box paddingBottom={transactionData || signatureData || tokenBalances?.length ? 3 : 6}>
-        <Stack direction={'row'} justifyContent={'center'} position={'relative'}>
-          <Box position={'absolute'} top={0} left={0}>
+        <Stack direction={'row'} justifyContent={'space-between'}>
+          <Box flexBasis={'80px'} flexShrink={0}>
             <Button
               size="small"
               variant={'text'}
@@ -191,19 +198,65 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
               Account Info
             </Typography>
           </Container>
-          <Box position={'absolute'} top={0} right={0}>
-            <Tooltip title="Settings">
-              <Button
+          <Stack
+            direction={'row'}
+            justifyContent={'flex-end'}
+            alignItems={'flex-start'}
+            flexBasis={'80px'}
+            flexShrink={0}
+            padding={'4px 10px'}
+          >
+            <Tooltip title="Actions">
+              {/* <Button
+                  size="small"
+                  variant={'text'}
+                  startIcon={<SettingsIcon />}
+                  onClick={handleSettings}
+                  sx={{
+                    padding: '8px 10px',
+                  }}
+                ></Button> */}
+              <IconButton
                 size="small"
-                variant={'text'}
-                startIcon={<SettingsIcon />}
-                onClick={handleSettings}
-                sx={{
-                  padding: '8px 10px',
-                }}
-              ></Button>
+                color="primary"
+                onClick={(e) => setAnchorEl(e.currentTarget)}
+                aria-haspopup="true"
+              >
+                <MenuIcon fontSize="small" />
+              </IconButton>
             </Tooltip>
-          </Box>
+          </Stack>
+          <Menu
+            anchorEl={anchorEl}
+            id="account-actions"
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+            onClick={handleMenuClose}
+            slotProps={{
+              paper: {
+                sx: {
+                  width: 250,
+                  maxWidth: '100%',
+                  padding: 0,
+                  '& .MuiMenu-list': {
+                    padding: 0,
+                  },
+                },
+              },
+            }}
+          >
+            <MenuItem onClick={() => navigate(`/accounts/${selectedAccount?.address}/declare`)}>
+              Declare Smart Contract
+            </MenuItem>
+            <MenuItem onClick={() => navigate(`/accounts/${selectedAccount?.address}/deploy`)}>
+              Deploy Smart Contract
+            </MenuItem>
+            <MenuItem
+              onClick={() => navigate(`/accounts/${selectedAccount?.address}/add-token-contract`)}
+            >
+              Manage Token Contracts
+            </MenuItem>
+          </Menu>
         </Stack>
         {devnetIsAlive && selectedAccount && configData && (
           <>

@@ -173,7 +173,7 @@ export const PredeployedAccounts: React.FC = () => {
                     {shortenAddress(account.address)}
                   </Typography>
                   <Stack direction="row" justifyContent="flex-end" width={'30%'}>
-                    {getBalanceStr(account.initial_balance)} ETH
+                    {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
                   </Stack>
                 </Button>
               </Box>

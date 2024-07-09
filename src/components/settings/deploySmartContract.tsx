@@ -31,7 +31,7 @@ export const DeploySmartContract: React.FC = () => {
   const { selectedAccount, url } = context;
 
   const handleBack = () => {
-    navigate(`/accounts/${selectedAccount?.address}/settings`);
+    navigate(`/accounts/${selectedAccount?.address}`);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

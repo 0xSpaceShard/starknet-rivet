@@ -46,7 +46,7 @@ export const BlockList: React.FC<{
   return (
     <Box padding={1}>
       {blockTransactionsCount.length === 0 ? (
-        <Typography variant="caption">No transactions available.</Typography>
+        <Typography variant="caption">Fetching blocks...</Typography>
       ) : (
         blockTransactionsCount.reverse().map((info, index) => (
           <>

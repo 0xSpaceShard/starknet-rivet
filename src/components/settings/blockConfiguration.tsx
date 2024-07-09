@@ -1,13 +1,12 @@
-import { Box, Button, Divider, Stack, styled, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, Stack, TextField, Typography, Container } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft } from '@mui/icons-material';
 import { useSharedState } from '../context/context';
-import PageHeader from './pageHeader';
 import {
   sendMessageToRemoveBlockInterval,
   sendMessageToSetBlockInterval,
 } from '../utils/sendMessageBackground';
-import { RpcProvider } from 'starknet-6';
 
 interface BlockConfigurationProps {
   creatNewBlock: () => Promise<void>;
@@ -38,7 +37,7 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
     context;
 
   const handleBack = () => {
-    navigate(`/accounts/${selectedAccount?.address}`);
+    navigate(`/app-settings`);
   };
 
   const handleIntervalChange = (
@@ -90,110 +89,95 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
     fetchCurrentBlock();
   }, []);
 
-  async function fetchTransactionsCountByBlock() {
-    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-    let newBlockTransactionsCount: BlockInfo[] = [...blockTransactionsCount];
-    for (let index = newBlockTransactionsCount.length; index <= currentBlock; index++) {
-      const transactionsCount = await provider.getBlockTransactionCount(index);
-      const tx = await provider.getBlockWithTxs(index);
-
-      newBlockTransactionsCount.push({ timestamp: tx.timestamp, transactionsCount });
-    }
-    setBlockTransactionsCount(newBlockTransactionsCount);
-  }
-
-  // useEffect(() => {
-  //   fetchTransactionsCountByBlock();
-  // }, [currentBlock]);
-
   return (
     <section>
-      <PageHeader title="Settings" backButtonHandler={handleBack}>
-        <Box
-          width={'100%'}
-          display={'flex'}
-          justifyContent={'space-between'}
-          alignItems={'center'}
-          padding={2}
-        >
-          <Typography variant="caption">
-            {' '}
-            Block Number: {currentBlock !== null ? currentBlock : 'Loading...'}
-          </Typography>
-          <Typography variant="caption">
-            {' '}
-            Interval: {blockInterval.has(url) ? blockInterval.get(url) : 'None'}
-          </Typography>
-        </Box>
-        <Stack direction="column" spacing={2}>
-          <Divider variant="middle" />
-          <Typography variant="h6">Mint new Block</Typography>
-          <Button variant="contained" color="primary" onClick={() => creatNewBlock()}>
-            {'Create Block'}
-          </Button>
-          <Divider variant="middle" />
-          <Typography variant="h6">Change interval at which a new block is minted</Typography>
-          <TextField
-            fullWidth
-            label="Block interval"
-            id="fullWidth"
-            error={!!errorNewInterval}
-            helperText={errorNewInterval}
-            onChange={(e) => handleIntervalChange(e)}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => creatNewInterval()}
-            disabled={loading}
-          >
-            {'Set New Block Interval'}
-          </Button>
-          <Divider variant="middle" />
-          <Typography variant="h6">Reset Interval to none</Typography>
-          <Button variant="contained" color="primary" onClick={() => resetInterval()}>
-            {'Reset Block Interval'}
-          </Button>
-          {configData.stateArchiveCapacity == 'full' && (
-            <>
-              <Divider variant="middle" />
-              <Typography variant="h6">Abort a block</Typography>
-
-              <TextField
-                fullWidth
-                label="Block to abort"
-                id="fullWidth"
-                onChange={(e) => handleAbortBlockChange(e)}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => abortInputBlock()}
-                disabled={loadingAbort}
-              >
-                {'Abort Block'}
-              </Button>
-            </>
-          )}
+      <Box paddingBottom={6}>
+        <Stack direction={'row'} justifyContent={'flex-start'} position={'relative'}>
+          <Box>
+            <Button
+              size="small"
+              variant={'text'}
+              startIcon={<ChevronLeft />}
+              onClick={handleBack}
+              sx={{
+                padding: '8px 10px',
+              }}
+            >
+              Back
+            </Button>
+          </Box>
         </Stack>
-        {/* <Divider variant="middle" />
-        {blockTransactionsCount.length === 0 ? (
-          <Typography variant="caption">No transactions available.</Typography>
-        ) : (
-          blockTransactionsCount.reverse().map((info, index) => (
-            <>
-              <Divider variant="middle" />
-              <Stack key={index} direction="row" spacing={2}>
-                <Typography variant="caption">
-                  Block Number {blockTransactionsCount.length - 1 - index}
-                </Typography>
-                <Typography variant="caption">Timestamp {info.timestamp}</Typography>
-                <Typography variant="caption">Transactions {info.transactionsCount}</Typography>
-              </Stack>
-            </>
-          ))
-        )} */}
-      </PageHeader>
+        <Container>
+          <Box
+            width={'100%'}
+            display={'flex'}
+            justifyContent={'space-between'}
+            alignItems={'center'}
+            paddingTop={1}
+            paddingX={2}
+          >
+            <Typography variant="caption">
+              {' '}
+              Block Number: {currentBlock !== null ? currentBlock : 'Loading...'}
+            </Typography>
+            <Typography variant="caption">
+              {' '}
+              Interval: {blockInterval.has(url) ? blockInterval.get(url) : 'None'}
+            </Typography>
+          </Box>
+          <Stack direction="column" spacing={2}>
+            <Divider variant="middle" />
+            <Typography variant="h6">Mint new Block</Typography>
+            <Button variant="contained" color="primary" onClick={() => creatNewBlock()}>
+              {'Create Block'}
+            </Button>
+            <Divider variant="middle" />
+            <Typography variant="h6">Change interval at which a new block is minted</Typography>
+            <TextField
+              fullWidth
+              label="Block interval"
+              id="fullWidth"
+              error={!!errorNewInterval}
+              helperText={errorNewInterval}
+              onChange={(e) => handleIntervalChange(e)}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => creatNewInterval()}
+              disabled={loading}
+            >
+              {'Set New Block Interval'}
+            </Button>
+            <Divider variant="middle" />
+            <Typography variant="h6">Reset Interval to none</Typography>
+            <Button variant="contained" color="primary" onClick={() => resetInterval()}>
+              {'Reset Block Interval'}
+            </Button>
+            {configData.stateArchiveCapacity == 'full' && (
+              <>
+                <Divider variant="middle" />
+                <Typography variant="h6">Abort a block</Typography>
+
+                <TextField
+                  fullWidth
+                  label="Block to abort"
+                  id="fullWidth"
+                  onChange={(e) => handleAbortBlockChange(e)}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => abortInputBlock()}
+                  disabled={loadingAbort}
+                >
+                  {'Abort Block'}
+                </Button>
+              </>
+            )}
+          </Stack>
+        </Container>
+      </Box>
     </section>
   );
 };
