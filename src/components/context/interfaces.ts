@@ -32,6 +32,7 @@ export interface Options {
   forkNetwork: string;
   forkBlock: number;
   requestBodySizeLimit: number;
+  blockGenerationOn: string | number;
 }
 
 export interface TransactionInfo {

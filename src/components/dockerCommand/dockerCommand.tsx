@@ -27,6 +27,7 @@ import {
   FORK_NETWORK_INFO,
   FORK_BLOCK_INFO,
   REQUEST_BODY_SIZE_LIMIT,
+  BLOCK_GENERATION_ON_INFO,
 } from '../../info';
 import { useSharedState } from '../context/context';
 import {
@@ -57,6 +58,7 @@ const DockerCommandGenerator: React.FC = () => {
     forkNetwork: '',
     forkBlock: 0,
     requestBodySizeLimit: 2000000,
+    blockGenerationOn: 'transaction',
   };
 
   const [options, setOptions] = useState<Options>(defaultOptions);
@@ -64,6 +66,7 @@ const DockerCommandGenerator: React.FC = () => {
   const [seedError, setSeedError] = useState('');
   const [startTimeError, setStartTimeError] = useState('');
   const [timeoutError, setTimeOutError] = useState('');
+  const [blockGenerationOnError, setBlockGenerationOnError] = useState('');
   const [generalError, setGeneralError] = useState(false);
   const [generateCommand, setGenerateCommand] = useState(false);
   const navigate = useNavigate();
@@ -141,6 +144,21 @@ const DockerCommandGenerator: React.FC = () => {
         return;
       }
     }
+    if (name === 'blockGenerationOn') {
+      if (!Number.isNaN(Number(value))) {
+        const blockIntervalValue = parseInt(value, 10);
+        if (blockIntervalValue <= 0) {
+          setBlockGenerationOnError('Interval must be greater than 0');
+          setGeneralError(true);
+          return;
+        }
+      } else if (value != 'demand' && value != 'transaction') {
+        setBlockGenerationOnError('Invalid blockGenerationOn value');
+        setGeneralError(true);
+        return;
+      }
+      setBlockGenerationOnError('');
+    }
     setGeneralError(false);
   };
 
@@ -156,10 +174,10 @@ const DockerCommandGenerator: React.FC = () => {
   const generateDockerCommand = useCallback(() => {
     let command = 'docker run -p ';
 
-    const newUrl = `${options.host}:${options.port}`;
+    const newUrl = `http://${options.host}:${options.port}`;
     sendMessageToSetUrlList({ url: newUrl, isAlive: true }, setUrlList);
 
-    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:6fc953dbe2c76965d713e2d11339440d00d5b616`;
+    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
 
     const kebabCaseOptions = convertCamelToKebab(options);
     const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
@@ -181,7 +199,6 @@ const DockerCommandGenerator: React.FC = () => {
         }
       }
     });
-    command += ` --blocks-on-demand`;
 
     setGenerateCommand(true);
     return command;
@@ -539,6 +556,26 @@ const DockerCommandGenerator: React.FC = () => {
                   ></TextField>
                 </Box>
                 <Tooltip title={REQUEST_BODY_SIZE_LIMIT} sx={{ marginX: 2 }}>
+                  <IconButton>
+                    <InfoOutlined />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+              <Stack direction={'row'}>
+                <Box flex={1}>
+                  <TextField
+                    fullWidth
+                    name="blockGenerationOn"
+                    value={options.blockGenerationOn}
+                    label={'Block generation interval'}
+                    error={!!blockGenerationOnError}
+                    helperText={blockGenerationOnError}
+                    onChange={handleInputChange}
+                    variant={'outlined'}
+                    size={'small'}
+                  ></TextField>
+                </Box>
+                <Tooltip title={BLOCK_GENERATION_ON_INFO} sx={{ marginX: 2 }}>
                   <IconButton>
                     <InfoOutlined />
                   </IconButton>
