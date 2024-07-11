@@ -5,12 +5,12 @@ Starknet Rivet is a developer wallet tailored specifically for the Starknet ecos
 It aims to streamline your development process, offering:
 
 1. Easy Onboarding: Set up a local devnet effortlessly
-2. Block and Transaction Explorer: Inspect blocks and transactions
-3. Account Management: View and manage Starknet accounts
-4. Contract Deployment: Deploy directly from the extension
+2. Block and Transaction Explorer: Inspect blocks and transactions (details for each tbd)
+3. Account Management: View and manage Starknet accounts (deploying tbd)
+4. Contract Deployment: Declare and deploy directly from the extension
 5. Devnet Configuration: Customize your development environment
 6. DApp Integration: Seamlessly connect to all Starknet dApps
-7. Enhanced Debugging: Efficient local testing and troubleshooting
+7. Enhanced local testing and troubleshooting: In combination with starknet-devnet-rs 
 
 ## Installing
 
