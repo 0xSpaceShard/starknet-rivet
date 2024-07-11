@@ -1,6 +1,9 @@
-# starknet-rivet
+<!-- logo -->
+<p align="center">
+  <img width="1990" alt="Group 33" src="https://github.com/0xSpaceShard/starknet-rivet/assets/2848732/612502d7-68d1-4ed5-bcfa-bde1bdda89dc">
+</p>
 
-Starknet Rivet is a developer wallet tailored specifically for the Starknet ecosystem. 
+**Starknet Rivet** is a developer wallet tailored specifically for the Starknet ecosystem. 
 
 It aims to streamline your development process, offering:
 
