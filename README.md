@@ -54,3 +54,8 @@ popup - chrome extension click screen
 options - chrome extensions options screen
 
 sidepanel - chrome sidepanel screen
+
+
+## Contribute
+
+If you spot a problem or room for improvement, check if an issue for it [already exists](https://github.com/0xSpaceShard/starknet-rivet/issues). If not, [create a new one](https://github.com/0xSpaceShard/starknet-rivet/issues/new). You are welcome to open a PR yourself to close the issue. Once you open a PR, you will see a template with a list of steps - please follow them.
