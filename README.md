@@ -1,6 +1,16 @@
 # starknet-rivet
 
-> a chrome extension tools built with Vite + React, and Manifest v3
+Starknet Rivet is a developer wallet tailored specifically for the Starknet ecosystem. 
+
+It aims to streamline your development process, offering:
+
+1. Easy Onboarding: Set up a local devnet effortlessly
+2. Block and Transaction Explorer: Inspect blocks and transactions (details for each tbd)
+3. Account Management: View and manage Starknet accounts (deploying tbd)
+4. Contract Deployment: Declare and deploy directly from the extension
+5. Devnet Configuration: Customize your development environment
+6. DApp Integration: Seamlessly connect to all Starknet dApps
+7. Enhanced local testing and troubleshooting: In combination with starknet-devnet-rs 
 
 ## Installing
 
@@ -10,51 +20,21 @@
 
 ## Developing
 
-run the command
+Run the commands
 
 ```shell
 $ cd starknet-rivet
 
-$ npm run dev
-```
-
-### Chrome Extension Developer Mode
-
-1. set your Chrome browser 'Developer mode' up
-2. click 'Load unpacked', and select `starknet-rivet/build` folder
-
-### Nomal Front End Developer Mode
-
-1. access `http://0.0.0.0:3000/`
-2. when debugging popup page, open `http://0.0.0.0:3000//popup.html`
-3. when debugging options page, open `http://0.0.0.0:3000//options.html`
-
-## Packing
-
-After the development of your extension run the command
-
-```shell
 $ npm run build
 ```
 
-Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
+### Run
 
----
+> Rivet is a chrome extension tool built with Vite + React, and Manifest v3
 
-## Structure
-
-page - Default page load screen
-
-newtab - override new tab screen
-
-devtools - devtools screen
-
-popup - chrome extension click screen
-
-options - chrome extensions options screen
-
-sidepanel - chrome sidepanel screen
-
+1. set your Chrome browser in 'Developer mode'
+2. click 'Load unpacked', and select `starknet-rivet/build` folder
+3. Activate the Rivet extension
 
 ## Contribute
 
