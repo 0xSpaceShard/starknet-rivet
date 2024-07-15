@@ -7,7 +7,10 @@ import {
 } from './storage';
 
 // Function to set a new devnet URL to URL list
-export async function setNewUrlToList(message: NewUrlToListtMessage, sendResponse: (response?: any) => void) {
+export async function setNewUrlToList(
+  message: NewUrlToListtMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     await addUrlToUrlListInSyncStorage(message.data.item);
     const updatedUrlList = await getUrlListFromSyncStorage();
@@ -19,7 +22,10 @@ export async function setNewUrlToList(message: NewUrlToListtMessage, sendRespons
 }
 
 // Function to set a new devnet URL to URL list
-export async function removeUrlFromList(message: UrlMessage, sendResponse: (response?: any) => void) {
+export async function removeUrlFromList(
+  message: UrlMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     await removeUrlFromListInSyncStorage(message.data.url);
     const updatedUrlList = await getUrlListFromSyncStorage();
@@ -31,7 +37,10 @@ export async function removeUrlFromList(message: UrlMessage, sendResponse: (resp
 }
 
 // Function to update devnet URL from URL list
-export async function updateUrlFromList(message: UrlListMessage, sendResponse: (response?: any) => void) {
+export async function updateUrlFromList(
+  message: UrlListMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     await updateUrlFromListInSyncStorage(message.data.url, message.data.isAlive);
     const updatedUrlList = await getUrlListFromSyncStorage();

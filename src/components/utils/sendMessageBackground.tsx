@@ -9,7 +9,7 @@ export function sendMessageToSetSelectedAccount(
       type: 'SET_SELECTED_ACCOUNT',
       data: {
         selectedAccount: selectedAccount,
-      }
+      },
     },
     (response) => {
       if (!response.success) {
@@ -30,7 +30,7 @@ export function sendMessageToSetUrl(
       type: 'SET_URL',
       data: {
         url: url,
-      }
+      },
     },
     (response) => {
       if (!response.success) {
@@ -68,7 +68,7 @@ export function sendMessageToUpdateUrlList(
       data: {
         url,
         isAlive,
-      }
+      },
     },
     (response) => {
       if (!response.success) {
@@ -89,7 +89,7 @@ export function sendMessageToSetUrlList(
       type: 'SET_NEW_URL_TO_LIST',
       data: {
         item,
-      }
+      },
     },
     (response) => {
       if (!response.success) {
@@ -110,7 +110,7 @@ export function sendMessageToRemoveUrlFromList(
       type: 'REMOVE_URL_FROM_LIST',
       data: {
         url,
-      }
+      },
     },
     (response) => {
       if (!response.success) {
@@ -150,7 +150,7 @@ export function sendMessageToSetBlockInterval(
       data: {
         url,
         interval,
-      }
+      },
     },
     (response) => {
       if (!response.success) {
@@ -172,7 +172,7 @@ export function sendMessageToRemoveBlockInterval(
       type: 'REMOVE_URL_BLOCK_INTERVAL',
       data: {
         url,
-      }
+      },
     },
     (response) => {
       if (!response.success) {

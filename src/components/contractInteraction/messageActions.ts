@@ -6,6 +6,7 @@ import {
   WalletAccount,
   TypedData,
 } from 'starknet-6';
+import { AccountData } from '../context/interfaces';
 
 export interface ExecuteTransactionRequest {
   transactions: Call | Call[];
@@ -15,7 +16,14 @@ export interface ExecuteTransactionRequest {
 
 export type PreAuthorisationMessage =
   | { type: 'CONNECT_RIVET_DAPP'; data?: { silent?: boolean } }
-  | { type: 'CONNECT_RIVET_DAPP_RES'; success: boolean; data: any }
+  | {
+      type: 'CONNECT_RIVET_DAPP_RES';
+      success: boolean;
+      data: {
+        selectedAccount: AccountData;
+        url: string;
+      };
+    }
   | { type: 'RIVET_IS_PREAUTHORIZED' }
   | { type: 'RIVET_IS_PREAUTHORIZED_RES'; data: boolean }
   | {
@@ -32,18 +40,25 @@ export type TransactionMessage =
       gas_fee?: string;
       error?: any;
     }
-  | { type: 'EXECUTE_RIVET_TRANSACTION_RES'; data: any }
+  | { type: 'EXECUTE_RIVET_TRANSACTION_RES'; data: { transaction_hash: string; error?: string } }
   | {
       type: 'SIMULATE_RIVET_TRANSACTION';
       data: ExecuteTransactionRequest;
     }
   | {
       type: 'SIMULATE_RIVET_TRANSACTION_RES';
-      data: any;
+      data: {
+        data: Call | Call[];
+        gas_fee: string;
+        error: string | null;
+      };
     }
   | {
       type: 'RIVET_TRANSACTION_FAILED';
-      data: any;
+      data: {
+        transaction_hash: string;
+        error: string;
+      };
     };
 
 export type NetworkMessage = {
@@ -60,7 +75,7 @@ export type ActionMessage =
       type: 'SIGN_RIVET_MESSAGE';
       data: { typedData: TypedData; options: SignMessageOptions };
     }
-  | { type: 'SIGN_RIVET_MESSAGE_RES'; data: any }
+  | { type: 'SIGN_RIVET_MESSAGE_RES'; data: ArraySignatureType }
   | { type: 'SIGNATURE_RIVET_FAILURE'; data: { error: string } }
   | {
       type: 'SIGNATURE_RIVET_SUCCESS';

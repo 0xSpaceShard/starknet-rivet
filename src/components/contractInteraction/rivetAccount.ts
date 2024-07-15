@@ -72,10 +72,10 @@ export class RivetAccount extends Account {
       waitForMessage('SIGNATURE_RIVET_FAILURE', 10 * 60 * 1000),
     ]);
 
-    if (response.error) {
-      throw Error('User abort');
+    if ('error' in response) {
+      throw new Error('User abort');
     }
 
-    return response.signature;
+    return response;
   }
 }

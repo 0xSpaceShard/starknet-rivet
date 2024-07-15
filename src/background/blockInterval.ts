@@ -7,7 +7,10 @@ import {
 } from './storage';
 
 // Function to set block interval for  a given URL
-export async function setUrlBlockInterval(message: BlockIntervalMessage, sendResponse: (response?: any) => void) {
+export async function setUrlBlockInterval(
+  message: BlockIntervalMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     await addIntervalToBlockIntervalInSyncStorage(message.data.url, message.data.interval);
     const updatedBlockInterval = await getBlockIntervalFromSyncStorage();
@@ -21,7 +24,10 @@ export async function setUrlBlockInterval(message: BlockIntervalMessage, sendRes
 }
 
 // Function to remove block interval for a given URL
-export async function removeUrlBlockInterval(message: UrlMessage, sendResponse: (response?: any) => void) {
+export async function removeUrlBlockInterval(
+  message: UrlMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     await removeIntervalFromBlockIntervalInSyncStorage(message.data.url);
     const updatedBlockInterval = await getBlockIntervalFromSyncStorage();
