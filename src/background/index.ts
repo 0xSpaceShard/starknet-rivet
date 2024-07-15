@@ -6,7 +6,10 @@ import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
 import { declareContract, deployContract, updateAccountContracts } from './contracts';
 import { getUrlFromSyncStorage } from './storage';
 import { SlectedAccountMessage } from './interface';
-import { ActionMessage, TransactionMessage } from '../components/contractInteraction/messageActions';
+import {
+  ActionMessage,
+  TransactionMessage,
+} from '../components/contractInteraction/messageActions';
 
 console.log('Background script is running');
 
@@ -148,7 +151,10 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
 }
 
 // Function to simulate a Rivet transaction
-async function simulateRivetTransaction(message: Extract<TransactionMessage, {type: "SIMULATE_RIVET_TRANSACTION"}>, sendResponse: (response?: any) => void) {
+async function simulateRivetTransaction(
+  message: Extract<TransactionMessage, { type: 'SIMULATE_RIVET_TRANSACTION' }>,
+  sendResponse: (response?: any) => void
+) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
     const { selectedAccount } = result;
@@ -183,7 +189,10 @@ async function simulateRivetTransaction(message: Extract<TransactionMessage, {ty
 }
 
 // Function to execute a Rivet transaction
-async function executeRivetTransaction(message: Extract<TransactionMessage, {type: "EXECUTE_RIVET_TRANSACTION"}>, sendResponse: (response?: any) => void) {
+async function executeRivetTransaction(
+  message: Extract<TransactionMessage, { type: 'EXECUTE_RIVET_TRANSACTION' }>,
+  sendResponse: (response?: any) => void
+) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
     const selectedAccount = result.selectedAccount;
@@ -256,7 +265,10 @@ async function executeRivetTransaction(message: Extract<TransactionMessage, {typ
 }
 
 // Function to set selected account address
-async function setSelectedAccount(message: SlectedAccountMessage, sendResponse: (response?: any) => void) {
+async function setSelectedAccount(
+  message: SlectedAccountMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     await chrome.storage.sync.set({ selectedAccount: message.data.selectedAccount });
     await chrome.storage.local.set({ selectedAccount: message.data.selectedAccount });
@@ -284,7 +296,10 @@ async function setSelectedAccount(message: SlectedAccountMessage, sendResponse: 
 }
 
 // Function to sign a Rivet message
-async function signRivetMessage(message: Extract<ActionMessage, {type: "SIGN_RIVET_MESSAGE"}>, sendResponse: (response?: any) => void) {
+async function signRivetMessage(
+  message: Extract<ActionMessage, { type: 'SIGN_RIVET_MESSAGE' }>,
+  sendResponse: (response?: any) => void
+) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
     const selectedAccount = result.selectedAccount;
