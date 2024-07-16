@@ -238,7 +238,7 @@ async function executeRivetTransaction(
                   const provider = await getProvider();
                   const acc = await getSelectedAccount();
 
-                  const tx = await acc.execute(message.data.transactions);
+                  const tx = await acc.execute(responseMessage.data.transactions);
                   await provider.waitForTransaction(tx.transaction_hash);
                   sendResponse({ type: 'EXECUTE_RIVET_TRANSACTION_RES', data: tx });
                 }

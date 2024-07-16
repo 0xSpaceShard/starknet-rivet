@@ -92,7 +92,6 @@ window.addEventListener('message', async function (event: MessageEvent) {
 chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendResponse) => {
   const handleResponse = async () => {
     try {
-      let res: any;
       switch (message.type) {
         case 'UPDATE_SELECTED_ACCOUNT':
           if (message.data == null) {
@@ -105,7 +104,7 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
         case 'SIMULATE_RIVET_TRANSACTION_RES':
         case 'SIGN_RIVET_MESSAGE_RES':
         case 'RIVET_TRANSACTION_FAILED' || 'SIGNATURE_RIVET_FAILURE':
-          res = await chrome.runtime.sendMessage({ type: message.type, data: message.data });
+          const res = await chrome.runtime.sendMessage({ type: message.type, data: message.data });
           window.postMessage({ type: message.type, data: res }, '*');
           sendResponse(res);
           break;

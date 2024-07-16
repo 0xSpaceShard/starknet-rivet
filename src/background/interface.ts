@@ -9,7 +9,7 @@ export type ResponseMessage = {
 };
 
 type BlockInterval = {
-  [key: string]: any;
+  [key: string]: number;
 };
 
 // Message Interface

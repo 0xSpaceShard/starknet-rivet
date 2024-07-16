@@ -76,12 +76,8 @@ export type ActionMessage =
       data: { typedData: TypedData; options: SignMessageOptions };
     }
   | { type: 'SIGN_RIVET_MESSAGE_RES'; data: ArraySignatureType }
-  | { type: 'SIGNATURE_RIVET_FAILURE'; data: { error: string } }
-  | {
-      type: 'SIGNATURE_RIVET_SUCCESS';
-      data: { signature: ArraySignatureType; data: any };
-    };
-
+  | { type: 'SIGNATURE_RIVET_FAILURE'; data: { error: string } };
+  
 export type MessageType =
   | PreAuthorisationMessage
   | TransactionMessage
