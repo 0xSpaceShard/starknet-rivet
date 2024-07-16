@@ -1,7 +1,18 @@
 import { CairoAssembly, CompiledContract } from 'starknet-6';
 import { AccountData } from '../components/context/interfaces';
 
-// Interface générique pour les messages
+// Type
+export type ResponseMessage = {
+  success: boolean;
+  urlList?: ListOfDevnet[];
+  blockInterval?: BlockInterval;
+};
+
+type BlockInterval = {
+  [key: string]: any;
+};
+
+// Message Interface
 interface Message<D> {
   data: D;
 }
@@ -22,6 +33,13 @@ export interface DeployContractMessage
     class_hash: string;
     call_data: {
       [key: string]: any;
+    };
+  }> {}
+
+export interface UpdateAccountContractsMessage
+  extends Message<{
+    accountContracts: {
+      [k: string]: string[];
     };
   }> {}
 

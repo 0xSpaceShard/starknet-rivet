@@ -38,7 +38,7 @@ export type TransactionMessage =
       type: 'EXECUTE_RIVET_TRANSACTION';
       data: ExecuteTransactionRequest;
       gas_fee?: string;
-      error?: any;
+      error?: string;
     }
   | { type: 'EXECUTE_RIVET_TRANSACTION_RES'; data: { transaction_hash: string; error?: string } }
   | {
@@ -57,7 +57,7 @@ export type TransactionMessage =
       type: 'RIVET_TRANSACTION_FAILED';
       data: {
         transaction_hash: string;
-        error: string;
+        error?: string;
       };
     };
 

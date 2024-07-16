@@ -192,7 +192,9 @@ export function sendMessageToUpdateAccountContracts(
   chrome.runtime.sendMessage(
     {
       type: 'UPDATE_ACCOUNT_CONTRACTS',
-      accountContracts: Object.fromEntries(accountContracts),
+      data: {
+        accountContracts: Object.fromEntries(accountContracts),
+      },
     },
     ({ success, accountContracts: updatedContracts }) => {
       if (!success) {

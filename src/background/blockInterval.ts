@@ -1,5 +1,5 @@
 import { createMintBlockAlarm } from './alarms';
-import { BlockIntervalMessage, UrlMessage } from './interface';
+import { BlockIntervalMessage, ResponseMessage, UrlMessage } from './interface';
 import {
   addIntervalToBlockIntervalInSyncStorage,
   getBlockIntervalFromSyncStorage,
@@ -9,7 +9,7 @@ import {
 // Function to set block interval for  a given URL
 export async function setUrlBlockInterval(
   message: BlockIntervalMessage,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: ResponseMessage) => void
 ) {
   try {
     await addIntervalToBlockIntervalInSyncStorage(message.data.url, message.data.interval);
@@ -26,7 +26,7 @@ export async function setUrlBlockInterval(
 // Function to remove block interval for a given URL
 export async function removeUrlBlockInterval(
   message: UrlMessage,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: ResponseMessage) => void
 ) {
   try {
     await removeIntervalFromBlockIntervalInSyncStorage(message.data.url);
