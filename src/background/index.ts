@@ -5,6 +5,11 @@ import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } fro
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
 import { declareContract, deployContract, updateAccountContracts } from './contracts';
 import { getUrlFromSyncStorage } from './storage';
+import { SlectedAccountMessage } from './interface';
+import {
+  ActionMessage,
+  TransactionMessage,
+} from '../components/contractInteraction/messageActions';
 
 console.log('Background script is running');
 
@@ -34,7 +39,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
 
     case 'GET_URL':
-      getUrl(message, sendResponse);
+      getUrl(sendResponse);
       break;
 
     case 'SET_NEW_URL_TO_LIST':
@@ -135,7 +140,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
           if (urlTabId !== undefined) {
             chrome.tabs.remove(urlTabId);
           }
-          sendResponse({ success: true, selectedAccount: message.selectedAccount });
+          sendResponse({ success: true, selectedAccount: message.data.selectedAccount });
           chrome.runtime.onMessage.removeListener(onResponseListener);
         }
       }
@@ -146,7 +151,10 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
 }
 
 // Function to simulate a Rivet transaction
-async function simulateRivetTransaction(message: any, sendResponse: (response?: any) => void) {
+async function simulateRivetTransaction(
+  message: Extract<TransactionMessage, { type: 'SIMULATE_RIVET_TRANSACTION' }>,
+  sendResponse: (response?: any) => void
+) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
     const { selectedAccount } = result;
@@ -181,7 +189,10 @@ async function simulateRivetTransaction(message: any, sendResponse: (response?: 
 }
 
 // Function to execute a Rivet transaction
-async function executeRivetTransaction(message: any, sendResponse: (response?: any) => void) {
+async function executeRivetTransaction(
+  message: Extract<TransactionMessage, { type: 'EXECUTE_RIVET_TRANSACTION' }>,
+  sendResponse: (response?: any) => void
+) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
     const selectedAccount = result.selectedAccount;
@@ -254,10 +265,13 @@ async function executeRivetTransaction(message: any, sendResponse: (response?: a
 }
 
 // Function to set selected account address
-async function setSelectedAccount(message: any, sendResponse: (response?: any) => void) {
+async function setSelectedAccount(
+  message: SlectedAccountMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
-    await chrome.storage.sync.set({ selectedAccount: message.selectedAccount });
-    await chrome.storage.local.set({ selectedAccount: message.selectedAccount });
+    await chrome.storage.sync.set({ selectedAccount: message.data.selectedAccount });
+    await chrome.storage.local.set({ selectedAccount: message.data.selectedAccount });
 
     const tabs = await chrome.tabs.query({});
     tabs.forEach((tab) => {
@@ -265,7 +279,7 @@ async function setSelectedAccount(message: any, sendResponse: (response?: any) =
         tab.id as number,
         {
           type: 'UPDATE_SELECTED_ACCOUNT',
-          data: message.selectedAccount,
+          data: message.data.selectedAccount,
         },
         (response) => {
           if (chrome.runtime.lastError) {
@@ -275,14 +289,17 @@ async function setSelectedAccount(message: any, sendResponse: (response?: any) =
         }
       );
     });
-    sendResponse({ success: true, selectedAccount: message.selectedAccount });
+    sendResponse({ success: true, selectedAccount: message.data.selectedAccount });
   } catch (error) {
     sendResponse({ error: parseErrorMessage(error) });
   }
 }
 
 // Function to sign a Rivet message
-async function signRivetMessage(message: any, sendResponse: (response?: any) => void) {
+async function signRivetMessage(
+  message: Extract<ActionMessage, { type: 'SIGN_RIVET_MESSAGE' }>,
+  sendResponse: (response?: any) => void
+) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
     const selectedAccount = result.selectedAccount;

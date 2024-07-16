@@ -1,3 +1,4 @@
+import { NewUrlToListtMessage, UrlListMessage, UrlMessage } from './interface';
 import {
   addUrlToUrlListInSyncStorage,
   getUrlListFromSyncStorage,
@@ -6,9 +7,12 @@ import {
 } from './storage';
 
 // Function to set a new devnet URL to URL list
-export async function setNewUrlToList(message: any, sendResponse: (response?: any) => void) {
+export async function setNewUrlToList(
+  message: NewUrlToListtMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
-    await addUrlToUrlListInSyncStorage(message.item);
+    await addUrlToUrlListInSyncStorage(message.data.item);
     const updatedUrlList = await getUrlListFromSyncStorage();
     sendResponse({ success: true, urlList: updatedUrlList });
   } catch (error) {
@@ -18,9 +22,12 @@ export async function setNewUrlToList(message: any, sendResponse: (response?: an
 }
 
 // Function to set a new devnet URL to URL list
-export async function removeUrlFromList(message: any, sendResponse: (response?: any) => void) {
+export async function removeUrlFromList(
+  message: UrlMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
-    await removeUrlFromListInSyncStorage(message.url);
+    await removeUrlFromListInSyncStorage(message.data.url);
     const updatedUrlList = await getUrlListFromSyncStorage();
     sendResponse({ success: true, urlList: updatedUrlList });
   } catch (error) {
@@ -30,9 +37,12 @@ export async function removeUrlFromList(message: any, sendResponse: (response?: 
 }
 
 // Function to update devnet URL from URL list
-export async function updateUrlFromList(message: any, sendResponse: (response?: any) => void) {
+export async function updateUrlFromList(
+  message: UrlListMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
-    await updateUrlFromListInSyncStorage(message.url, message.isAlive);
+    await updateUrlFromListInSyncStorage(message.data.url, message.data.isAlive);
     const updatedUrlList = await getUrlListFromSyncStorage();
     sendResponse({ success: true, urlList: updatedUrlList });
   } catch (error) {

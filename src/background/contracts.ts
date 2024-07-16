@@ -1,9 +1,13 @@
 import { Calldata, CallData, Contract } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
 import { getAccountContractsFromSyncStorage, updateAccountContractsInSyncStorage } from './storage';
+import { DeclareContractMessage, DeployContractMessage } from './interface';
 
 // Function to declare a Contract from Rivet extension
-export async function declareContract(message: any, sendResponse: (response?: any) => void) {
+export async function declareContract(
+  message: DeclareContractMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     const provider = await getProvider();
     const acc = await getSelectedAccount();
@@ -22,7 +26,10 @@ export async function declareContract(message: any, sendResponse: (response?: an
 }
 
 // Function to deploy a Contract from Rivet extension
-export async function deployContract(message: any, sendResponse: (response?: any) => void) {
+export async function deployContract(
+  message: DeployContractMessage,
+  sendResponse: (response?: any) => void
+) {
   try {
     const provider = await getProvider();
     const acc = await getSelectedAccount();

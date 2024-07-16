@@ -7,7 +7,9 @@ export function sendMessageToSetSelectedAccount(
   chrome.runtime.sendMessage(
     {
       type: 'SET_SELECTED_ACCOUNT',
-      selectedAccount: selectedAccount,
+      data: {
+        selectedAccount: selectedAccount,
+      },
     },
     (response) => {
       if (!response.success) {
@@ -26,7 +28,9 @@ export function sendMessageToSetUrl(
   chrome.runtime.sendMessage(
     {
       type: 'SET_URL',
-      url: url,
+      data: {
+        url: url,
+      },
     },
     (response) => {
       if (!response.success) {
@@ -61,8 +65,10 @@ export function sendMessageToUpdateUrlList(
   chrome.runtime.sendMessage(
     {
       type: 'UPDATE_URL_FROM_LIST',
-      url,
-      isAlive,
+      data: {
+        url,
+        isAlive,
+      },
     },
     (response) => {
       if (!response.success) {
@@ -81,7 +87,9 @@ export function sendMessageToSetUrlList(
   chrome.runtime.sendMessage(
     {
       type: 'SET_NEW_URL_TO_LIST',
-      item,
+      data: {
+        item,
+      },
     },
     (response) => {
       if (!response.success) {
@@ -100,7 +108,9 @@ export function sendMessageToRemoveUrlFromList(
   chrome.runtime.sendMessage(
     {
       type: 'REMOVE_URL_FROM_LIST',
-      url,
+      data: {
+        url,
+      },
     },
     (response) => {
       if (!response.success) {
@@ -137,8 +147,10 @@ export function sendMessageToSetBlockInterval(
   chrome.runtime.sendMessage(
     {
       type: 'SET_URL_BLOCK_INTERVAL',
-      url,
-      interval,
+      data: {
+        url,
+        interval,
+      },
     },
     (response) => {
       if (!response.success) {
@@ -158,7 +170,9 @@ export function sendMessageToRemoveBlockInterval(
   chrome.runtime.sendMessage(
     {
       type: 'REMOVE_URL_BLOCK_INTERVAL',
-      url,
+      data: {
+        url,
+      },
     },
     (response) => {
       if (!response.success) {
