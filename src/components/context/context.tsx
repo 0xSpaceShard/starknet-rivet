@@ -29,6 +29,7 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
   const [signatureData, setSignatureData] = useState<any>(null);
   const [accountContracts, setAccountContracts] = useState(new Map<string, string[]>());
   const [lastFetchedUrl, setLastFetchedUrl] = useState<string | null>(null);
+  const [blockDetails, setBlockDetails] = useState<any[]>([]);
 
   useEffect(() => {
     chrome.storage.local.get(null, (data) => {
@@ -110,6 +111,8 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
         setAccountContracts,
         lastFetchedUrl,
         setLastFetchedUrl,
+        blockDetails,
+        setBlockDetails,
       }}
     >
       {children}
