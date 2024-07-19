@@ -25,9 +25,9 @@ export const BlockList: React.FC<{
     const newBlockTransactionsCount: BlockInfo[] = [...blockTransactionsCount];
     setLoading(true);
     const startBlock = currentBlock - blockTransactionsCount.length;
-    const endBlock = (startBlock - pageSize + 1) >= 0 ? startBlock - pageSize + 1 : 0;
+    const endBlock = startBlock - pageSize + 1 >= 0 ? startBlock - pageSize + 1 : 0;
     for (let index = startBlock; index >= endBlock; index--) {
-      if ( index < 0) {
+      if (index < 0) {
         break;
       }
       const transactionsCount = await provider.getBlockTransactionCount(index);
@@ -43,9 +43,8 @@ export const BlockList: React.FC<{
     navigate(`/block/${index}`);
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
-    if (bottom && !loading) {
+  const handleLoadMore = () => {
+    if (!loading) {
       setPageSize((prev) => prev + 15);
     }
   };
@@ -66,7 +65,7 @@ export const BlockList: React.FC<{
   }, [currentBlock, pageSize]);
 
   return (
-    <Box onScroll={handleScroll} padding={1} sx={{ height: '80vh', overflow: 'auto', overflowY: "scroll", }}>
+    <Box padding={1} sx={{ height: '80vh', overflow: 'auto', overflowY: 'scroll' }}>
       {blockTransactionsCount.length === 0 ? (
         <CircularProgress />
       ) : (
@@ -74,12 +73,10 @@ export const BlockList: React.FC<{
           <React.Fragment key={index}>
             <Button
               onClick={() => handleClick(currentBlock - index)}
-              sx={{ cursor: 'pointer', color: darkTheme.palette.text.secondary,}}
+              sx={{ cursor: 'pointer', color: darkTheme.palette.text.secondary }}
             >
               <Stack key={index} direction="row" spacing={2}>
-                <Typography variant="caption">
-                  Block Number {currentBlock - index}
-                </Typography>
+                <Typography variant="caption">Block Number {currentBlock - index}</Typography>
                 <Typography variant="caption">Timestamp {info.timestamp}</Typography>
                 <Typography variant="caption">Transactions {info.transactionsCount}</Typography>
               </Stack>
@@ -87,6 +84,16 @@ export const BlockList: React.FC<{
             {currentBlock !== index ? <Divider variant="middle" /> : null}
           </React.Fragment>
         ))
+      )}
+      {!loading && blockTransactionsCount.length != 0 && (
+        <Button
+          onClick={() => handleLoadMore()}
+          size="small"
+          variant={'text'}
+          sx={{ cursor: 'pointer', color: darkTheme.palette.text.secondary }}
+        >
+          Load More
+        </Button>
       )}
       {loading && blockTransactionsCount.length != 0 && <CircularProgress />}
     </Box>
