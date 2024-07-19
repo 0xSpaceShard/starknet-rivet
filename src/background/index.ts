@@ -1,4 +1,4 @@
-import { stark, TransactionType } from 'starknet-6';
+import { Call, stark, TransactionType } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
 import { getUrl, setUrl } from './url';
 import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } from './urlList';
@@ -10,6 +10,7 @@ import {
   ActionMessage,
   TransactionMessage,
 } from '../components/contractInteraction/messageActions';
+import { AccountData } from '../components/context/interfaces';
 
 console.log('Background script is running');
 
@@ -153,7 +154,14 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
 // Function to simulate a Rivet transaction
 async function simulateRivetTransaction(
   message: Extract<TransactionMessage, { type: 'SIMULATE_RIVET_TRANSACTION' }>,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: {
+    type: string;
+    data: {
+      data?: Call | Call[];
+      gas_fee?: string;
+      error: string | null;
+    };
+  }) => void
 ) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -177,7 +185,9 @@ async function simulateRivetTransaction(
       console.log('No selected account found in storage.');
       sendResponse({
         type: 'SIMULATE_RIVET_TRANSACTION_RES',
-        data: { error: 'No selected account found in storage.' },
+        data: {
+          error: 'No selected account found in storage.',
+        },
       });
     }
   } catch (error) {
@@ -191,7 +201,10 @@ async function simulateRivetTransaction(
 // Function to execute a Rivet transaction
 async function executeRivetTransaction(
   message: Extract<TransactionMessage, { type: 'EXECUTE_RIVET_TRANSACTION' }>,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: {
+    type: string;
+    data: { transaction_hash?: string; error?: string };
+  }) => void
 ) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
@@ -225,12 +238,15 @@ async function executeRivetTransaction(
                   const provider = await getProvider();
                   const acc = await getSelectedAccount();
 
-                  const tx = await acc.execute(message.data.transactions);
+                  const tx = await acc.execute(responseMessage.data.transactions);
                   await provider.waitForTransaction(tx.transaction_hash);
                   sendResponse({ type: 'EXECUTE_RIVET_TRANSACTION_RES', data: tx });
                 }
                 if (responseMessage.type === 'RIVET_TRANSACTION_FAILED') {
-                  sendResponse({ type: 'RIVET_TRANSACTION_FAILED', data: { error: 'User abort' } });
+                  sendResponse({
+                    type: 'RIVET_TRANSACTION_FAILED',
+                    data: { error: 'User abort' },
+                  });
                 }
               } catch (error) {
                 sendResponse({
@@ -259,7 +275,7 @@ async function executeRivetTransaction(
     console.error('Error retrieving selected account from storage.', error);
     sendResponse({
       type: 'RIVET_TRANSACTION_FAILED',
-      data: { error: 'Error retrieving selected account from storage.' },
+      data: { transaction_hash: '', error: 'Error retrieving selected account from storage.' },
     });
   }
 }
@@ -267,7 +283,11 @@ async function executeRivetTransaction(
 // Function to set selected account address
 async function setSelectedAccount(
   message: SlectedAccountMessage,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: {
+    success: boolean;
+    selectedAccount?: AccountData | null;
+    error?: string;
+  }) => void
 ) {
   try {
     await chrome.storage.sync.set({ selectedAccount: message.data.selectedAccount });
@@ -291,7 +311,7 @@ async function setSelectedAccount(
     });
     sendResponse({ success: true, selectedAccount: message.data.selectedAccount });
   } catch (error) {
-    sendResponse({ error: parseErrorMessage(error) });
+    sendResponse({ success: false, error: parseErrorMessage(error) });
   }
 }
 
@@ -339,7 +359,7 @@ async function signRivetMessage(
               } catch (error) {
                 sendResponse({
                   type: 'SIGNATURE_RIVET_FAILURE',
-                  data: { error: 'Error executing transaction.' },
+                  data: { error: 'Error signing message.' },
                 });
               } finally {
                 chrome.runtime.onMessage.removeListener(onResponseListener);

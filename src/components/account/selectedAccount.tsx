@@ -107,7 +107,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const handleConfirm = useCallback(
     (message: any) => {
       if (!selectedAccount || (!transactionData && !signatureData)) return;
-
       const messageType = transactionData
         ? 'EXECUTE_RIVET_TRANSACTION_RES'
         : 'SIGN_RIVET_MESSAGE_RES';
@@ -157,10 +156,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     navigate('/');
   };
 
-  const handleSettings = () => {
-    navigate(`/accounts/${selectedAccount?.address}/settings`);
-  };
-
   useEffect(() => {
     const accountConfig = async () => {
       try {
@@ -207,15 +202,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             padding={'4px 10px'}
           >
             <Tooltip title="Actions">
-              {/* <Button
-                  size="small"
-                  variant={'text'}
-                  startIcon={<SettingsIcon />}
-                  onClick={handleSettings}
-                  sx={{
-                    padding: '8px 10px',
-                  }}
-                ></Button> */}
               <IconButton
                 size="small"
                 color="primary"

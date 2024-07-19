@@ -1,12 +1,16 @@
 import { Calldata, CallData, Contract } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
 import { getAccountContractsFromSyncStorage, updateAccountContractsInSyncStorage } from './storage';
-import { DeclareContractMessage, DeployContractMessage } from './interface';
+import {
+  DeclareContractMessage,
+  DeployContractMessage,
+  UpdateAccountContractsMessage,
+} from './interface';
 
 // Function to declare a Contract from Rivet extension
 export async function declareContract(
   message: DeclareContractMessage,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: { class_hash?: string; error?: string }) => void
 ) {
   try {
     const provider = await getProvider();
@@ -28,7 +32,7 @@ export async function declareContract(
 // Function to deploy a Contract from Rivet extension
 export async function deployContract(
   message: DeployContractMessage,
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: { contract_address?: string; error?: string }) => void
 ) {
   try {
     const provider = await getProvider();
@@ -54,9 +58,12 @@ export async function deployContract(
   }
 }
 
-export async function updateAccountContracts(message: any, sendResponse: (response?: any) => void) {
+export async function updateAccountContracts(
+  message: UpdateAccountContractsMessage,
+  sendResponse: (response?: { success: boolean; accountContracts?: Map<string, string[]> }) => void
+) {
   try {
-    await updateAccountContractsInSyncStorage(message.accountContracts);
+    await updateAccountContractsInSyncStorage(message.data.accountContracts);
     const accountContracts = await getAccountContractsFromSyncStorage();
     sendResponse({ success: true, accountContracts });
   } catch (error) {
