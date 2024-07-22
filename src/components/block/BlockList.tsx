@@ -19,6 +19,7 @@ export const BlockList: React.FC<{
   const [blockTransactionsCount, setBlockTransactionsCount] = useState<BlockInfo[]>([]);
   const [pageSize, setPageSize] = useState(15);
   const [loading, setLoading] = useState(false);
+  const [endBlock, setEndBlock] = useState(0);
 
   async function fetchTransactionsCountByBlock() {
     const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
@@ -26,6 +27,7 @@ export const BlockList: React.FC<{
     setLoading(true);
     const startBlock = currentBlock - blockTransactionsCount.length;
     const endBlock = startBlock - pageSize + 1 >= 0 ? startBlock - pageSize + 1 : 0;
+    setEndBlock(endBlock);
     for (let index = startBlock; index >= endBlock; index--) {
       if (index < 0) {
         break;
@@ -85,11 +87,11 @@ export const BlockList: React.FC<{
           </React.Fragment>
         ))
       )}
-      {!loading && blockTransactionsCount.length != 0 && (
+      {!loading && endBlock != 0 && (
         <Button
           onClick={() => handleLoadMore()}
           size="small"
-          variant={'text'}
+          variant="outlined"
           sx={{ cursor: 'pointer', color: darkTheme.palette.text.secondary }}
         >
           Load More

@@ -83,30 +83,37 @@ const BlockDetailsPage: React.FC = () => {
         </Stack>
         {blockDetails.transactions && blockDetails.transactions.length > 0 && (
           <>
-            <Divider sx={{ marginY: 3 }} variant="middle" />
+            <Divider sx={{ marginY: 1 }} variant="middle" />
             <Stack alignItems={'flex-start'}>
               <Typography color={darkTheme.palette.text.secondary} variant="h6" marginY={1}>
                 Transactions
               </Typography>
             </Stack>
-            {blockDetails.transactions.map((info: any, index: number) => (
-              <Stack direction={'row'} spacing={{ xs: 2, sm: 2 }} useFlexGap flexWrap="wrap">
-                <DisplayBlockInfo
-                  title="Hash"
-                  value={shortenAddress(info.transaction_hash, 5)}
-                ></DisplayBlockInfo>
-                <DisplayBlockInfo
-                  title="Sender"
-                  value={shortenAddress(info.sender_address, 5)}
-                ></DisplayBlockInfo>
-                <DisplayBlockInfo title="Nonce" value={info.nonce}></DisplayBlockInfo>
-                <DisplayBlockInfo
-                  title="Max Fee"
-                  value={parseInt(info.max_fee || '', 16)}
-                ></DisplayBlockInfo>
-                {blockDetails.length - 1 !== index ? <Divider variant="middle" /> : null}
-              </Stack>
-            ))}
+            {blockDetails.transactions
+              .slice()
+              .reverse()
+              .map((info: any, index: number) => (
+                <>
+                  <Stack direction={'row'} spacing={{ xs: 2, sm: 2 }} useFlexGap flexWrap="wrap">
+                    <DisplayBlockInfo
+                      title="Hash"
+                      value={shortenAddress(info.transaction_hash, 5)}
+                    ></DisplayBlockInfo>
+                    <DisplayBlockInfo
+                      title="Sender"
+                      value={shortenAddress(info.sender_address, 5)}
+                    ></DisplayBlockInfo>
+                    <DisplayBlockInfo title="Nonce" value={info.nonce}></DisplayBlockInfo>
+                    <DisplayBlockInfo
+                      title="Max Fee"
+                      value={parseInt(info.max_fee || '', 16)}
+                    ></DisplayBlockInfo>
+                  </Stack>
+                  {blockDetails.transactions.length - 1 !== index ? (
+                    <Divider sx={{ marginY: 1 }} variant="middle" />
+                  ) : null}
+                </>
+              ))}
           </>
         )}
       </Box>
