@@ -7,3 +7,8 @@ export function handleCopyAddress(address: string | null | undefined) {
   if (!address) return;
   navigator.clipboard.writeText(address);
 }
+
+export function getBalanceStr(balance: string): string {
+  const balanceBigInt = BigInt(balance) / BigInt(10n ** 18n);
+  return balanceBigInt.toString();
+}

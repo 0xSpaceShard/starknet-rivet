@@ -7,19 +7,15 @@ import { ChevronLeft } from '@mui/icons-material';
 import { shortenAddress } from '../utils/utils';
 import { darkTheme } from '../..';
 import DisplayBlockInfo from './displayBlockInfo';
+import { useFetchTransactionsDetails } from '../hooks/hooks';
 
 const BlockDetailsPage: React.FC = () => {
   const context = useSharedState();
   const navigate = useNavigate();
-  const { url, blockDetails, setBlockDetails } = context;
+  const { blockDetails, setBlockDetails } = context;
   const { blockIndex } = useParams<{ blockIndex: string }>();
   const index = parseInt(blockIndex || '', 10);
-
-  async function fetchTransactionsDetailsByBlock() {
-    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-    const tx = await provider.getBlockWithTxs(index);
-    setBlockDetails(tx);
-  }
+  const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
 
   const handleBack = () => {
     // TODO: Update to navigate to the second tab on the home screen where the blocks are.
@@ -29,7 +25,7 @@ const BlockDetailsPage: React.FC = () => {
   useEffect(() => {
     const fetchTransactionsDetails = async () => {
       try {
-        await fetchTransactionsDetailsByBlock();
+        await fetchTransactionsDetailsByBlock(index);
       } catch (error) {
         console.error('Error fetching current block number:', error);
       }

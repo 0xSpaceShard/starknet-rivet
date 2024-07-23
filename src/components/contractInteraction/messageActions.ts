@@ -77,7 +77,7 @@ export type ActionMessage =
     }
   | { type: 'SIGN_RIVET_MESSAGE_RES'; data: ArraySignatureType }
   | { type: 'SIGNATURE_RIVET_FAILURE'; data: { error: string } };
-  
+
 export type MessageType =
   | PreAuthorisationMessage
   | TransactionMessage
