@@ -19,7 +19,7 @@ import { AddTokenContract } from '../components/settings/addTokenContract';
 import CheckDevnetStatus from '../components/checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '..';
 import './Popup.css';
-import { shortenAddress } from '../components/utils/utils';
+import { handleCopyAddress, shortenAddress } from '../components/utils/utils';
 import BlockDetailsPage from '../components/block/blockDetails';
 import { useFetchTransactionsDetails } from '../components/hooks/hooks';
 
@@ -385,6 +385,9 @@ export const Popup = () => {
                             paddingY: 1,
                             paddingX: 2,
                             color: darkTheme.palette.text.secondary,
+                          }}
+                          onClick={() => {
+                            handleCopyAddress(info.transaction_hash);
                           }}
                         >
                           <Typography width={'70%'} whiteSpace={'nowrap'}>
