@@ -19,8 +19,8 @@ import { AddTokenContract } from '../components/settings/addTokenContract';
 import CheckDevnetStatus from '../components/checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '..';
 import './Popup.css';
-import { sendMessageToGetUrl } from '../components/utils/sendMessageBackground';
 import { shortenAddress } from '../components/utils/utils';
+import BlockDetailsPage from '../components/block/blockDetails';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -427,6 +427,7 @@ export const Popup = () => {
             />
           }
         />
+        <Route path="/block/:blockIndex" element={<BlockDetailsPage />} />
       </Routes>
     </main>
   );

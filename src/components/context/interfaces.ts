@@ -72,4 +72,6 @@ export interface MyContextValue {
   setAccountContracts: React.Dispatch<React.SetStateAction<Map<string, string[]>>>;
   lastFetchedUrl: string | null;
   setLastFetchedUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  blockDetails: any;
+  setBlockDetails: React.Dispatch<React.SetStateAction<any>>;
 }
