@@ -56,10 +56,7 @@ const BlockDetailsPage: React.FC = () => {
             title="Block Number"
             value={blockDetails.block_number}
           ></DisplayBlockInfo>
-          <DisplayBlockInfo
-            title="Block Hash"
-            value={shortenAddress(blockDetails.block_hash, 5)}
-          ></DisplayBlockInfo>
+          <DisplayBlockInfo title="Block Hash" value={blockDetails.block_hash}></DisplayBlockInfo>
           <DisplayBlockInfo
             title="Timestamp"
             value={blockDetails.timestamp ?? 'Unknown'}
@@ -91,14 +88,8 @@ const BlockDetailsPage: React.FC = () => {
               .map((info: any, index: number) => (
                 <>
                   <Stack direction={'row'} spacing={{ xs: 2, sm: 2 }} useFlexGap flexWrap="wrap">
-                    <DisplayBlockInfo
-                      title="Hash"
-                      value={shortenAddress(info.transaction_hash, 5)}
-                    ></DisplayBlockInfo>
-                    <DisplayBlockInfo
-                      title="Sender"
-                      value={shortenAddress(info.sender_address, 5)}
-                    ></DisplayBlockInfo>
+                    <DisplayBlockInfo title="Hash" value={info.transaction_hash}></DisplayBlockInfo>
+                    <DisplayBlockInfo title="Sender" value={info.sender_address}></DisplayBlockInfo>
                     <DisplayBlockInfo title="Nonce" value={info.nonce}></DisplayBlockInfo>
                     <DisplayBlockInfo
                       title="Max Fee"
