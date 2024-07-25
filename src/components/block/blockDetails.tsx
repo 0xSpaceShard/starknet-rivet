@@ -12,7 +12,7 @@ import { useFetchTransactionsDetails } from '../hooks/hooks';
 const BlockDetailsPage: React.FC = () => {
   const context = useSharedState();
   const navigate = useNavigate();
-  const { blockDetails, setBlockDetails } = context;
+  const { blockDetails } = context;
   const { blockIndex } = useParams<{ blockIndex: string }>();
   const index = parseInt(blockIndex || '', 10);
   const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();

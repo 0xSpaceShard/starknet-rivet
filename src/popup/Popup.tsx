@@ -46,6 +46,7 @@ export const Popup = () => {
     configData,
     currentBlock,
     blockDetails,
+    selectedAccount,
   } = context;
   const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
 
@@ -374,29 +375,31 @@ export const Popup = () => {
                 blockDetails.transactions
                   .slice()
                   .reverse()
-                  .map((info: any, index: number) => (
-                    <>
-                      <Box key={index}>
-                        <Button
-                          fullWidth
-                          variant="text"
-                          sx={{
-                            textTransform: 'none',
-                            paddingY: 1,
-                            paddingX: 2,
-                            color: darkTheme.palette.text.secondary,
-                          }}
-                          onClick={() => {
-                            handleCopyAddress(info.transaction_hash);
-                          }}
-                        >
-                          <Typography width={'70%'} whiteSpace={'nowrap'}>
-                            {shortenAddress(info.transaction_hash)}
-                          </Typography>
-                        </Button>
-                      </Box>
-                    </>
-                  ))}
+                  .map((info: any, index: number) =>
+                    info.sender_address === selectedAccount?.address ? (
+                      <>
+                        <Box key={index}>
+                          <Button
+                            fullWidth
+                            variant="text"
+                            sx={{
+                              textTransform: 'none',
+                              paddingY: 1,
+                              paddingX: 2,
+                              color: darkTheme.palette.text.secondary,
+                            }}
+                            onClick={() => {
+                              handleCopyAddress(info.transaction_hash);
+                            }}
+                          >
+                            <Typography width={'70%'} whiteSpace={'nowrap'}>
+                              {shortenAddress(info.transaction_hash)}
+                            </Typography>
+                          </Button>
+                        </Box>
+                      </>
+                    ) : null
+                  )}
             </Stack>
           </section>
         </CustomTabPanel>
