@@ -52,10 +52,12 @@ export interface MyContextValue {
   urlList: UrlItem[];
   updateUrlList: (updatedData: UrlItem[]) => Promise<void>;
 
+  currentBalance: bigint;
+  updateCurrentBalance: (updatedData: bigint) => Promise<void>;
+
   devnetIsAlive: boolean;
   setDevnetIsAlive: React.Dispatch<React.SetStateAction<boolean>>;
-  currentBalance: bigint;
-  setCurrentBalance: React.Dispatch<React.SetStateAction<bigint>>;
+
   commandOptions: Options | null;
   setCurrentBlock: React.Dispatch<React.SetStateAction<number>>;
   currentBlock: number;

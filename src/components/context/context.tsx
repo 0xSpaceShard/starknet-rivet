@@ -3,6 +3,7 @@ import { AccountData, MyContextValue, Options } from './interfaces';
 import { useSelectedAccount } from '../hooks/useSelectedAccount';
 import { useSelectedUrl } from '../hooks/useSelectedUrl';
 import { useUrlList } from '../hooks/useUrlList';
+import { useCurrentBalance } from '../hooks/useCurrentBalance';
 
 export const Context = createContext<MyContextValue | undefined>(undefined);
 
@@ -18,9 +19,9 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
   const { data: selectedAccount, update: updateSelectedAccount } = useSelectedAccount();
   const { data: selectedUrl, update: updateSelectedUrl } = useSelectedUrl();
   const { data: urlList, update: updateUrlList } = useUrlList();
-  const [accounts, setAccounts] = useState<AccountData[]>([]);
+  const { data: currentBalance, update: updateCurrentBalance } = useCurrentBalance();
   const [devnetIsAlive, setDevnetIsAlive] = useState(false);
-  const [currentBalance, setCurrentBalance] = useState(0n);
+  const [accounts, setAccounts] = useState<AccountData[]>([]);
   const [currentBlock, setCurrentBlock] = useState(0);
   const [blockInterval, setBlockInterval] = useState<Map<string, number>>(new Map());
   const [commandOptions, setCommandOptions] = useState<Options | null>(null);
@@ -34,7 +35,6 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
     chrome.storage.local.get(null, (data) => {
       if (data) {
         setAccounts(data.accounts || []);
-        setCurrentBalance(data.currentBalance || 0n);
         setCurrentBlock(data.currentBlock || 0);
         setBlockInterval(new Map(Object.entries(data.blockInterval || {})));
         setCommandOptions(data.commandOptions || null);
@@ -52,12 +52,12 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
         updateSelectedUrl,
         urlList,
         updateUrlList,
-        accounts,
-        setAccounts,
+        currentBalance,
+        updateCurrentBalance,
         devnetIsAlive,
         setDevnetIsAlive,
-        currentBalance,
-        setCurrentBalance,
+        accounts,
+        setAccounts,
         currentBlock,
         setCurrentBlock,
         blockInterval,

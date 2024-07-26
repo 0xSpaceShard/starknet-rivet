@@ -15,7 +15,7 @@ export const PredeployedAccounts: React.FC = () => {
     setDevnetIsAlive,
     selectedAccount,
     updateSelectedAccount,
-    setCurrentBalance,
+    updateCurrentBalance,
     urlList,
     updateUrlList,
     configData,
@@ -95,7 +95,7 @@ export const PredeployedAccounts: React.FC = () => {
         response = await fetch(`${url}/account_balance?address=${address}`);
       }
       const array = await response.json();
-      setCurrentBalance(array.amount);
+      await updateCurrentBalance(array.amount);
     } catch (error) {
       console.error('Error fetching balance:', error);
     }

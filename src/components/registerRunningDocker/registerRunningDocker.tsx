@@ -17,11 +17,11 @@ import {
 } from '@mui/material';
 import { AddBoxOutlined, ChevronLeft, Delete, List as ListIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-
 import { useSharedState } from '../context/context';
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
-import { darkTheme } from '../..';
 import { sendMessageToRemoveBlockInterval } from '../utils/sendMessageBackground';
+import { DEFAULT_DEVNET_URL } from '../../background/constants';
+import { darkTheme } from '../..';
 
 const RegisterRunningDocker: React.FC = () => {
   const context = useSharedState();
@@ -44,8 +44,7 @@ const RegisterRunningDocker: React.FC = () => {
 
   const handleAddUrl = () => {
     if (newUrl.trim() !== '') {
-      const fullUrl =
-        newUrl !== 'devnet.spaceshard.io' ? `http://${newUrl}` : 'https://devnet.spaceshard.io';
+      const fullUrl = newUrl !== 'devnet.spaceshard.io' ? `http://${newUrl}` : DEFAULT_DEVNET_URL;
       const urlExists = urlList.some((devnet) => devnet.url === fullUrl);
       if (!urlExists) {
         urlList.push({ url: fullUrl, isAlive: true });
