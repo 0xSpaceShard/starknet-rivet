@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AccountData, ListOfDevnet, MyContextValue, Options } from './interfaces';
-import { DEFAULT_DEVNET_URL } from '../../background/constants';
+import { AccountData, MyContextValue, Options } from './interfaces';
 import { useSelectedAccount } from '../hooks/useSelectedAccount';
 import { useSelectedUrl } from '../hooks/useSelectedUrl';
+import { useUrlList } from '../hooks/useUrlList';
 
 export const Context = createContext<MyContextValue | undefined>(undefined);
 
@@ -17,6 +17,7 @@ export const useSharedState = () => {
 export function DataContextProvider({ children }: { children: React.ReactNode }) {
   const { data: selectedAccount, update: updateSelectedAccount } = useSelectedAccount();
   const { data: selectedUrl, update: updateSelectedUrl } = useSelectedUrl();
+  const { data: urlList, update: updateUrlList } = useUrlList();
   const [accounts, setAccounts] = useState<AccountData[]>([]);
   const [devnetIsAlive, setDevnetIsAlive] = useState(false);
   const [currentBalance, setCurrentBalance] = useState(0n);
@@ -24,7 +25,6 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
   const [blockInterval, setBlockInterval] = useState<Map<string, number>>(new Map());
   const [commandOptions, setCommandOptions] = useState<Options | null>(null);
   const [configData, setConfigData] = useState<any | null>(null);
-  const [urlList, setUrlList] = useState<ListOfDevnet[]>([]);
   const [transactionData, setTransactionData] = useState<any>(null);
   const [signatureData, setSignatureData] = useState<any>(null);
   const [lastFetchedUrl, setLastFetchedUrl] = useState<string | null>(null);
@@ -39,48 +39,23 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
         setBlockInterval(new Map(Object.entries(data.blockInterval || {})));
         setCommandOptions(data.commandOptions || null);
         setConfigData(data.configData || null);
-        setUrlList(data.urlList || [{ url: DEFAULT_DEVNET_URL, isAlive: false }]);
       }
     });
   }, []);
 
-  // useEffect(() => {
-  //   const dataToSave = {
-  //     accounts,
-  //     url,
-  //     selectedAccount,
-  //     currentBalance,
-  //     currentBlock,
-  //     blockInterval: Object.fromEntries(blockInterval),
-  //     commandOptions,
-  //     configData,
-  //     urlList,
-  //   };
-  //   // console.log('saving', dataToSave);
-  //   chrome.storage.local.set(dataToSave);
-  // }, [
-  //   accounts,
-  //   url,
-  //   selectedAccount,
-  //   currentBalance,
-  //   currentBlock,
-  //   blockInterval,
-  //   commandOptions,
-  //   configData,
-  //   urlList,
-  // ]);
-
   return (
     <Context.Provider
       value={{
-        accounts,
-        setAccounts,
-        selectedUrl,
-        updateSelectedUrl,
-        devnetIsAlive,
-        setDevnetIsAlive,
         selectedAccount,
         updateSelectedAccount,
+        selectedUrl,
+        updateSelectedUrl,
+        urlList,
+        updateUrlList,
+        accounts,
+        setAccounts,
+        devnetIsAlive,
+        setDevnetIsAlive,
         currentBalance,
         setCurrentBalance,
         currentBlock,
@@ -91,8 +66,6 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
         setCommandOptions,
         configData,
         setConfigData,
-        urlList,
-        setUrlList,
         transactionData,
         setTransactionData,
         signatureData,

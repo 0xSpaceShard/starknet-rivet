@@ -1,6 +1,5 @@
 import { Call, stark, TransactionType } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
-import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } from './urlList';
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
 import { declareContract, deployContract } from './contracts';
 import { getSelectedUrl } from './syncStorage';
@@ -30,22 +29,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'EXECUTE_RIVET_TRANSACTION':
       executeRivetTransaction(message, sendResponse);
-      break;
-
-    case 'SET_NEW_URL_TO_LIST':
-      setNewUrlToList(message, sendResponse);
-      break;
-
-    case 'GET_URL_LIST':
-      getUrlList(sendResponse);
-      break;
-
-    case 'REMOVE_URL_FROM_LIST':
-      removeUrlFromList(message, sendResponse);
-      break;
-
-    case 'UPDATE_URL_FROM_LIST':
-      updateUrlFromList(message, sendResponse);
       break;
 
     case 'SET_URL_BLOCK_INTERVAL':
@@ -114,6 +97,7 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
     }
 
     chrome.runtime.onMessage.addListener(
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       function onResponseListener(message, sender, sendResponse) {
         if (message.type === 'SET_SELECTED_ACCOUNT') {
           if (accountTabId !== undefined) {

@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useCallback, useEffect } from 'react';
+import React, { useState, ChangeEvent, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -21,18 +21,13 @@ import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '../..';
-import {
-  sendMessageToGetUrlList,
-  sendMessageToRemoveBlockInterval,
-  sendMessageToRemoveUrlFromList,
-  sendMessageToSetUrlList,
-} from '../utils/sendMessageBackground';
+import { sendMessageToRemoveBlockInterval } from '../utils/sendMessageBackground';
 
 const RegisterRunningDocker: React.FC = () => {
   const context = useSharedState();
   const {
-    setUrlList,
     urlList,
+    updateUrlList,
     devnetIsAlive,
     setDevnetIsAlive,
     selectedUrl: url,
@@ -53,7 +48,8 @@ const RegisterRunningDocker: React.FC = () => {
         newUrl !== 'devnet.spaceshard.io' ? `http://${newUrl}` : 'https://devnet.spaceshard.io';
       const urlExists = urlList.some((devnet) => devnet.url === fullUrl);
       if (!urlExists) {
-        sendMessageToSetUrlList({ url: fullUrl, isAlive: true }, setUrlList);
+        urlList.push({ url: fullUrl, isAlive: true });
+        updateUrlList(urlList);
         setNewUrl('');
       }
     }
@@ -80,7 +76,7 @@ const RegisterRunningDocker: React.FC = () => {
 
   const handleDeleteUrl = async (urlToDelete: string) => {
     const updatedUrlList = urlList.filter((item) => item.url !== urlToDelete);
-    sendMessageToRemoveUrlFromList(urlToDelete, setUrlList);
+    await updateUrlList(updatedUrlList);
     sendMessageToRemoveBlockInterval(urlToDelete, setBlockInterval);
 
     if (url === urlToDelete) {
@@ -104,10 +100,6 @@ const RegisterRunningDocker: React.FC = () => {
       navigate('/accounts');
     }
   }, [devnetIsAlive]);
-
-  useEffect(() => {
-    sendMessageToGetUrlList(setUrlList);
-  }, []);
 
   return (
     <>

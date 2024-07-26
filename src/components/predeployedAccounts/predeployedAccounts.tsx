@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { sendMessageToSetUrlList } from '../utils/sendMessageBackground';
 import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
@@ -18,7 +17,7 @@ export const PredeployedAccounts: React.FC = () => {
     updateSelectedAccount,
     setCurrentBalance,
     urlList,
-    setUrlList,
+    updateUrlList,
     configData,
     setConfigData,
     lastFetchedUrl,
@@ -46,7 +45,8 @@ export const PredeployedAccounts: React.FC = () => {
       setDevnetIsAlive(true);
       const urlExists = urlList.some((devnet) => devnet.url === url);
       if (!urlExists) {
-        sendMessageToSetUrlList({ url, isAlive: true }, setUrlList);
+        urlList.push({ url, isAlive: true });
+        updateUrlList(urlList);
       }
     } catch (error) {
       setDevnetIsAlive(false);

@@ -6,7 +6,7 @@ export interface AccountData {
   public_key: string;
 }
 
-export interface ListOfDevnet {
+export interface UrlItem {
   url: string;
   isAlive: boolean;
 }
@@ -42,10 +42,16 @@ export interface TransactionInfo {
 export interface MyContextValue {
   accounts: AccountData[];
   setAccounts: React.Dispatch<React.SetStateAction<AccountData[]>>;
+
   selectedAccount: AccountData | null;
   updateSelectedAccount: (updatedData: AccountData | null) => Promise<void>;
+
   selectedUrl: string;
   updateSelectedUrl: (updatedData: string) => Promise<void>;
+
+  urlList: UrlItem[];
+  updateUrlList: (updatedData: UrlItem[]) => Promise<void>;
+
   devnetIsAlive: boolean;
   setDevnetIsAlive: React.Dispatch<React.SetStateAction<boolean>>;
   currentBalance: bigint;
@@ -58,8 +64,6 @@ export interface MyContextValue {
   setCommandOptions: React.Dispatch<React.SetStateAction<Options | null>>;
   configData: any | null;
   setConfigData: React.Dispatch<React.SetStateAction<any | null>>;
-  urlList: ListOfDevnet[];
-  setUrlList: React.Dispatch<React.SetStateAction<ListOfDevnet[]>>;
   transactionData: TransactionInfo | null;
   setTransactionData: React.Dispatch<React.SetStateAction<TransactionInfo | null>>;
   signatureData: any;

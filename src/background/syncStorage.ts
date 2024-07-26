@@ -2,55 +2,6 @@ import { AccountData } from '../components/context/interfaces';
 import { DEFAULT_DEVNET_URL } from './constants';
 import { ListOfDevnet } from './interface';
 
-// Function to save a new URL to the list of devnet networks in Chrome storage
-export async function saveUrlListToSyncStorage(urlList: ListOfDevnet[]): Promise<void> {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.set({ ['urlList']: urlList }, () => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve();
-    });
-  });
-}
-
-// Function to retrieve devnet URL list from Chrome sync storage
-export async function getUrlListFromSyncStorage(): Promise<ListOfDevnet[]> {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(['urlList'], (result) => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve(result['urlList'] || [{ url: DEFAULT_DEVNET_URL, isAlive: true }]);
-    });
-  });
-}
-
-// Function to add a new devnet URL to URL list in Chrome sync storage
-export async function addUrlToUrlListInSyncStorage(item: ListOfDevnet): Promise<void> {
-  const urlList = await getUrlListFromSyncStorage();
-  if (!urlList.some((devnet) => devnet.url === item.url)) {
-    urlList.push(item);
-    await saveUrlListToSyncStorage(urlList);
-  }
-}
-
-// Function to remove devnet URL from URL list in Chrome sync storage
-export async function removeUrlFromListInSyncStorage(url: string): Promise<void> {
-  const urlList = await getUrlListFromSyncStorage();
-  const newUrlList = urlList.filter((devnet) => devnet.url !== url);
-  await saveUrlListToSyncStorage(newUrlList);
-}
-
-// Function to update devnet URL from URL list in Chrome sync storage
-export async function updateUrlFromListInSyncStorage(url: string, isAlive: boolean): Promise<void> {
-  const urlList = await getUrlListFromSyncStorage();
-  const newUrlList = urlList.map((devnet) =>
-    devnet.url === url ? { ...devnet, isAlive } : devnet
-  );
-  await saveUrlListToSyncStorage(newUrlList);
-}
-
 // Function to save block interval object to Chrome sync storage
 export async function saveBlockIntervalToSyncStorage(
   blockInterval: Map<string, number>
@@ -168,6 +119,26 @@ export async function saveSelectedUrl(selectedUrl: string): Promise<string> {
   }
 
   return selectedUrl;
+}
+
+export async function getUrlList(): Promise<ListOfDevnet[]> {
+  const { urlList } = await chrome.storage.sync.get(['urlList']);
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return urlList ?? [{ url: DEFAULT_DEVNET_URL, isAlive: true }];
+}
+
+export async function saveUrlList(urlList: ListOfDevnet[]): Promise<ListOfDevnet[]> {
+  await chrome.storage.sync.set({ urlList });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return urlList;
 }
 
 export async function getAccountContracts(): Promise<Record<string, string[]>> {
