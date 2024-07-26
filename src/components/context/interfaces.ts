@@ -1,5 +1,3 @@
-import { Component } from './enum';
-
 export interface AccountData {
   address: string;
   initial_balance: string;
@@ -44,8 +42,8 @@ export interface TransactionInfo {
 export interface MyContextValue {
   accounts: AccountData[];
   setAccounts: React.Dispatch<React.SetStateAction<AccountData[]>>;
-  url: string;
-  setUrl: React.Dispatch<React.SetStateAction<string>>;
+  selectedUrl: string;
+  updateSelectedUrl: (updatedData: string) => Promise<void>;
   devnetIsAlive: boolean;
   setDevnetIsAlive: React.Dispatch<React.SetStateAction<boolean>>;
   selectedAccount: AccountData | null;
@@ -62,14 +60,10 @@ export interface MyContextValue {
   setConfigData: React.Dispatch<React.SetStateAction<any | null>>;
   urlList: ListOfDevnet[];
   setUrlList: React.Dispatch<React.SetStateAction<ListOfDevnet[]>>;
-  selectedComponent: Component | null;
-  setSelectedComponent: React.Dispatch<React.SetStateAction<Component | null>>;
   transactionData: TransactionInfo | null;
   setTransactionData: React.Dispatch<React.SetStateAction<TransactionInfo | null>>;
   signatureData: any;
   setSignatureData: React.Dispatch<React.SetStateAction<any>>;
-  accountContracts: Map<string, string[]>;
-  setAccountContracts: React.Dispatch<React.SetStateAction<Map<string, string[]>>>;
   lastFetchedUrl: string | null;
   setLastFetchedUrl: React.Dispatch<React.SetStateAction<string | null>>;
   blockDetails: any;

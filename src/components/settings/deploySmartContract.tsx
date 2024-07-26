@@ -28,7 +28,7 @@ export const DeploySmartContract: React.FC = () => {
   const navigate = useNavigate();
   const context = useSharedState();
 
-  const { selectedAccount, url } = context;
+  const { selectedAccount, selectedUrl: url } = context;
 
   const handleBack = () => {
     navigate(`/accounts/${selectedAccount?.address}`);

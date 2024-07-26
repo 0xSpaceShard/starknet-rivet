@@ -4,7 +4,7 @@ import {
   addIntervalToBlockIntervalInSyncStorage,
   getBlockIntervalFromSyncStorage,
   removeIntervalFromBlockIntervalInSyncStorage,
-} from './storage';
+} from './syncStorage';
 
 // Function to set block interval for  a given URL
 export async function setUrlBlockInterval(

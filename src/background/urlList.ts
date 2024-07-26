@@ -10,7 +10,7 @@ import {
   getUrlListFromSyncStorage,
   removeUrlFromListInSyncStorage,
   updateUrlFromListInSyncStorage,
-} from './storage';
+} from './syncStorage';
 
 // Function to set a new devnet URL to URL list
 export async function setNewUrlToList(

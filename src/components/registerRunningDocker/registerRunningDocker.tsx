@@ -26,7 +26,6 @@ import {
   sendMessageToRemoveBlockInterval,
   sendMessageToRemoveUrlFromList,
   sendMessageToSetSelectedAccount,
-  sendMessageToSetUrl,
   sendMessageToSetUrlList,
 } from '../utils/sendMessageBackground';
 
@@ -37,8 +36,8 @@ const RegisterRunningDocker: React.FC = () => {
     urlList,
     devnetIsAlive,
     setDevnetIsAlive,
-    url,
-    setUrl,
+    selectedUrl: url,
+    updateSelectedUrl,
     setSelectedAccount,
     setBlockInterval,
   } = context;
@@ -69,7 +68,7 @@ const RegisterRunningDocker: React.FC = () => {
     try {
       await fetch(`${clickedUrl}/is_alive`);
       setDevnetIsAlive(true);
-      sendMessageToSetUrl(clickedUrl, setUrl);
+      updateSelectedUrl(clickedUrl);
     } catch (error) {
       console.error('Error fetching URL status:', error);
       setDevnetIsAlive(false);
@@ -89,13 +88,13 @@ const RegisterRunningDocker: React.FC = () => {
       if (updatedUrlList.length > 0) {
         const firstAliveUrl = updatedUrlList.find((devnet) => devnet.isAlive);
         if (firstAliveUrl) {
-          sendMessageToSetUrl(firstAliveUrl.url, setUrl);
+          updateSelectedUrl(firstAliveUrl.url);
           sendMessageToSetSelectedAccount(null, setSelectedAccount);
 
           return;
         }
       }
-      sendMessageToSetUrl('', setUrl);
+      updateSelectedUrl('');
       setDevnetIsAlive(false);
       sendMessageToSetSelectedAccount(null, setSelectedAccount);
     }

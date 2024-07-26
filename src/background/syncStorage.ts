@@ -1,30 +1,6 @@
 import { DEFAULT_DEVNET_URL } from './constants';
 import { ListOfDevnet } from './interface';
 
-// Function to get current URL of devnet in Chrome storage
-export async function getUrlFromSyncStorage(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(['url'], (result) => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve(result['url'] || DEFAULT_DEVNET_URL);
-    });
-  });
-}
-
-// Function to set current URL of devnet in Chrome storage
-export async function setUrlFromSyncStorage(url: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.set({ url: url }, () => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve();
-    });
-  });
-}
-
 // Function to save a new URL to the list of devnet networks in Chrome storage
 export async function saveUrlListToSyncStorage(urlList: ListOfDevnet[]): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -151,28 +127,44 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
   }
 }
 
-// Function to update the account token contracts list in Chrome sync storage
-export async function updateAccountContractsInSyncStorage(
-  accountContracts: Record<string, string[]>
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.set({ accountContracts }, () => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve();
-    });
-  });
+export async function getSelectedUrl(): Promise<string> {
+  const { selectedUrl } = await chrome.storage.sync.get(['selectedUrl']);
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return selectedUrl ?? DEFAULT_DEVNET_URL;
 }
 
-// Function to retrieve account token contracts list from Chrome sync storage
-export async function getAccountContractsFromSyncStorage(): Promise<Map<string, string[]>> {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(['accountContracts'], ({ accountContracts }) => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      resolve(accountContracts ?? {});
-    });
-  });
+export async function saveSelectedUrl(selectedUrl: string): Promise<string> {
+  await chrome.storage.sync.set({ selectedUrl });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return selectedUrl;
+}
+
+export async function getAccountContracts(): Promise<Record<string, string[]>> {
+  const { accountContracts } = await chrome.storage.sync.get(['accountContracts']);
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return accountContracts ?? {};
+}
+
+export async function saveAccountContracts(
+  accountContracts: Record<string, string[]>
+): Promise<Record<string, string[]>> {
+  await chrome.storage.sync.set({ accountContracts });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return accountContracts;
 }

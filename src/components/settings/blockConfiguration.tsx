@@ -33,7 +33,7 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
 
   const navigate = useNavigate();
   const context = useSharedState();
-  const { selectedAccount, url, currentBlock, blockInterval, setBlockInterval, configData } =
+  const { selectedAccount, selectedUrl: url, currentBlock, blockInterval, setBlockInterval, configData } =
     context;
 
   const handleBack = () => {

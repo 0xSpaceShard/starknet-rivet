@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AccountData, ListOfDevnet, MyContextValue, Options } from './interfaces';
-import { Component } from './enum';
 import { DEFAULT_DEVNET_URL } from '../../background/constants';
+import { useSelectedUrl } from '../hooks/useSelectedUrl';
 
 export const Context = createContext<MyContextValue | undefined>(undefined);
 
@@ -13,9 +13,9 @@ export const useSharedState = () => {
   return context;
 };
 
-export function MyContextProvider({ children }: { children: React.ReactNode }) {
+export function DataContextProvider({ children }: { children: React.ReactNode }) {
+  const { data: selectedUrl, update: updateSelectedUrl } = useSelectedUrl();
   const [accounts, setAccounts] = useState<AccountData[]>([]);
-  const [url, setUrl] = useState<string>('');
   const [devnetIsAlive, setDevnetIsAlive] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<AccountData | null>(null);
   const [currentBalance, setCurrentBalance] = useState(0n);
@@ -24,10 +24,8 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
   const [commandOptions, setCommandOptions] = useState<Options | null>(null);
   const [configData, setConfigData] = useState<any | null>(null);
   const [urlList, setUrlList] = useState<ListOfDevnet[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [transactionData, setTransactionData] = useState<any>(null);
   const [signatureData, setSignatureData] = useState<any>(null);
-  const [accountContracts, setAccountContracts] = useState(new Map<string, string[]>());
   const [lastFetchedUrl, setLastFetchedUrl] = useState<string | null>(null);
   const [blockDetails, setBlockDetails] = useState<any[]>([]);
 
@@ -35,7 +33,6 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
     chrome.storage.local.get(null, (data) => {
       if (data) {
         setAccounts(data.accounts || []);
-        setUrl(data.url || DEFAULT_DEVNET_URL);
         setSelectedAccount(data.selectedAccount || null);
         setCurrentBalance(data.currentBalance || 0n);
         setCurrentBlock(data.currentBlock || 0);
@@ -43,48 +40,43 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
         setCommandOptions(data.commandOptions || null);
         setConfigData(data.configData || null);
         setUrlList(data.urlList || [{ url: DEFAULT_DEVNET_URL, isAlive: false }]);
-        setSelectedComponent(data.selectedComponent || '');
-        setAccountContracts(new Map(Object.entries(data.accountContracts || {})));
       }
     });
   }, []);
 
-  useEffect(() => {
-    const dataToSave = {
-      accounts,
-      url,
-      selectedAccount,
-      currentBalance,
-      currentBlock,
-      blockInterval: Object.fromEntries(blockInterval),
-      commandOptions,
-      configData,
-      urlList,
-      selectedComponent,
-      accountContracts: Object.fromEntries(accountContracts),
-    };
-    chrome.storage.local.set(dataToSave);
-  }, [
-    accounts,
-    url,
-    selectedAccount,
-    currentBalance,
-    currentBlock,
-    blockInterval,
-    commandOptions,
-    configData,
-    urlList,
-    selectedComponent,
-    accountContracts,
-  ]);
+  // useEffect(() => {
+  //   const dataToSave = {
+  //     accounts,
+  //     url,
+  //     selectedAccount,
+  //     currentBalance,
+  //     currentBlock,
+  //     blockInterval: Object.fromEntries(blockInterval),
+  //     commandOptions,
+  //     configData,
+  //     urlList,
+  //   };
+  //   // console.log('saving', dataToSave);
+  //   chrome.storage.local.set(dataToSave);
+  // }, [
+  //   accounts,
+  //   url,
+  //   selectedAccount,
+  //   currentBalance,
+  //   currentBlock,
+  //   blockInterval,
+  //   commandOptions,
+  //   configData,
+  //   urlList,
+  // ]);
 
   return (
     <Context.Provider
       value={{
         accounts,
         setAccounts,
-        url,
-        setUrl,
+        selectedUrl,
+        updateSelectedUrl,
         devnetIsAlive,
         setDevnetIsAlive,
         selectedAccount,
@@ -101,14 +93,10 @@ export function MyContextProvider({ children }: { children: React.ReactNode }) {
         setConfigData,
         urlList,
         setUrlList,
-        selectedComponent,
-        setSelectedComponent,
         transactionData,
         setTransactionData,
         signatureData,
         setSignatureData,
-        accountContracts,
-        setAccountContracts,
         lastFetchedUrl,
         setLastFetchedUrl,
         blockDetails,

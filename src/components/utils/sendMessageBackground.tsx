@@ -8,7 +8,7 @@ export function sendMessageToSetSelectedAccount(
     {
       type: 'SET_SELECTED_ACCOUNT',
       data: {
-        selectedAccount: selectedAccount,
+        selectedAccount,
       },
     },
     (response) => {
@@ -16,42 +16,6 @@ export function sendMessageToSetSelectedAccount(
         console.error('Failed to set selectedAccount');
       } else {
         setSelectedAccount(response.selectedAccount);
-      }
-    }
-  );
-}
-
-export function sendMessageToSetUrl(
-  url: string,
-  setUrl: React.Dispatch<React.SetStateAction<string>>
-) {
-  chrome.runtime.sendMessage(
-    {
-      type: 'SET_URL',
-      data: {
-        url: url,
-      },
-    },
-    (response) => {
-      if (!response.success) {
-        console.error('Failed to fetch url ');
-      } else {
-        setUrl(response.url);
-      }
-    }
-  );
-}
-
-export function sendMessageToGetUrl(setUrl: React.Dispatch<React.SetStateAction<string>>) {
-  chrome.runtime.sendMessage(
-    {
-      type: 'GET_URL',
-    },
-    (response) => {
-      if (!response.success) {
-        console.error('Failed to fetch url ');
-      } else {
-        setUrl(response.url);
       }
     }
   );
@@ -181,27 +145,6 @@ export function sendMessageToRemoveBlockInterval(
         const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
         setBlockInterval(newBlockInterval);
       }
-    }
-  );
-}
-
-export function sendMessageToUpdateAccountContracts(
-  accountContracts: Map<string, string[]>,
-  setAccountContracts: React.Dispatch<React.SetStateAction<Map<string, string[]>>>
-) {
-  chrome.runtime.sendMessage(
-    {
-      type: 'UPDATE_ACCOUNT_CONTRACTS',
-      data: {
-        accountContracts: Object.fromEntries(accountContracts),
-      },
-    },
-    ({ success, accountContracts: updatedContracts }) => {
-      if (!success) {
-        console.error('Failed to update account contracts');
-      }
-      const map = new Map<string, string[]>(Object.entries(updatedContracts));
-      setAccountContracts(map);
     }
   );
 }

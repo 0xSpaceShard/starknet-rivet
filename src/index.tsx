@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { MyContextProvider } from './components/context/context';
+import { DataContextProvider } from './components/context/context';
 import { StarknetProvider } from './components/starknet/starknet-provider';
 
 interface SharedComponentProps {
@@ -18,7 +18,7 @@ export const darkTheme = createTheme({
 });
 
 export const SharedComponent: React.FC<SharedComponentProps> = ({ children }) => (
-  <MyContextProvider>
+  <DataContextProvider>
     <StarknetProvider>
       <React.StrictMode>
         <ThemeProvider theme={darkTheme}>
@@ -27,5 +27,5 @@ export const SharedComponent: React.FC<SharedComponentProps> = ({ children }) =>
         </ThemeProvider>
       </React.StrictMode>
     </StarknetProvider>
-  </MyContextProvider>
+  </DataContextProvider>
 );

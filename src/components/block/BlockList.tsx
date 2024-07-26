@@ -14,7 +14,7 @@ export const BlockList: React.FC<{
   fetchCurrentBlockNumber: () => Promise<void>;
 }> = ({ fetchCurrentBlockNumber }) => {
   const context = useSharedState();
-  const { url, currentBlock } = context;
+  const { selectedUrl: url, currentBlock } = context;
   const navigate = useNavigate();
   const [blockTransactionsCount, setBlockTransactionsCount] = useState<BlockInfo[]>([]);
   const [pageSize, setPageSize] = useState(15);
