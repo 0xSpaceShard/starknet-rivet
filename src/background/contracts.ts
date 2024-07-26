@@ -1,11 +1,6 @@
 import { Calldata, CallData, Contract } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
-import { getAccountContractsFromSyncStorage, updateAccountContractsInSyncStorage } from './storage';
-import {
-  DeclareContractMessage,
-  DeployContractMessage,
-  UpdateAccountContractsMessage,
-} from './interface';
+import { DeclareContractMessage, DeployContractMessage } from './interface';
 
 // Function to declare a Contract from Rivet extension
 export async function declareContract(
@@ -20,7 +15,7 @@ export async function declareContract(
       contract: message.data.sierra,
       casm: message.data.casm,
     });
-    if (declareResponse.transaction_hash != '') {
+    if (declareResponse.transaction_hash !== '') {
       await provider.waitForTransaction(declareResponse.transaction_hash);
     }
     sendResponse({ class_hash: declareResponse.class_hash });
@@ -56,21 +51,6 @@ export async function deployContract(
   } catch (error) {
     sendResponse({ error: parseErrorMessage(error) });
   }
-}
-
-export async function updateAccountContracts(
-  message: UpdateAccountContractsMessage,
-  sendResponse: (response?: { success: boolean; accountContracts?: Map<string, string[]> }) => void
-) {
-  try {
-    await updateAccountContractsInSyncStorage(message.data.accountContracts);
-    const accountContracts = await getAccountContractsFromSyncStorage();
-    sendResponse({ success: true, accountContracts });
-  } catch (error) {
-    sendResponse({ success: false });
-    return false;
-  }
-  return true;
 }
 
 export async function getTokenBalance(contractAddr: string) {

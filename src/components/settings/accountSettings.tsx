@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 
-export const Settings: React.FC = () => {
+export const AccountSettings: React.FC = () => {
   const navigate = useNavigate();
   const context = useSharedState();
 

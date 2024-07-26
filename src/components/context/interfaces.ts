@@ -1,5 +1,3 @@
-import { Component } from './enum';
-
 export interface AccountData {
   address: string;
   initial_balance: string;
@@ -8,7 +6,7 @@ export interface AccountData {
   public_key: string;
 }
 
-export interface ListOfDevnet {
+export interface UrlItem {
   url: string;
   isAlive: boolean;
 }
@@ -44,14 +42,22 @@ export interface TransactionInfo {
 export interface MyContextValue {
   accounts: AccountData[];
   setAccounts: React.Dispatch<React.SetStateAction<AccountData[]>>;
-  url: string;
-  setUrl: React.Dispatch<React.SetStateAction<string>>;
+
+  selectedAccount: AccountData | null;
+  updateSelectedAccount: (updatedData: AccountData | null) => Promise<void>;
+
+  selectedUrl: string;
+  updateSelectedUrl: (updatedData: string) => Promise<void>;
+
+  urlList: UrlItem[];
+  updateUrlList: (updatedData: UrlItem[]) => Promise<void>;
+
+  currentBalance: bigint;
+  updateCurrentBalance: (updatedData: bigint) => Promise<void>;
+
   devnetIsAlive: boolean;
   setDevnetIsAlive: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedAccount: AccountData | null;
-  setSelectedAccount: React.Dispatch<React.SetStateAction<AccountData | null>>;
-  currentBalance: bigint;
-  setCurrentBalance: React.Dispatch<React.SetStateAction<bigint>>;
+
   commandOptions: Options | null;
   setCurrentBlock: React.Dispatch<React.SetStateAction<number>>;
   currentBlock: number;
@@ -60,16 +66,10 @@ export interface MyContextValue {
   setCommandOptions: React.Dispatch<React.SetStateAction<Options | null>>;
   configData: any | null;
   setConfigData: React.Dispatch<React.SetStateAction<any | null>>;
-  urlList: ListOfDevnet[];
-  setUrlList: React.Dispatch<React.SetStateAction<ListOfDevnet[]>>;
-  selectedComponent: Component | null;
-  setSelectedComponent: React.Dispatch<React.SetStateAction<Component | null>>;
   transactionData: TransactionInfo | null;
   setTransactionData: React.Dispatch<React.SetStateAction<TransactionInfo | null>>;
   signatureData: any;
   setSignatureData: React.Dispatch<React.SetStateAction<any>>;
-  accountContracts: Map<string, string[]>;
-  setAccountContracts: React.Dispatch<React.SetStateAction<Map<string, string[]>>>;
   lastFetchedUrl: string | null;
   setLastFetchedUrl: React.Dispatch<React.SetStateAction<string | null>>;
   blockDetails: any;

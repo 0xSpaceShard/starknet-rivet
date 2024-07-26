@@ -22,11 +22,12 @@ import { handleCopyAddress, shortenAddress } from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
 import { getTokenBalance } from '../../background/contracts';
 import { useSharedState } from '../context/context';
+import { useAccountContracts } from '../hooks/useAccountContracts';
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const context = useSharedState();
   const {
-    url,
+    selectedUrl: url,
     devnetIsAlive,
     setDevnetIsAlive,
     selectedAccount,
@@ -37,8 +38,8 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setTransactionData,
     signatureData,
     setSignatureData,
-    accountContracts,
   } = context;
+  const { data: accountContracts } = useAccountContracts();
 
   const [tokenBalances, setTokenBalances] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -55,6 +56,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   useEffect(() => {
     if (!contracts?.length) return;
 
+    // TODO: add validation for address format
     const balancePromises = contracts.map(async (address) => {
       const resp = await getTokenBalance(address);
       if (!resp) return '';

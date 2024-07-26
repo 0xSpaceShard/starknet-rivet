@@ -1,4 +1,4 @@
-import { getBlockIntervalFromSyncStorage } from './storage';
+import { getBlockIntervalFromSyncStorage } from './syncStorage';
 
 // Listener for Chrome alarms
 chrome.alarms.onAlarm.addListener((alarm) => {

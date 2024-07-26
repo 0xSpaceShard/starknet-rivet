@@ -17,14 +17,15 @@ import {
 import { AddBoxOutlined, ChevronLeft, Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
-import { sendMessageToUpdateAccountContracts } from '../utils/sendMessageBackground';
 import { shortenAddress } from '../utils/utils';
+import { useAccountContracts } from '../hooks/useAccountContracts';
 
 export const AddTokenContract: React.FC = () => {
   const navigate = useNavigate();
   const context = useSharedState();
 
-  const { selectedAccount, accountContracts, setAccountContracts } = context;
+  const { selectedAccount } = context;
+  const { data: accountContracts, update: updateAccountContracts } = useAccountContracts();
 
   const [newAddress, setNewAddress] = useState('');
 
@@ -32,43 +33,36 @@ export const AddTokenContract: React.FC = () => {
     navigate(`/accounts/${selectedAccount?.address}`);
   };
 
-  const handleAddAddress = useCallback(
-    (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
+  const handleAdd = useCallback(async () => {
+    if (!newAddress?.trim() || !selectedAccount?.address) return;
 
-      if (!newAddress?.trim() || !selectedAccount?.address) return;
+    const contracts = accountContracts?.get(selectedAccount.address) || [];
+    if (contracts.includes(newAddress)) return;
 
-      const contracts = accountContracts?.get(selectedAccount.address) || [];
-      if (contracts.includes(newAddress)) return;
+    contracts.push(newAddress);
+    accountContracts?.set(selectedAccount.address, contracts);
+    await updateAccountContracts(accountContracts);
 
-      contracts.push(newAddress);
-      accountContracts.set(selectedAccount.address, contracts);
-      sendMessageToUpdateAccountContracts(accountContracts, setAccountContracts);
-
-      setNewAddress('');
-    },
-    [newAddress, selectedAccount, accountContracts]
-  );
+    setNewAddress('');
+  }, [newAddress, selectedAccount, accountContracts]);
 
   const handleDelete = useCallback(
-    (address: string) => {
-      if (!selectedAccount?.address) return;
+    async (address: string) => {
+      if (!address?.trim() || !selectedAccount?.address) return;
 
       const contracts = accountContracts?.get(selectedAccount.address) || [];
       if (!contracts.includes(address)) return;
 
       const updatedContracts = contracts.filter((addr) => addr !== address);
-      accountContracts.set(selectedAccount.address, updatedContracts);
-      sendMessageToUpdateAccountContracts(accountContracts, setAccountContracts);
+      accountContracts?.set(selectedAccount.address, updatedContracts);
+      await updateAccountContracts(accountContracts);
     },
     [selectedAccount, accountContracts]
   );
 
-  const contracts = useMemo(
-    () => accountContracts.get(selectedAccount?.address ?? '') ?? [],
-    [accountContracts, selectedAccount]
-  );
+  const contracts = useMemo(() => {
+    return accountContracts.get(selectedAccount?.address ?? '') ?? [];
+  }, [accountContracts, selectedAccount]);
 
   return (
     <>
@@ -107,7 +101,14 @@ export const AddTokenContract: React.FC = () => {
               </Box>
               <Box>
                 <Tooltip title="Add address">
-                  <IconButton onClick={handleAddAddress} color="primary">
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleAdd();
+                    }}
+                    color="primary"
+                  >
                     <AddBoxOutlined />
                   </IconButton>
                 </Tooltip>

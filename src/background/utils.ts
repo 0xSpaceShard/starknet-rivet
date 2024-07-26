@@ -1,5 +1,5 @@
 import { Account, RpcProvider } from 'starknet-6';
-import { getUrlFromSyncStorage } from './storage';
+import { getSelectedUrl } from './syncStorage';
 
 // Utils functions Parse error message
 export function parseErrorMessage(error: any): string {
@@ -24,6 +24,6 @@ export async function getSelectedAccount(): Promise<Account> {
 
 // Utils functions to get provider from Chrome sync storage
 export async function getProvider(): Promise<RpcProvider> {
-  const url = await getUrlFromSyncStorage();
+  const url = await getSelectedUrl();
   return new RpcProvider({ nodeUrl: `${url}/rpc` });
 }

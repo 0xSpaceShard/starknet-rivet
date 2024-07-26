@@ -11,7 +11,7 @@ import DisplayBlockInfo from './displayBlockInfo';
 const BlockDetailsPage: React.FC = () => {
   const context = useSharedState();
   const navigate = useNavigate();
-  const { url, blockDetails, setBlockDetails } = context;
+  const { selectedUrl: url, blockDetails, setBlockDetails } = context;
   const { blockIndex } = useParams<{ blockIndex: string }>();
   const index = parseInt(blockIndex || '', 10);
 
