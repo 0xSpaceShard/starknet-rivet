@@ -1,10 +1,7 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import {
-  sendMessageToSetSelectedAccount,
-  sendMessageToSetUrlList,
-} from '../utils/sendMessageBackground';
+import { sendMessageToSetUrlList } from '../utils/sendMessageBackground';
 import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
@@ -18,7 +15,7 @@ export const PredeployedAccounts: React.FC = () => {
     devnetIsAlive,
     setDevnetIsAlive,
     selectedAccount,
-    setSelectedAccount,
+    updateSelectedAccount,
     setCurrentBalance,
     urlList,
     setUrlList,
@@ -83,7 +80,7 @@ export const PredeployedAccounts: React.FC = () => {
   const handleAccountClick = async (clickedAddress: string) => {
     const clickedAccount = accounts.find((account) => account.address === clickedAddress);
     if (clickedAccount) {
-      sendMessageToSetSelectedAccount(clickedAccount, setSelectedAccount);
+      await updateSelectedAccount(clickedAccount);
       await fetchCurrentBalance(clickedAccount.address);
       navigate(`/accounts/${clickedAccount.address}`);
     }

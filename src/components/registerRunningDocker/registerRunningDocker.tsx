@@ -25,7 +25,6 @@ import {
   sendMessageToGetUrlList,
   sendMessageToRemoveBlockInterval,
   sendMessageToRemoveUrlFromList,
-  sendMessageToSetSelectedAccount,
   sendMessageToSetUrlList,
 } from '../utils/sendMessageBackground';
 
@@ -38,7 +37,7 @@ const RegisterRunningDocker: React.FC = () => {
     setDevnetIsAlive,
     selectedUrl: url,
     updateSelectedUrl,
-    setSelectedAccount,
+    updateSelectedAccount,
     setBlockInterval,
   } = context;
   const [newUrl, setNewUrl] = useState('');
@@ -68,7 +67,7 @@ const RegisterRunningDocker: React.FC = () => {
     try {
       await fetch(`${clickedUrl}/is_alive`);
       setDevnetIsAlive(true);
-      updateSelectedUrl(clickedUrl);
+      await updateSelectedUrl(clickedUrl);
     } catch (error) {
       console.error('Error fetching URL status:', error);
       setDevnetIsAlive(false);
@@ -79,7 +78,7 @@ const RegisterRunningDocker: React.FC = () => {
     navigate('/app-settings');
   };
 
-  const handleDeleteUrl = (urlToDelete: string) => {
+  const handleDeleteUrl = async (urlToDelete: string) => {
     const updatedUrlList = urlList.filter((item) => item.url !== urlToDelete);
     sendMessageToRemoveUrlFromList(urlToDelete, setUrlList);
     sendMessageToRemoveBlockInterval(urlToDelete, setBlockInterval);
@@ -88,15 +87,15 @@ const RegisterRunningDocker: React.FC = () => {
       if (updatedUrlList.length > 0) {
         const firstAliveUrl = updatedUrlList.find((devnet) => devnet.isAlive);
         if (firstAliveUrl) {
-          updateSelectedUrl(firstAliveUrl.url);
-          sendMessageToSetSelectedAccount(null, setSelectedAccount);
+          await updateSelectedUrl(firstAliveUrl.url);
+          await updateSelectedAccount(null);
 
           return;
         }
       }
-      updateSelectedUrl('');
+      await updateSelectedUrl('');
       setDevnetIsAlive(false);
-      sendMessageToSetSelectedAccount(null, setSelectedAccount);
+      await updateSelectedAccount(null);
     }
   };
 

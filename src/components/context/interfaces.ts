@@ -42,12 +42,12 @@ export interface TransactionInfo {
 export interface MyContextValue {
   accounts: AccountData[];
   setAccounts: React.Dispatch<React.SetStateAction<AccountData[]>>;
+  selectedAccount: AccountData | null;
+  updateSelectedAccount: (updatedData: AccountData | null) => Promise<void>;
   selectedUrl: string;
   updateSelectedUrl: (updatedData: string) => Promise<void>;
   devnetIsAlive: boolean;
   setDevnetIsAlive: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedAccount: AccountData | null;
-  setSelectedAccount: React.Dispatch<React.SetStateAction<AccountData | null>>;
   currentBalance: bigint;
   setCurrentBalance: React.Dispatch<React.SetStateAction<bigint>>;
   commandOptions: Options | null;

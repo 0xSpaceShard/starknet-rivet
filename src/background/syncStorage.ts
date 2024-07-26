@@ -1,3 +1,4 @@
+import { AccountData } from '../components/context/interfaces';
 import { DEFAULT_DEVNET_URL } from './constants';
 import { ListOfDevnet } from './interface';
 
@@ -125,6 +126,28 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
     console.error('Error removing interval from block interval:', error);
     throw error;
   }
+}
+
+export async function getSelectedAccount(): Promise<AccountData | null> {
+  const { selectedAccount } = await chrome.storage.sync.get(['selectedAccount']);
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return selectedAccount ?? null;
+}
+
+export async function saveSelectedAccount(
+  selectedAccount: AccountData | null
+): Promise<AccountData | null> {
+  await chrome.storage.sync.set({ selectedAccount });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return selectedAccount;
 }
 
 export async function getSelectedUrl(): Promise<string> {

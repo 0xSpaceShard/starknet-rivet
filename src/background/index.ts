@@ -4,12 +4,10 @@ import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } fro
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
 import { declareContract, deployContract } from './contracts';
 import { getSelectedUrl } from './syncStorage';
-import { SlectedAccountMessage } from './interface';
 import {
   ActionMessage,
   TransactionMessage,
 } from '../components/contractInteraction/messageActions';
-import { AccountData } from '../components/context/interfaces';
 
 console.log('Background script is running');
 
@@ -56,10 +54,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'REMOVE_URL_BLOCK_INTERVAL':
       removeUrlBlockInterval(message, sendResponse);
-      break;
-
-    case 'SET_SELECTED_ACCOUNT':
-      setSelectedAccount(message, sendResponse);
       break;
 
     case 'SIGN_RIVET_MESSAGE':
@@ -264,40 +258,6 @@ async function executeRivetTransaction(
       type: 'RIVET_TRANSACTION_FAILED',
       data: { transaction_hash: '', error: 'Error retrieving selected account from storage.' },
     });
-  }
-}
-
-// Function to set selected account address
-async function setSelectedAccount(
-  message: SlectedAccountMessage,
-  sendResponse: (response?: {
-    success: boolean;
-    selectedAccount?: AccountData | null;
-    error?: string;
-  }) => void
-) {
-  try {
-    await chrome.storage.sync.set({ selectedAccount: message.data.selectedAccount });
-    await chrome.storage.local.set({ selectedAccount: message.data.selectedAccount });
-
-    const tabs = await chrome.tabs.query({});
-    tabs.forEach((tab) => {
-      chrome.tabs.sendMessage(
-        tab.id as number,
-        {
-          type: 'UPDATE_SELECTED_ACCOUNT',
-          data: message.data.selectedAccount,
-        },
-        (response) => {
-          if (!chrome.runtime.lastError) {
-            console.log(`Message sent to tab ${tab.id}:`, response);
-          }
-        }
-      );
-    });
-    sendResponse({ success: true, selectedAccount: message.data.selectedAccount });
-  } catch (error) {
-    sendResponse({ success: false, error: parseErrorMessage(error) });
   }
 }
 

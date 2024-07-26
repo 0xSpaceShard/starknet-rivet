@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AccountData, ListOfDevnet, MyContextValue, Options } from './interfaces';
 import { DEFAULT_DEVNET_URL } from '../../background/constants';
+import { useSelectedAccount } from '../hooks/useSelectedAccount';
 import { useSelectedUrl } from '../hooks/useSelectedUrl';
 
 export const Context = createContext<MyContextValue | undefined>(undefined);
@@ -14,10 +15,10 @@ export const useSharedState = () => {
 };
 
 export function DataContextProvider({ children }: { children: React.ReactNode }) {
+  const { data: selectedAccount, update: updateSelectedAccount } = useSelectedAccount();
   const { data: selectedUrl, update: updateSelectedUrl } = useSelectedUrl();
   const [accounts, setAccounts] = useState<AccountData[]>([]);
   const [devnetIsAlive, setDevnetIsAlive] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<AccountData | null>(null);
   const [currentBalance, setCurrentBalance] = useState(0n);
   const [currentBlock, setCurrentBlock] = useState(0);
   const [blockInterval, setBlockInterval] = useState<Map<string, number>>(new Map());
@@ -33,7 +34,6 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
     chrome.storage.local.get(null, (data) => {
       if (data) {
         setAccounts(data.accounts || []);
-        setSelectedAccount(data.selectedAccount || null);
         setCurrentBalance(data.currentBalance || 0n);
         setCurrentBlock(data.currentBlock || 0);
         setBlockInterval(new Map(Object.entries(data.blockInterval || {})));
@@ -80,7 +80,7 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
         devnetIsAlive,
         setDevnetIsAlive,
         selectedAccount,
-        setSelectedAccount,
+        updateSelectedAccount,
         currentBalance,
         setCurrentBalance,
         currentBlock,

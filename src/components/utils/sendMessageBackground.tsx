@@ -1,24 +1,22 @@
 import { AccountData, ListOfDevnet } from '../context/interfaces';
 
-export function sendMessageToSetSelectedAccount(
-  selectedAccount: AccountData | null,
-  setSelectedAccount: React.Dispatch<React.SetStateAction<AccountData | null>>
-) {
-  chrome.runtime.sendMessage(
-    {
-      type: 'SET_SELECTED_ACCOUNT',
-      data: {
-        selectedAccount,
+export async function sendAccountUpdatedMessage(selectedAccount: AccountData | null) {
+  const tabs = await chrome.tabs.query({});
+
+  tabs.forEach((tab) => {
+    chrome.tabs.sendMessage(
+      tab.id as number,
+      {
+        type: 'UPDATE_SELECTED_ACCOUNT',
+        data: selectedAccount,
       },
-    },
-    (response) => {
-      if (!response.success) {
-        console.error('Failed to set selectedAccount');
-      } else {
-        setSelectedAccount(response.selectedAccount);
+      (response) => {
+        if (!chrome.runtime.lastError) {
+          console.log(`Message sent to tab ${tab.id}:`, response);
+        }
       }
-    }
-  );
+    );
+  });
 }
 
 export function sendMessageToUpdateUrlList(
