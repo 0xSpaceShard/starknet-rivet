@@ -19,8 +19,9 @@ import { AddTokenContract } from '../components/settings/addTokenContract';
 import CheckDevnetStatus from '../components/checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '..';
 import './Popup.css';
-import { shortenAddress } from '../components/utils/utils';
+import { handleCopyAddress, shortenAddress } from '../components/utils/utils';
 import BlockDetailsPage from '../components/block/blockDetails';
+import { useFetchTransactionsDetails } from '../components/hooks/hooks';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -31,17 +32,6 @@ interface PendingBlockWithTxs {
 }
 
 type BlockWithTxsUnion = BlockWithTxs | PendingBlockWithTxs;
-
-const dummyTransactionData = [
-  { acc: '0x4532bdcad3492a01bafab5abb3f4b8ba49b297d13414898372a6abe51e10904', amount: 1.31 },
-  { acc: '0x40cfb15b3c9cb2943ebb6b3b7fa846221a55d5c3ec71d7646989515a539938e', amount: 0.1 },
-  { acc: '0x24a398a0c9bcfb0f7af3f112c43c63aa8bf67f91ec36b39793b0c338b2a9bed', amount: 2.23 },
-  { acc: '0x226974140fb79ee528b7b6a23783527a76915105f786416b28f0ede0f02764b', amount: 0.01 },
-  { acc: '0x5b29914c8fc3c61b33e149c2fac7705c4dafcd87e7706dd9798643d33c118f6', amount: 31.34 },
-  { acc: '0x7ca26ae9818edd447df722427af88fda4b4e529e6156c63520a9e3729c2061e', amount: 22 },
-  { acc: '0x53a6720c0d3ca6e79b1e35bc3882185c994b47c3ea8c8a3012202e5cb7b8fb6', amount: 0.11 },
-  { acc: '0x6723910b48b49cdf421d20b1f38d822ea9a22ad982dafa6e8344a82ebf6907f', amount: 0.24 },
-];
 
 export const Popup = () => {
   const navigate = useNavigate();
@@ -55,8 +45,10 @@ export const Popup = () => {
     blockInterval,
     configData,
     currentBlock,
-    setUrl,
+    blockDetails,
+    selectedAccount,
   } = context;
+  const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
 
   const switchComponent = (newSelectedComponent: Component) => {
     if (newSelectedComponent === Component.Accounts && !url) {
@@ -166,6 +158,10 @@ export const Popup = () => {
       fetchCurrentBlock();
     }
   }, [url, blockInterval]);
+
+  useEffect(() => {
+    fetchTransactionsDetailsByBlock(currentBlock);
+  }, [fetchTransactionsDetailsByBlock, currentBlock]);
 
   const ComponentMenu = () => (
     <section>
@@ -374,27 +370,36 @@ export const Popup = () => {
         <CustomTabPanel idx={2}>
           <section>
             <Stack marginBottom={1}>
-              {dummyTransactionData.map((transaction, index) => (
-                <Box key={index}>
-                  <Button
-                    fullWidth
-                    variant="text"
-                    sx={{
-                      textTransform: 'none',
-                      paddingY: 1,
-                      paddingX: 2,
-                      color: darkTheme.palette.text.secondary,
-                    }}
-                  >
-                    <Typography width={'70%'} whiteSpace={'nowrap'}>
-                      {shortenAddress(transaction.acc)}
-                    </Typography>
-                    <Stack direction="row" justifyContent="flex-end" width={'30%'}>
-                      {transaction.amount} ETH
-                    </Stack>
-                  </Button>
-                </Box>
-              ))}
+              {blockDetails.transactions &&
+                blockDetails.transactions.length > 0 &&
+                blockDetails.transactions
+                  .slice()
+                  .reverse()
+                  .map((info: any, index: number) =>
+                    info.sender_address === selectedAccount?.address ? (
+                      <>
+                        <Box key={index}>
+                          <Button
+                            fullWidth
+                            variant="text"
+                            sx={{
+                              textTransform: 'none',
+                              paddingY: 1,
+                              paddingX: 2,
+                              color: darkTheme.palette.text.secondary,
+                            }}
+                            onClick={() => {
+                              handleCopyAddress(info.transaction_hash);
+                            }}
+                          >
+                            <Typography width={'70%'} whiteSpace={'nowrap'}>
+                              {shortenAddress(info.transaction_hash)}
+                            </Typography>
+                          </Button>
+                        </Box>
+                      </>
+                    ) : null
+                  )}
             </Stack>
           </section>
         </CustomTabPanel>

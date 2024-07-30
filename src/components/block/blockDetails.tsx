@@ -7,19 +7,15 @@ import { ChevronLeft } from '@mui/icons-material';
 import { shortenAddress } from '../utils/utils';
 import { darkTheme } from '../..';
 import DisplayBlockInfo from './displayBlockInfo';
+import { useFetchTransactionsDetails } from '../hooks/hooks';
 
 const BlockDetailsPage: React.FC = () => {
   const context = useSharedState();
   const navigate = useNavigate();
-  const { url, blockDetails, setBlockDetails } = context;
+  const { blockDetails } = context;
   const { blockIndex } = useParams<{ blockIndex: string }>();
   const index = parseInt(blockIndex || '', 10);
-
-  async function fetchTransactionsDetailsByBlock() {
-    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-    const tx = await provider.getBlockWithTxs(index);
-    setBlockDetails(tx);
-  }
+  const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
 
   const handleBack = () => {
     // TODO: Update to navigate to the second tab on the home screen where the blocks are.
@@ -29,7 +25,7 @@ const BlockDetailsPage: React.FC = () => {
   useEffect(() => {
     const fetchTransactionsDetails = async () => {
       try {
-        await fetchTransactionsDetailsByBlock();
+        await fetchTransactionsDetailsByBlock(index);
       } catch (error) {
         console.error('Error fetching current block number:', error);
       }
@@ -60,10 +56,7 @@ const BlockDetailsPage: React.FC = () => {
             title="Block Number"
             value={blockDetails.block_number}
           ></DisplayBlockInfo>
-          <DisplayBlockInfo
-            title="Block Hash"
-            value={shortenAddress(blockDetails.block_hash, 5)}
-          ></DisplayBlockInfo>
+          <DisplayBlockInfo title="Block Hash" value={blockDetails.block_hash}></DisplayBlockInfo>
           <DisplayBlockInfo
             title="Timestamp"
             value={blockDetails.timestamp ?? 'Unknown'}
@@ -95,14 +88,8 @@ const BlockDetailsPage: React.FC = () => {
               .map((info: any, index: number) => (
                 <>
                   <Stack direction={'row'} spacing={{ xs: 2, sm: 2 }} useFlexGap flexWrap="wrap">
-                    <DisplayBlockInfo
-                      title="Hash"
-                      value={shortenAddress(info.transaction_hash, 5)}
-                    ></DisplayBlockInfo>
-                    <DisplayBlockInfo
-                      title="Sender"
-                      value={shortenAddress(info.sender_address, 5)}
-                    ></DisplayBlockInfo>
+                    <DisplayBlockInfo title="Hash" value={info.transaction_hash}></DisplayBlockInfo>
+                    <DisplayBlockInfo title="Sender" value={info.sender_address}></DisplayBlockInfo>
                     <DisplayBlockInfo title="Nonce" value={info.nonce}></DisplayBlockInfo>
                     <DisplayBlockInfo
                       title="Max Fee"

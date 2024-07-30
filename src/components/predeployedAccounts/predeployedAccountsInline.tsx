@@ -9,6 +9,7 @@ import {
 import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
+import { getBalanceStr, shortenAddress } from '../utils/utils';
 
 export const PredeployedAccountsInline: React.FC = () => {
   const context = useSharedState();
@@ -126,14 +127,6 @@ export const PredeployedAccountsInline: React.FC = () => {
     };
     fetchSelectedAccount();
   }, [selectedAccount]);
-
-  const shortenAddress = (address: string, startCount = 12, endCount = 12) =>
-    `${address.slice(0, startCount)}...${address.slice(-endCount)}`;
-
-  const getBalanceStr = (balance: string) => {
-    const balanceBigInt = BigInt(balance) / BigInt(10n ** 18n);
-    return balanceBigInt.toString();
-  };
 
   return (
     <>
