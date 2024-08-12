@@ -3,6 +3,7 @@ import { Box, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
+import { getBalanceStr, shortenAddress } from '../utils/utils';
 import { darkTheme } from '../..';
 
 export const PredeployedAccounts: React.FC = () => {
@@ -110,14 +111,6 @@ export const PredeployedAccounts: React.FC = () => {
     };
     fetchSelectedAccount();
   }, [selectedAccount]);
-
-  const shortenAddress = (address: string, startCount = 12, endCount = 12) =>
-    `${address.slice(0, startCount)}...${address.slice(-endCount)}`;
-
-  const getBalanceStr = (balance: string) => {
-    const balanceBigInt = BigInt(balance) / BigInt(10n ** 18n);
-    return balanceBigInt.toString();
-  };
 
   return (
     <>
