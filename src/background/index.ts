@@ -99,14 +99,14 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
     chrome.runtime.onMessage.addListener(
       // eslint-disable-next-line @typescript-eslint/no-shadow
       function onResponseListener(message, sender, sendResponse) {
-        if (message.type === 'SET_SELECTED_ACCOUNT') {
+        if (message.type === 'SELECTED_ACCOUNT_UPDATED') {
           if (accountTabId !== undefined) {
             chrome.tabs.remove(accountTabId);
           }
           if (urlTabId !== undefined) {
             chrome.tabs.remove(urlTabId);
           }
-          sendResponse({ success: true, selectedAccount: message.data.selectedAccount });
+          sendResponse({ success: true, selectedAccount: message.data });
           chrome.runtime.onMessage.removeListener(onResponseListener);
         }
       }
