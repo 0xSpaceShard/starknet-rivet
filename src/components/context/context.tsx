@@ -43,6 +43,17 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
     });
   }, []);
 
+  useEffect(() => {
+    const dataToSave = {
+      accounts,
+      currentBlock,
+      blockInterval: Object.fromEntries(blockInterval),
+      commandOptions,
+      configData,
+    };
+    chrome.storage.local.set(dataToSave);
+  }, [accounts, currentBlock, blockInterval, commandOptions, configData]);
+
   return (
     <Context.Provider
       value={{
