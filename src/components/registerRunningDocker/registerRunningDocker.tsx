@@ -60,7 +60,9 @@ const RegisterRunningDocker: React.FC = () => {
   ) => {
     event.stopPropagation(); // Stop event propagation here
     try {
-      await fetch(`${clickedUrl}/is_alive`);
+      const isAlive = await fetch(`${clickedUrl}/is_alive`);
+      if (!isAlive.ok) throw new Error('Devnet is not alive');
+
       setDevnetIsAlive(true);
       await updateSelectedUrl(clickedUrl);
     } catch (error) {

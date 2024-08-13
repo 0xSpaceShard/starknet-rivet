@@ -27,7 +27,9 @@ const CheckDevnetStatus: React.FC<{
 
     const checkDevnetStatus = async () => {
       try {
-        await fetch(`${url}/is_alive`);
+        const isAlive = await fetch(`${url}/is_alive`);
+        if (!isAlive.ok) throw new Error('Devnet is not alive');
+
         if (shouldSendMessage) {
           updateIsAliveStatus(true);
         }
