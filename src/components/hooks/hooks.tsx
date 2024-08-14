@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { useSharedState } from '../context/context';
 import { RpcProvider } from 'starknet-6';
+import { useSharedState } from '../context/context';
 
 export const useCopyTooltip = (initialState: boolean = false, timeout: number = 3000) => {
   const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(initialState);
@@ -17,13 +17,15 @@ export const useCopyTooltip = (initialState: boolean = false, timeout: number = 
 };
 
 export const useFetchTransactionsDetails = () => {
-  const { url, setBlockDetails } = useSharedState();
+  const { selectedUrl: url, setBlockDetails, devnetIsAlive } = useSharedState();
 
   const fetchTransactionsDetailsByBlock = useCallback(
     async (index: number) => {
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-      const tx = await provider.getBlockWithTxs(index);
-      setBlockDetails(tx);
+      if (devnetIsAlive) {
+        const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
+        const tx = await provider.getBlockWithTxs(index);
+        setBlockDetails(tx);
+      }
     },
     [url, setBlockDetails]
   );

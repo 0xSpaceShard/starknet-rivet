@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
   const handleResponse = async () => {
     try {
       switch (message.type) {
-        case 'UPDATE_SELECTED_ACCOUNT':
+        case 'SELECTED_ACCOUNT_UPDATED':
           if (message.data == null) {
             window.postMessage({ type: 'DISCONNECT_RIVET_ACCOUNT', data: message.data }, '*');
           } else {

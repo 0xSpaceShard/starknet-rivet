@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
-import { RpcProvider } from 'starknet-6';
-import { Box, Button, Divider, Grid, Stack, Typography } from '@mui/material';
-import { useSharedState } from '../context/context';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
-import { shortenAddress } from '../utils/utils';
+import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
 import DisplayBlockInfo from './displayBlockInfo';
 import { useFetchTransactionsDetails } from '../hooks/hooks';

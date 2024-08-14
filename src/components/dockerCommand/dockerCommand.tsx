@@ -30,10 +30,6 @@ import {
   BLOCK_GENERATION_ON_INFO,
 } from '../../info';
 import { useSharedState } from '../context/context';
-import {
-  sendMessageToSetBlockInterval,
-  sendMessageToSetUrlList,
-} from '../utils/sendMessageBackground';
 import { Options } from '../context/interfaces';
 
 const DockerCommandGenerator: React.FC = () => {
@@ -71,7 +67,7 @@ const DockerCommandGenerator: React.FC = () => {
   const [generateCommand, setGenerateCommand] = useState(false);
   const navigate = useNavigate();
 
-  const { setUrlList, setCommandOptions, blockInterval, setBlockInterval } = context;
+  const { urlList, updateUrlList, setCommandOptions } = context;
 
   const isValidInitialBalance = (value: string): boolean => {
     const regex = /^(0x)?[0-9a-fA-F]{1,64}$/;
@@ -152,7 +148,7 @@ const DockerCommandGenerator: React.FC = () => {
           setGeneralError(true);
           return;
         }
-      } else if (value != 'demand' && value != 'transaction') {
+      } else if (value !== 'demand' && value !== 'transaction') {
         setBlockGenerationOnError('Invalid blockGenerationOn value');
         setGeneralError(true);
         return;
@@ -175,7 +171,11 @@ const DockerCommandGenerator: React.FC = () => {
     let command = 'docker run -p ';
 
     const newUrl = `http://${options.host}:${options.port}`;
-    sendMessageToSetUrlList({ url: newUrl, isAlive: true }, setUrlList);
+
+    if (!urlList.some((url) => url.url === newUrl)) {
+      urlList.push({ url: newUrl, isAlive: true });
+      updateUrlList(urlList);
+    }
 
     command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
 
@@ -246,6 +246,7 @@ const DockerCommandGenerator: React.FC = () => {
                     variant={'outlined'}
                     size={'small'}
                     helperText={
+                      // eslint-disable-next-line no-nested-ternary
                       !options?.accounts
                         ? 'Field is required'
                         : options.accounts > 255

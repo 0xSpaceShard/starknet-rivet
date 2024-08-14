@@ -1,16 +1,12 @@
 import { Call, stark, TransactionType } from 'starknet-6';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
-import { getUrl, setUrl } from './url';
-import { getUrlList, removeUrlFromList, setNewUrlToList, updateUrlFromList } from './urlList';
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
-import { declareContract, deployContract, updateAccountContracts } from './contracts';
-import { getUrlFromSyncStorage } from './storage';
-import { SlectedAccountMessage } from './interface';
+import { declareContract, deployContract } from './contracts';
+import { getSelectedUrl } from './syncStorage';
 import {
   ActionMessage,
   TransactionMessage,
 } from '../components/contractInteraction/messageActions';
-import { AccountData } from '../components/context/interfaces';
 
 console.log('Background script is running');
 
@@ -35,40 +31,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       executeRivetTransaction(message, sendResponse);
       break;
 
-    case 'SET_URL':
-      setUrl(message, sendResponse);
-      break;
-
-    case 'GET_URL':
-      getUrl(sendResponse);
-      break;
-
-    case 'SET_NEW_URL_TO_LIST':
-      setNewUrlToList(message, sendResponse);
-      break;
-
-    case 'GET_URL_LIST':
-      getUrlList(sendResponse);
-      break;
-
-    case 'REMOVE_URL_FROM_LIST':
-      removeUrlFromList(message, sendResponse);
-      break;
-
-    case 'UPDATE_URL_FROM_LIST':
-      updateUrlFromList(message, sendResponse);
-      break;
-
     case 'SET_URL_BLOCK_INTERVAL':
       setUrlBlockInterval(message, sendResponse);
       break;
 
     case 'REMOVE_URL_BLOCK_INTERVAL':
       removeUrlBlockInterval(message, sendResponse);
-      break;
-
-    case 'SET_SELECTED_ACCOUNT':
-      setSelectedAccount(message, sendResponse);
       break;
 
     case 'SIGN_RIVET_MESSAGE':
@@ -83,10 +51,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       deployContract(message, sendResponse);
       break;
 
-    case 'UPDATE_ACCOUNT_CONTRACTS':
-      updateAccountContracts(message, sendResponse);
-      break;
-
     default:
       sendResponse({ error: 'Unknown message type.' });
       break;
@@ -98,7 +62,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function connectRivetDapp(sendResponse: (response?: any) => void) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
-    const url = await getUrlFromSyncStorage();
+    const url = await getSelectedUrl();
     const selectedAccount = result.selectedAccount || '';
 
     let accountTabId: number | undefined;
@@ -128,20 +92,21 @@ async function connectRivetDapp(sendResponse: (response?: any) => void) {
       sendResponse({
         type: 'CONNECT_RIVET_DAPP_RES',
         success: true,
-        data: { selectedAccount: selectedAccount, url: url },
+        data: { selectedAccount, url },
       });
     }
 
     chrome.runtime.onMessage.addListener(
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       function onResponseListener(message, sender, sendResponse) {
-        if (message.type === 'SET_SELECTED_ACCOUNT') {
+        if (message.type === 'SELECTED_ACCOUNT_UPDATED') {
           if (accountTabId !== undefined) {
             chrome.tabs.remove(accountTabId);
           }
           if (urlTabId !== undefined) {
             chrome.tabs.remove(urlTabId);
           }
-          sendResponse({ success: true, selectedAccount: message.data.selectedAccount });
+          sendResponse({ success: true, selectedAccount: message.data });
           chrome.runtime.onMessage.removeListener(onResponseListener);
         }
       }
@@ -208,7 +173,7 @@ async function executeRivetTransaction(
 ) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
-    const selectedAccount = result.selectedAccount;
+    const { selectedAccount } = result;
 
     if (!selectedAccount) {
       console.error('No selected account found in storage.');
@@ -280,41 +245,6 @@ async function executeRivetTransaction(
   }
 }
 
-// Function to set selected account address
-async function setSelectedAccount(
-  message: SlectedAccountMessage,
-  sendResponse: (response?: {
-    success: boolean;
-    selectedAccount?: AccountData | null;
-    error?: string;
-  }) => void
-) {
-  try {
-    await chrome.storage.sync.set({ selectedAccount: message.data.selectedAccount });
-    await chrome.storage.local.set({ selectedAccount: message.data.selectedAccount });
-
-    const tabs = await chrome.tabs.query({});
-    tabs.forEach((tab) => {
-      chrome.tabs.sendMessage(
-        tab.id as number,
-        {
-          type: 'UPDATE_SELECTED_ACCOUNT',
-          data: message.data.selectedAccount,
-        },
-        (response) => {
-          if (chrome.runtime.lastError) {
-          } else {
-            console.log(`Message sent to tab ${tab.id}:`, response);
-          }
-        }
-      );
-    });
-    sendResponse({ success: true, selectedAccount: message.data.selectedAccount });
-  } catch (error) {
-    sendResponse({ success: false, error: parseErrorMessage(error) });
-  }
-}
-
 // Function to sign a Rivet message
 async function signRivetMessage(
   message: Extract<ActionMessage, { type: 'SIGN_RIVET_MESSAGE' }>,
@@ -322,7 +252,7 @@ async function signRivetMessage(
 ) {
   try {
     const result = await chrome.storage.sync.get(['selectedAccount']);
-    const selectedAccount = result.selectedAccount;
+    const { selectedAccount } = result;
 
     if (!selectedAccount) {
       console.error('No selected account found in storage.');

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSharedState } from '../context/context';
-import './checkDevnetStatus.css';
-import { sendMessageToUpdateUrlList } from '../utils/sendMessageBackground';
 import { Typography } from '@mui/material';
+import { useSharedState } from '../context/context';
+
+import './checkDevnetStatus.css';
 
 const CheckDevnetStatus: React.FC<{
   url: string;
@@ -10,11 +10,14 @@ const CheckDevnetStatus: React.FC<{
   initialIsAlive?: boolean;
 }> = ({ url, shouldSendMessage = true, initialIsAlive = false }) => {
   const [isAlive, setIsAlive] = useState(initialIsAlive);
-  const { setUrlList } = useSharedState();
+  const { urlList, updateUrlList } = useSharedState();
 
   const updateIsAliveStatus = useCallback(
     (newIsAlive: boolean) => {
-      sendMessageToUpdateUrlList(url, newIsAlive, setUrlList);
+      const updatedList = urlList.map((item) =>
+        item.url === url ? { ...item, newIsAlive } : item
+      );
+      updateUrlList(updatedList);
     },
     [url]
   );
@@ -24,7 +27,9 @@ const CheckDevnetStatus: React.FC<{
 
     const checkDevnetStatus = async () => {
       try {
-        await fetch(`${url}/is_alive`);
+        const isAlive = await fetch(`${url}/is_alive`);
+        if (!isAlive.ok) throw new Error('Devnet is not alive');
+
         if (shouldSendMessage) {
           updateIsAliveStatus(true);
         }
@@ -41,6 +46,7 @@ const CheckDevnetStatus: React.FC<{
     checkDevnetStatus();
 
     const interval = setInterval(checkDevnetStatus, 60000);
+    // eslint-disable-next-line consistent-return
     return () => clearInterval(interval);
   }, [url]);
 
