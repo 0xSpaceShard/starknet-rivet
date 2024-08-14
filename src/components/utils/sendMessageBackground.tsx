@@ -19,9 +19,7 @@ export async function sendAccountUpdatedMessage(selectedAccount: AccountData | n
   });
   chrome.runtime.sendMessage({
     type: 'SELECTED_ACCOUNT_UPDATED',
-    data: {
-      selectedAccount: selectedAccount,
-    },
+    data: selectedAccount,
   });
 }
 
