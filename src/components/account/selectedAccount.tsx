@@ -88,7 +88,9 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
       return null;
     }
     try {
-      await fetch(`${url}/is_alive`);
+      const isAlive = await fetch(`${url}/is_alive`);
+      if (!isAlive.ok) throw new Error('Devnet is not alive');
+
       setDevnetIsAlive(true);
     } catch (error) {
       setDevnetIsAlive(false);

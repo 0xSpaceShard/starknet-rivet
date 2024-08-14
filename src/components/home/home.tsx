@@ -84,8 +84,7 @@ export const Home = () => {
       <CustomTabPanel idx={2}>
         <section>
           <Stack marginBottom={1}>
-            {blockDetails.transactions &&
-              blockDetails.transactions.length > 0 &&
+            {blockDetails.transactions && blockDetails.transactions.length > 0 ? (
               blockDetails.transactions
                 .slice()
                 .reverse()
@@ -113,7 +112,10 @@ export const Home = () => {
                       </Box>
                     </>
                   ) : null
-                )}
+                )
+            ) : (
+              <Typography variant="caption">No Transactions</Typography>
+            )}
           </Stack>
         </section>
       </CustomTabPanel>
