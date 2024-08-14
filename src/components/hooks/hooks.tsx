@@ -17,13 +17,15 @@ export const useCopyTooltip = (initialState: boolean = false, timeout: number = 
 };
 
 export const useFetchTransactionsDetails = () => {
-  const { selectedUrl: url, setBlockDetails } = useSharedState();
+  const { selectedUrl: url, setBlockDetails, devnetIsAlive } = useSharedState();
 
   const fetchTransactionsDetailsByBlock = useCallback(
     async (index: number) => {
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-      const tx = await provider.getBlockWithTxs(index);
-      setBlockDetails(tx);
+      if (devnetIsAlive) {
+        const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
+        const tx = await provider.getBlockWithTxs(index);
+        setBlockDetails(tx);
+      }
     },
     [url, setBlockDetails]
   );
