@@ -1,10 +1,16 @@
 import { Call, stark, TransactionType } from 'starknet-6';
-import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
+import {
+  getProvider,
+  getSelectedAccount,
+  isDeclareContractMessage,
+  parseErrorMessage,
+} from './utils';
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
 import { declareContract, deployContract } from './contracts';
 import { getSelectedUrl } from './syncStorage';
 import {
   ActionMessage,
+  RequestMessageHandler,
   TransactionMessage,
 } from '../components/contractInteraction/messageActions';
 
@@ -49,6 +55,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'RIVET_DEPLOY_CONTRACT':
       deployContract(message, sendResponse);
+      break;
+
+    case 'REQUEST_CHAIN_ID_HANDLER':
+      requestChainIdHandler(message, sendResponse);
+      break;
+
+    case 'WATCH_ASSET_HANDLER':
+      watchAssetHandler(message, sendResponse);
+      break;
+
+    case 'SWITCH_STARKNET_CHAIN':
+      switchStarknetChainHandler(message, sendResponse);
+      break;
+
+    case 'REQUEST_DECLARE_CONTRACT':
+      declareContractHandler(message, sendResponse);
       break;
 
     default:
@@ -134,7 +156,6 @@ async function simulateRivetTransaction(
 
     if (selectedAccount) {
       const acc = await getSelectedAccount();
-
       const res = await acc.simulateTransaction([
         { type: TransactionType.INVOKE, payload: message.data.transactions },
       ]);
@@ -307,5 +328,209 @@ async function signRivetMessage(
   } catch (error) {
     console.error('Error retrieving selected account from storage.', error);
     sendResponse({ error: 'Error retrieving selected account from storage.' });
+  }
+}
+
+async function requestChainIdHandler(
+  message: Extract<RequestMessageHandler, { type: 'REQUEST_CHAIN_ID_HANDLER' }>,
+  sendResponse: (response?: any) => void
+) {
+  const url = await getSelectedUrl();
+  if (url) {
+    const configResponse = await fetch(`${url}/config`);
+    const configData = await configResponse.json();
+    sendResponse({
+      type: 'REQUEST_CHAIN_ID_HANDLER_RES',
+      data: {
+        chainId: configData.chain_id,
+      },
+    });
+  } else {
+    sendResponse({
+      type: 'REQUEST_CHAIN_ID_HANDLER_RES',
+      data: {
+        chainId: '0x0',
+        error: 'No connection',
+      },
+    });
+  }
+}
+
+async function watchAssetHandler(
+  message: Extract<RequestMessageHandler, { type: 'WATCH_ASSET_HANDLER' }>,
+  sendResponse: (response?: any) => void
+) {
+  try {
+    const result = await chrome.storage.sync.get(['selectedAccount']);
+    const { selectedAccount } = result;
+
+    if (!selectedAccount) {
+      sendResponse({ error: 'No selected account found in storage.' });
+      return;
+    }
+
+    const popupUrl = chrome.runtime.getURL(
+      `popup.html#/accounts/${selectedAccount.address}/watch_asset_message`
+    );
+
+    chrome.windows.create(
+      {
+        url: popupUrl,
+        type: 'popup',
+        width: 400,
+        height: 600,
+      },
+      (window) => {
+        if (window && window.tabs && window.tabs[0]) {
+          const tabId = window.tabs[0].id;
+          if (tabId) {
+            const onResponseListener = async (responseMessage: any) => {
+              try {
+                if (responseMessage.type === 'WATCH_ASSET_HANDLER_RES') {
+                  sendResponse({ type: 'WATCH_ASSET_HANDLER_RES', data: responseMessage.data });
+                }
+              } catch (error) {
+                sendResponse({
+                  type: 'WATCH_ASSET_HANDLER_RES',
+                  data: false,
+                });
+              } finally {
+                chrome.runtime.onMessage.removeListener(onResponseListener);
+              }
+            };
+
+            chrome.runtime.onMessage.addListener(onResponseListener);
+            setTimeout(() => {
+              chrome.tabs.sendMessage(tabId, { type: 'WATCH_ASSET_HANDLER', data: message.data });
+            }, 1000);
+          }
+        }
+      }
+    );
+  } catch (error) {
+    sendResponse({ error: 'Error retrieving selected account from storage.' });
+  }
+}
+
+async function switchStarknetChainHandler(
+  message: Extract<RequestMessageHandler, { type: 'SWITCH_STARKNET_CHAIN' }>,
+  sendResponse: (response?: any) => void
+) {
+  try {
+    const result = await chrome.storage.sync.get(['selectedAccount']);
+    const { selectedAccount } = result;
+
+    if (!selectedAccount) {
+      sendResponse({ error: 'No selected account found in storage.' });
+      return;
+    }
+
+    const popupUrl = chrome.runtime.getURL(
+      `popup.html#/accounts/${selectedAccount.address}/switch_chain_message`
+    );
+
+    chrome.windows.create(
+      {
+        url: popupUrl,
+        type: 'popup',
+        width: 400,
+        height: 600,
+      },
+      (window) => {
+        if (window && window.tabs && window.tabs[0]) {
+          const tabId = window.tabs[0].id;
+          if (tabId) {
+            const onResponseListener = async (responseMessage: any) => {
+              try {
+                if (responseMessage.type === 'SWITCH_STARKNET_CHAIN_RES') {
+                  sendResponse({ type: 'SWITCH_STARKNET_CHAIN_RES', data: responseMessage.data });
+                }
+              } catch (error) {
+                sendResponse({
+                  type: 'SWITCH_STARKNET_CHAIN_RES',
+                  data: false,
+                });
+              } finally {
+                chrome.runtime.onMessage.removeListener(onResponseListener);
+              }
+            };
+
+            chrome.runtime.onMessage.addListener(onResponseListener);
+            setTimeout(() => {
+              chrome.tabs.sendMessage(tabId, { type: 'SWITCH_STARKNET_CHAIN', data: message.data });
+            }, 1000);
+          }
+        }
+      }
+    );
+  } catch (error) {
+    sendResponse({ error: 'Error retrieving selected account from storage.' });
+  }
+}
+
+async function declareContractHandler(
+  message: Extract<RequestMessageHandler, { type: 'REQUEST_DECLARE_CONTRACT' }>,
+  sendResponse: (response?: any) => void
+) {
+  try {
+    const result = await chrome.storage.sync.get(['selectedAccount']);
+    const { selectedAccount } = result;
+
+    if (!selectedAccount) {
+      sendResponse({ error: 'No selected account found in storage.' });
+      return;
+    }
+
+    const popupUrl = chrome.runtime.getURL(
+      `popup.html#/accounts/${selectedAccount.address}/declare_contract_message`
+    );
+
+    chrome.windows.create(
+      {
+        url: popupUrl,
+        type: 'popup',
+        width: 400,
+        height: 600,
+      },
+      (window) => {
+        if (window && window.tabs && window.tabs[0]) {
+          const tabId = window.tabs[0].id;
+          if (tabId) {
+            const onResponseListener = async (responseMessage: any) => {
+              try {
+                if (responseMessage.type === 'REQUEST_DECLARE_CONTRACT_RES') {
+                  await declareContract(message.data.payload, (response) => {
+                    sendResponse({
+                      type: 'REQUEST_DECLARE_CONTRACT_RES',
+                      data: response,
+                    });
+                  });
+                }
+              } catch (error) {
+                sendResponse({
+                  type: 'REQUEST_DECLARE_CONTRACT_RES',
+                  data: { error: 'timeout' },
+                });
+              } finally {
+                chrome.runtime.onMessage.removeListener(onResponseListener);
+              }
+            };
+
+            chrome.runtime.onMessage.addListener(onResponseListener);
+            setTimeout(() => {
+              chrome.tabs.sendMessage(tabId, {
+                type: 'REQUEST_DECLARE_CONTRACT',
+                data: message.data,
+              });
+            }, 1000);
+          }
+        }
+      }
+    );
+  } catch (error) {
+    sendResponse({
+      type: 'REQUEST_DECLARE_CONTRACT_RES',
+      data: error,
+    });
   }
 }

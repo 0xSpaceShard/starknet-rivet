@@ -18,6 +18,9 @@ import { Home } from '../components/home/home';
 import { StatusHeader } from '../components/status/statusHeader';
 
 import './Popup.css';
+import { WatchAssetMessage } from '../components/handleWalletMessages/watchAssetMessage';
+import { SwitchStarknetChainMessage } from '../components/handleWalletMessages/switchStarknetChainMessage';
+import { DeclareContractMessage } from '../components/handleWalletMessages/declareContractMessage';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -158,6 +161,15 @@ export const Popup = () => {
         <Route path="/accounts/:address/declare" element={<DeclareSmartContract />} />
         <Route path="/accounts/:address/deploy" element={<DeploySmartContract />} />
         <Route path="/accounts/:address/add-token-contract" element={<AddTokenContract />} />
+        <Route path="/accounts/:address/watch_asset_message" element={<WatchAssetMessage />} />
+        <Route
+          path="/accounts/:address/declare_contract_message"
+          element={<DeclareContractMessage />}
+        />
+        <Route
+          path="/accounts/:address/switch_chain_message"
+          element={<SwitchStarknetChainMessage />}
+        />
         <Route
           path="/block-configuration"
           element={

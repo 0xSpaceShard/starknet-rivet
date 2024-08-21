@@ -1,5 +1,6 @@
 import { Account, RpcProvider } from 'starknet-6';
 import { getSelectedUrl } from './syncStorage';
+import { DeclareContractMessage } from './interface';
 
 // Utils functions Parse error message
 export function parseErrorMessage(error: any): string {
@@ -26,4 +27,9 @@ export async function getSelectedAccount(): Promise<Account> {
 export async function getProvider(): Promise<RpcProvider> {
   const url = await getSelectedUrl();
   return new RpcProvider({ nodeUrl: `${url}/rpc` });
+}
+
+// Utils functions to check the type of the message.
+export function isDeclareContractMessage(message: any): message is DeclareContractMessage {
+  return (message as DeclareContractMessage).data.sierra !== undefined;
 }
