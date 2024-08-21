@@ -6,6 +6,7 @@ import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
 import DisplayBlockInfo from './displayBlockInfo';
 import { useFetchTransactionsDetails } from '../hooks/hooks';
+import { HomeTab } from '../home/home';
 
 const BlockDetailsPage: React.FC = () => {
   const context = useSharedState();
@@ -16,8 +17,7 @@ const BlockDetailsPage: React.FC = () => {
   const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
 
   const handleBack = () => {
-    // TODO: Update to navigate to the second tab on the home screen where the blocks are.
-    navigate('/');
+    navigate('/', { state: { selectedTab: HomeTab.Blocks } });
   };
 
   useEffect(() => {
