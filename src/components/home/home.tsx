@@ -1,4 +1,5 @@
 import { useState, useEffect, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Box, Typography, Tabs, Tab, Stack, Button } from '@mui/material';
 import { RpcProvider } from 'starknet-6';
 import { useSharedState } from '../context/context';
@@ -8,7 +9,14 @@ import { handleCopyAddress, shortenAddress } from '../utils/utils';
 import { useFetchTransactionsDetails } from '../hooks/hooks';
 import { darkTheme } from '../..';
 
+export enum HomeTab {
+  Accounts,
+  Blocks,
+  Transactions,
+}
+
 export const Home = () => {
+  const { state } = useLocation();
   const context = useSharedState();
   const {
     selectedUrl: url,
@@ -17,7 +25,7 @@ export const Home = () => {
     blockDetails,
     selectedAccount,
   } = context;
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(state?.selectedTab ?? HomeTab.Accounts);
 
   const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
 
@@ -35,7 +43,7 @@ export const Home = () => {
     }
   }
 
-  const a11yProps = (index: number) => ({
+  const a11yProps = (index: HomeTab) => ({
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   });
@@ -48,7 +56,7 @@ export const Home = () => {
     );
   }
 
-  const CustomTabPanel: React.FC<{ idx: number; children: ReactNode }> = ({ idx, children }) => {
+  const CustomTabPanel: React.FC<{ idx: HomeTab; children: ReactNode }> = ({ idx, children }) => {
     return (
       <div
         role="tabpanel"
@@ -70,18 +78,22 @@ export const Home = () => {
           onChange={(e, newValue) => setSelectedTab(newValue)}
           aria-label="Home Tabs"
         >
-          <Tab sx={{ fontSize: '0.8rem' }} label="Accounts" {...a11yProps(0)} />
-          <Tab sx={{ fontSize: '0.8rem' }} label="Blocks" {...a11yProps(1)} />
-          <Tab sx={{ fontSize: '0.8rem' }} label="Transactions" {...a11yProps(2)} />
+          <Tab sx={{ fontSize: '0.8rem' }} label="Accounts" {...a11yProps(HomeTab.Accounts)} />
+          <Tab sx={{ fontSize: '0.8rem' }} label="Blocks" {...a11yProps(HomeTab.Blocks)} />
+          <Tab
+            sx={{ fontSize: '0.8rem' }}
+            label="Transactions"
+            {...a11yProps(HomeTab.Transactions)}
+          />
         </Tabs>
       </Box>
-      <CustomTabPanel idx={0}>
+      <CustomTabPanel idx={HomeTab.Accounts}>
         <PredeployedAccounts />
       </CustomTabPanel>
-      <CustomTabPanel idx={1}>
+      <CustomTabPanel idx={HomeTab.Blocks}>
         <BlockList fetchCurrentBlockNumber={fetchCurrentBlockNumber} />
       </CustomTabPanel>
-      <CustomTabPanel idx={2}>
+      <CustomTabPanel idx={HomeTab.Transactions}>
         <section>
           <Stack marginBottom={1}>
             {blockDetails.transactions && blockDetails.transactions.length > 0 ? (
