@@ -18,6 +18,7 @@ import { Home } from '../components/home/home';
 import { StatusHeader } from '../components/status/statusHeader';
 
 import './Popup.css';
+import { ModifyBalance } from '../components/settings/modifyBalance';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -158,6 +159,7 @@ export const Popup = () => {
         <Route path="/accounts/:address/declare" element={<DeclareSmartContract />} />
         <Route path="/accounts/:address/deploy" element={<DeploySmartContract />} />
         <Route path="/accounts/:address/add-token-contract" element={<AddTokenContract />} />
+        <Route path="/accounts/:address/modify-balance" element={<ModifyBalance />} />
         <Route
           path="/block-configuration"
           element={
