@@ -21,6 +21,7 @@ import './Popup.css';
 import { WatchAssetMessage } from '../components/handleWalletMessages/watchAssetMessage';
 import { SwitchStarknetChainMessage } from '../components/handleWalletMessages/switchStarknetChainMessage';
 import { DeclareContractMessage } from '../components/handleWalletMessages/declareContractMessage';
+import { ModifyBalance } from '../components/settings/modifyBalance';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -170,6 +171,7 @@ export const Popup = () => {
           path="/accounts/:address/switch_chain_message"
           element={<SwitchStarknetChainMessage />}
         />
+        <Route path="/accounts/:address/modify-balance" element={<ModifyBalance />} />
         <Route
           path="/block-configuration"
           element={
