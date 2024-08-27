@@ -77,7 +77,7 @@ export async function getTokenBalance(contractAddr: string) {
   }
 }
 
-export async function midifyEthBalance(amount: bigint) {
+export async function modifyEthBalance(amount: bigint) {
   try {
     const provider = await getProvider();
     const acc = await getSelectedAccount();

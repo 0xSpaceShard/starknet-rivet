@@ -12,7 +12,7 @@ import {
 import { AddBoxOutlined, ChevronLeft } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
-import { midifyEthBalance } from '../../background/contracts';
+import { modifyEthBalance } from '../../background/contracts';
 
 export const ModifyBalance: React.FC = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export const ModifyBalance: React.FC = () => {
     try {
       const newBalance = BigInt(modifiedBalance);
       if (!newBalance || !selectedAccount?.address) return;
-      const balance = await midifyEthBalance(newBalance);
+      const balance = await modifyEthBalance(newBalance);
       if (balance) {
         await updateCurrentBalance(balance);
       }
