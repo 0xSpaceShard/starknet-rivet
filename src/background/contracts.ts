@@ -1,26 +1,43 @@
-import { Calldata, CallData, Contract, uint256 } from 'starknet-6';
-import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
+import { Calldata, CallData, Contract, uint256, DeclareContractPayload } from 'starknet-6';
+import {
+  getProvider,
+  getSelectedAccount,
+  isDeclareContractMessage,
+  parseErrorMessage,
+} from './utils';
 import { DeclareContractMessage, DeployContractMessage } from './interface';
 import { ETH_ADDRESS, MAX_AMOUNT_TO_MINT } from './constants';
 import { getSelectedUrl } from './syncStorage';
 
 // Function to declare a Contract from Rivet extension
 export async function declareContract(
-  message: DeclareContractMessage,
-  sendResponse: (response?: { class_hash?: string; error?: string }) => void
+  message: DeclareContractMessage | DeclareContractPayload,
+  sendResponse: (response?: {
+    transaction_hash?: string;
+    class_hash?: string;
+    error?: string;
+  }) => void
 ) {
   try {
     const provider = await getProvider();
     const acc = await getSelectedAccount();
 
-    const declareResponse = await acc.declareIfNot({
-      contract: message.data.sierra,
-      casm: message.data.casm,
-    });
+    let declareResponse;
+    if (isDeclareContractMessage(message)) {
+      declareResponse = await acc.declareIfNot({
+        contract: message.data.sierra,
+        casm: message.data.casm,
+      });
+    } else {
+      declareResponse = await acc.declareIfNot(message);
+    }
     if (declareResponse.transaction_hash !== '') {
       await provider.waitForTransaction(declareResponse.transaction_hash);
     }
-    sendResponse({ class_hash: declareResponse.class_hash });
+    sendResponse({
+      transaction_hash: declareResponse.transaction_hash,
+      class_hash: declareResponse.class_hash,
+    });
   } catch (error) {
     sendResponse({ error: parseErrorMessage(error) });
   }

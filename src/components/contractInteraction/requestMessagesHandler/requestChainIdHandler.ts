@@ -1,16 +1,17 @@
-import UrlContext from '../../../services/urlService';
+import { sendMessage, waitForMessage } from '../messageActions';
 
 export async function requestChainIdHandler() {
-  const context = UrlContext.getInstance();
-  if (!context) {
-    throw new Error('Context value is undefined');
-  }
-  const url = context.getSelectedUrl();
+  sendMessage({
+    type: 'REQUEST_CHAIN_ID_HANDLER',
+  });
 
-  if (url) {
-    const configResponse = await fetch(`${url}/config`);
-    const configData = await configResponse.json();
-    return configData.chain_id;
+  const response = await Promise.race([
+    waitForMessage('REQUEST_CHAIN_ID_HANDLER_RES', 10 * 60 * 1000),
+  ]);
+
+  if (response.error) {
+    throw new Error('No connection');
   }
-  throw new Error('No conextion');
+
+  return response.chainId;
 }
