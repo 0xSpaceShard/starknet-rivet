@@ -39,8 +39,6 @@ To start local devnet run
 $ npm run devnet
 ```
 
-(note: this installs docker if not already installed)
-
 The starknet-run.sh script can also be called manually (remove the --no-l1 flag to run foundryup as well)
 
 ```shell
@@ -52,7 +50,7 @@ Arguments can be passed to the starknet devnet container with the --args flag
 ```shell
 $ ./starknet-run/starknet-run.sh --args "--timeout 240"
 ```
-
+(note: these commands install docker if not already installed)
 
 ### Run
 
