@@ -5,8 +5,10 @@ import {
   InvocationsDetails,
   WalletAccount,
   TypedData,
+  DeclareContractPayload,
 } from 'starknet-6';
 import { AccountData } from '../context/interfaces';
+import { GetDeploymentDataResult, WatchAssetParameters } from 'starknet-types';
 
 export interface ExecuteTransactionRequest {
   transactions: Call | Call[];
@@ -66,6 +68,36 @@ export type NetworkMessage = {
   data: { actionHash: string; selectedAccount: WalletAccount };
 };
 
+export type RequestMessageHandler =
+  | { type: 'DEPLOYMENT_DATA_HANDLER'; data?: { silent?: boolean } }
+  | {
+      type: 'DEPLOYMENT_DATA_HANDLER_RES';
+      data: GetDeploymentDataResult;
+    }
+  | {
+      type: 'REQUEST_CHAIN_ID_HANDLER';
+      data?: { silent?: boolean };
+    }
+  | { type: 'REQUEST_CHAIN_ID_HANDLER_RES'; data: { chainId: string; error?: string } }
+  | {
+      type: 'WATCH_ASSET_HANDLER';
+      data: WatchAssetParameters;
+    }
+  | { type: 'WATCH_ASSET_HANDLER_RES'; data: boolean }
+  | {
+      type: 'SWITCH_STARKNET_CHAIN';
+      data: { chainId: string };
+    }
+  | { type: 'SWITCH_STARKNET_CHAIN_RES'; data: boolean }
+  | {
+      type: 'REQUEST_DECLARE_CONTRACT';
+      data: { payload: DeclareContractPayload };
+    }
+  | {
+      type: 'REQUEST_DECLARE_CONTRACT_RES';
+      data: { transaction_hash?: string; class_hash?: string; error?: string };
+    };
+
 export interface SignMessageOptions {
   skipDeploy: boolean;
 }
@@ -82,7 +114,8 @@ export type MessageType =
   | PreAuthorisationMessage
   | TransactionMessage
   | ActionMessage
-  | NetworkMessage;
+  | NetworkMessage
+  | RequestMessageHandler;
 
 export type WindowMessageType = MessageType & {
   forwarded?: boolean;

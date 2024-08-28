@@ -7,6 +7,8 @@ import { getPermissionsHandler } from './getPermissionsHandler';
 import { deploymentDataHandler } from './deploymentDataHandler';
 import { requestChainIdHandler } from './requestChainIdHandler';
 import { signTypedDataHandler } from './signTypedData';
+import { addInvokeTransactionHandler } from './invokeTransaction';
+import { addDeclareTransactionHandler } from './addDeclareTransactionHandler';
 
 // NEED TO IMPLEMENT EVERY FUNCTION
 export async function requestMessageHandler<T extends RpcMessage>(
@@ -21,9 +23,9 @@ export async function requestMessageHandler<T extends RpcMessage>(
     wallet_getPermissions: getPermissionsHandler,
     wallet_requestChainId: requestChainIdHandler,
     wallet_deploymentData: deploymentDataHandler,
+    wallet_addDeclareTransaction: addDeclareTransactionHandler,
     // Starknet requests
-    starknet_addDeclareTransaction: deploymentDataHandler,
-    starknet_addInvokeTransaction: deploymentDataHandler,
+    starknet_addInvokeTransaction: addInvokeTransactionHandler,
     starknet_signTypedData: signTypedDataHandler,
     starknet_supportedSpecs: deploymentDataHandler,
   };

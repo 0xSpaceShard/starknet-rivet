@@ -67,7 +67,7 @@ export const BlockList: React.FC<{
   }, [currentBlock, pageSize]);
 
   return (
-    <Box padding={1} sx={{ height: '80vh', overflow: 'auto', overflowY: 'scroll' }}>
+    <Box padding={1} sx={{ height: '80vh', overflow: 'auto' }}>
       {blockTransactionsCount.length === 0 ? (
         <CircularProgress />
       ) : (
