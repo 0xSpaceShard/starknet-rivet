@@ -31,6 +31,27 @@ $ cd starknet-rivet
 $ npm run build
 ```
 
+### Devnet
+
+To start local devnet run
+
+```shell
+$ npm run devnet
+```
+
+The starknet-run.sh script can also be called manually (remove the --no-l1 flag to run foundryup as well)
+
+```shell
+$ ./starknet-run/starknet-run.sh --no-l1
+```
+
+Arguments can be passed to the starknet devnet container with the --args flag
+
+```shell
+$ ./starknet-run/starknet-run.sh --args "--timeout 240"
+```
+(note: these commands install docker if not already installed)
+
 ### Run
 
 > Rivet is a chrome extension tool built with Vite + React, and Manifest v3

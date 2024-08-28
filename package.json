@@ -18,6 +18,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "devnet": "bash ./starknet-run/starknet-run.sh --no-l1",
     "preview": "vite preview",
     "fmt": "prettier --write '**/*.{tsx,ts,json,css,scss,md}'",
     "zip": "npm run build && node src/zip.js",
