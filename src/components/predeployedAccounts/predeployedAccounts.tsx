@@ -81,8 +81,8 @@ export const PredeployedAccounts: React.FC = () => {
   const handleAccountClick = async (clickedAddress: string) => {
     const clickedAccount = accounts.find((account) => account.address === clickedAddress);
     if (clickedAccount) {
-      await updateSelectedAccount(clickedAccount);
       await fetchCurrentBalance(clickedAccount.address);
+      await updateSelectedAccount(clickedAccount);
       navigate(`/accounts/${clickedAccount.address}`);
     }
   };
