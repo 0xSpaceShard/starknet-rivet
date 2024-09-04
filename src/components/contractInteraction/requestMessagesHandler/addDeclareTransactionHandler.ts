@@ -1,6 +1,6 @@
+import { json } from 'starknet-6';
 import { AddDeclareTransactionParameters, AddDeclareTransactionResult } from 'starknet-types';
 import { sendMessage, waitForMessage } from '../messageActions';
-import { json } from 'starknet-6';
 
 export async function addDeclareTransactionHandler(
   params: AddDeclareTransactionParameters

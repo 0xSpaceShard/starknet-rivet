@@ -35,30 +35,6 @@ describe('handleCopyAddress', () => {
   });
 });
 
-describe('handleCopyAddress', () => {
-  let buffer = '';
-
-  // clipboard API mock
-  beforeEach(() => {
-    buffer = '';
-    // @ts-ignore
-    global.navigator.clipboard = {
-      writeText: jest.fn((text) => {
-        buffer = text;
-      }),
-      readText: jest.fn(() => buffer),
-    };
-  });
-
-  test('should properly copy address to clipboard', () => {
-    expect(global.navigator.clipboard.readText()).toBe('');
-    const addr = '0x123456';
-    handleCopyAddress(addr);
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(addr);
-    expect(navigator.clipboard.readText()).toBe(addr);
-  });
-});
-
 describe('getBalanceStr', () => {
   test('should correctly convert balance to string representation in whole units', () => {
     const balance = '1000000000000000000'; // 1 ETH in Wei
