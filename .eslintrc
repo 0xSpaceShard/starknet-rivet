@@ -7,7 +7,8 @@
   },
   "extends": ["airbnb-base", "airbnb-typescript/base", "prettier", "plugin:prettier/recommended"],
   "ignorePatterns": [
-    "vite.config.ts"
+    "vite.config.ts",
+    "jest.config.js"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -34,6 +35,9 @@
     "@typescript-eslint/no-use-before-define": ["error", "nofunc"],
     "func-names": 0,
     "no-console": ["warn", { "allow": ["info", "warn", "error"] }],
-    "import/extensions": ["error", { "ts": "never", "json": "always" }]
+    "import/extensions": ["error", { "ts": "never", "json": "always" }],
+    "import/no-extraneous-dependencies": ["warn", {
+      "devDependencies": ["**/*.test.ts"]
+    }]
   }
 }

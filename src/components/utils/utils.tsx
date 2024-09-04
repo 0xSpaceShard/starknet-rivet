@@ -1,5 +1,6 @@
 export function shortenAddress(address: string | null | undefined, length: number = 12): string {
-  if (!address) return '';
+  if (!address?.length) return '';
+  if (address.length <= length * 2) return address;
   return `${address.slice(0, length)}...${address.slice(-length)}`;
 }
 
