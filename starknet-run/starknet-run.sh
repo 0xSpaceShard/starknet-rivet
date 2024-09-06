@@ -32,11 +32,19 @@ while [[ -n $1 ]]; do
     esac; shift
 done
 
-printf "Node version: "
-node -v
-printf "\n"
+check_node_version() {
+    version=$(node -v)
+    major_version=$(echo "$version" | grep -oP 'v\K\d+')
 
-echo "Check if your Node.js version is >= 14 !"
+    if [ "$major_version" -lt 14 ]; then
+        echo "Error: Node.js version must be >= 14. Current version is $version"
+        exit 1
+    else
+        echo "Node.js version is $version, which meets the requirement."
+    fi
+}
+
+check_node_version
 
 npm install
 
