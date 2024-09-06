@@ -1,9 +1,9 @@
 {
-  "name": "starknet_rivet",
+  "name": "Starknet Rivet",
   "displayName": "starknet_rivet",
   "version": "0.0.0",
   "author": "Toni Tabak",
-  "description": "the first wallet for developer",
+  "description": "The Starknet wallet for developers",
   "type": "module",
   "license": "MIT",
   "keywords": [

@@ -27,14 +27,32 @@ start_starknet_container() {
 while [[ -n $1 ]]; do
     case $1 in
       --)             shift; break;;
-      --no-l1)        shift; no_l1=true;;
+      --add-l1)       shift; add_l1=true;;
 	  --args)         shift; docker_args+=$1;;
     esac; shift
 done
 
+check_node_version() {
+    version=$(node -v)
+    major_version=$(echo "$version" | grep -oP 'v\K\d+')
+
+    if [ "$major_version" -lt 14 ]; then
+        echo "Error: Node.js version must be >= 14. Current version is $version"
+        exit 1
+    else
+        echo "Node.js version is $version, which meets the requirement."
+    fi
+}
+
+check_node_version
+
+npm install
+
+npm run build
+
 install_docker
 
-if [ "$no_l1" != true ]; then
+if [ "$add_l1" == true ]; then
     curl -L https://foundry.paradigm.xyz | bash
     foundryup    
 fi
