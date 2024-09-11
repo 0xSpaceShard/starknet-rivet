@@ -1,0 +1,2 @@
+npx eslint '**/*.{ts,tsx}' --fix
+npx jest --bail

@@ -38,6 +38,7 @@
     "import/extensions": ["error", { "ts": "never", "json": "always" }],
     "import/no-extraneous-dependencies": ["warn", {
       "devDependencies": ["**/*.test.ts"]
-    }]
+    }],
+    "no-plusplus": 0,
   }
 }

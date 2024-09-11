@@ -7,8 +7,8 @@ import {
   TypedData,
   DeclareContractPayload,
 } from 'starknet-6';
-import { AccountData } from '../context/interfaces';
 import { GetDeploymentDataResult, WatchAssetParameters } from 'starknet-types';
+import { AccountData } from '../context/interfaces';
 
 export interface ExecuteTransactionRequest {
   transactions: Call | Call[];

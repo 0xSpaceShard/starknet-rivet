@@ -61,7 +61,7 @@ export const SwitchStarknetChainMessage: React.FC = () => {
   const filterUrlsByChainID = async (chainId: string) => {
     const filteredUrlList: UrlItem[] = [];
 
-    for (const item of urlList) {
+    urlList.forEach(async (item) => {
       try {
         const response = await fetch(`${item.url}/config`);
         if (response.ok) {
@@ -74,7 +74,7 @@ export const SwitchStarknetChainMessage: React.FC = () => {
       } catch (error) {
         console.error(`Failed to fetch info for ${item.url}:`, error);
       }
-    }
+    });
     setNewUrlList(filteredUrlList);
   };
 

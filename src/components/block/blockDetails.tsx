@@ -83,7 +83,7 @@ const BlockDetailsPage: React.FC = () => {
             {blockDetails.transactions
               .slice()
               .reverse()
-              .map((info: any, index: number) => (
+              .map((info: any, idx: number) => (
                 <>
                   <Stack direction={'row'} spacing={{ xs: 2, sm: 2 }} useFlexGap flexWrap="wrap">
                     <DisplayBlockInfo title="Hash" value={info.transaction_hash}></DisplayBlockInfo>
@@ -94,7 +94,7 @@ const BlockDetailsPage: React.FC = () => {
                       value={parseInt(info.max_fee || '', 16)}
                     ></DisplayBlockInfo>
                   </Stack>
-                  {blockDetails.transactions.length - 1 !== index ? (
+                  {blockDetails.transactions.length - 1 !== idx ? (
                     <Divider sx={{ marginY: 1 }} variant="middle" />
                   ) : null}
                 </>

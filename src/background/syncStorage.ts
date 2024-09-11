@@ -12,7 +12,7 @@ export async function saveBlockIntervalToSyncStorage(
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      resolve();
+      return resolve();
     });
   });
 }
@@ -24,9 +24,9 @@ export async function getBlockIntervalFromSyncStorage(): Promise<Map<string, num
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      const obj = result['blockInterval'] || {};
+      const obj = result.blockInterval || {};
       const blockInterval = new Map<string, number>(Object.entries(obj));
-      resolve(blockInterval);
+      return resolve(blockInterval);
     });
   });
 }
@@ -58,8 +58,8 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
                   console.error(`Failed to save updated block interval: ${error}`);
                 });
             } else {
-              reject(`Failed to clear alarm for URL: ${url}`);
               console.error(`Failed to clear alarm for URL: ${url}`);
+              reject(new Error(`Failed to clear alarm for URL: ${url}`));
             }
           });
         } else {

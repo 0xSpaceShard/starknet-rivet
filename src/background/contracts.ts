@@ -106,7 +106,7 @@ export async function modifyEthBalance(amount: bigint) {
     erc20.connect(acc);
     const balance = await erc20.balanceOf(acc.address);
     if (amount > balance) {
-      let data = {
+      const data = {
         address: acc.address,
         amount: Number(BigInt(amount - balance).toString()),
       };
@@ -116,6 +116,7 @@ export async function modifyEthBalance(amount: bigint) {
           res = 10000000000000000000n;
         }
         data.amount = Number(BigInt(res).toString());
+        // eslint-disable-next-line no-await-in-loop
         await fetch(`${url}/mint`, {
           method: 'post',
           headers: {

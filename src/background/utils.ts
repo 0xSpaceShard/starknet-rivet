@@ -17,7 +17,7 @@ export function parseErrorMessage(error: any): string {
 // Utils functions to get selected account from Chrome sync storage
 export async function getSelectedAccount(): Promise<Account> {
   const result = await chrome.storage.sync.get(['selectedAccount']);
-  const selectedAccount = result.selectedAccount;
+  const { selectedAccount } = result;
   const provider = await getProvider();
 
   return new Account(provider, selectedAccount.address, selectedAccount.private_key);

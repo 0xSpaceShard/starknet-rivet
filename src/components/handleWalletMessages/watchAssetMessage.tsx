@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { useSharedState } from '../context/context';
 import { useAccountContracts } from '../hooks/useAccountContracts';
 import ConfirmationSection from '../confirmationSection/confirmationSection';

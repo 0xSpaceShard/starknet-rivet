@@ -1,9 +1,9 @@
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Abi, RpcProvider } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
-import { Abi, RpcProvider } from 'starknet-6';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 
 interface AbiEntry {
@@ -47,6 +47,14 @@ export const DeploySmartContract: React.FC = () => {
     setConstructorParams(newParams);
   };
 
+  const constructParamsObject = (params: ConstructorParam[]): { [key: string]: any } => {
+    const paramsObj: { [key: string]: any } = {};
+    params.forEach((param) => {
+      paramsObj[param.name] = param.value;
+    });
+    return paramsObj;
+  };
+
   const handleDeploy = () => {
     const paramsObject = constructParamsObject(constructorParams);
 
@@ -71,21 +79,8 @@ export const DeploySmartContract: React.FC = () => {
   };
 
   function findConstructor(abi: Abi): AbiEntry | null {
-    for (const entry of abi) {
-      if (entry.type === 'constructor') {
-        return entry;
-      }
-    }
-    return null;
+    return abi.find((entry) => entry.type === 'constructor') ?? null;
   }
-
-  const constructParamsObject = (params: ConstructorParam[]): { [key: string]: any } => {
-    const paramsObj: { [key: string]: any } = {};
-    params.forEach((param) => {
-      paramsObj[param.name] = param.value;
-    });
-    return paramsObj;
-  };
 
   function parseConstructorParams(constructor: AbiEntry): ConstructorParam[] {
     if (!constructor || !constructor.inputs) {
@@ -94,7 +89,7 @@ export const DeploySmartContract: React.FC = () => {
     return constructor.inputs.map((input) => ({ name: input.name, type: input.type, value: '' }));
   }
 
-  async function fetchAbiAndParseConstructor(selectedClassHash: string) {
+  async function fetchAbiAndParseConstructor() {
     const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
 
     try {
@@ -113,7 +108,7 @@ export const DeploySmartContract: React.FC = () => {
 
   useEffect(() => {
     if (selectedClassHash) {
-      fetchAbiAndParseConstructor(selectedClassHash);
+      fetchAbiAndParseConstructor();
     }
   }, [selectedClassHash]);
 
@@ -143,7 +138,7 @@ export const DeploySmartContract: React.FC = () => {
             />
           ))}
           <Button
-            disabled={selectedClassHash !== '' ? false : true}
+            disabled={selectedClassHash === ''}
             variant="outlined"
             color="primary"
             onClick={() => handleDeploy()}
