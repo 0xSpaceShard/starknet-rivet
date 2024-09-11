@@ -10,7 +10,7 @@ interface AddressTooltipProps {
 const AddressTooltip: React.FC<AddressTooltipProps> = ({ address }) => {
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
-  const handleCopyAddress = (address: string) => {
+  const handleCopyAddress = () => {
     navigator.clipboard.writeText(address);
     showTooltip();
   };
@@ -30,7 +30,7 @@ const AddressTooltip: React.FC<AddressTooltipProps> = ({ address }) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            handleCopyAddress(address);
+            handleCopyAddress();
           }}
         >
           {shortenAddress(address)}

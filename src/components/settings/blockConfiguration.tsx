@@ -14,11 +14,6 @@ interface BlockConfigurationProps {
   abortBlock: (blockNumber: number) => Promise<void>;
 }
 
-interface BlockInfo {
-  timestamp: number;
-  transactionsCount: number;
-}
-
 export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
   creatNewBlock,
   fetchCurrentBlockNumber,
@@ -29,18 +24,10 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingAbort, setLoadingAbort] = useState<boolean>(true);
   const [errorNewInterval, setErrorNewInterval] = useState('');
-  const [blockTransactionsCount, setBlockTransactionsCount] = useState<BlockInfo[]>([]);
 
   const navigate = useNavigate();
   const context = useSharedState();
-  const {
-    selectedAccount,
-    selectedUrl: url,
-    currentBlock,
-    blockInterval,
-    setBlockInterval,
-    configData,
-  } = context;
+  const { selectedUrl: url, currentBlock, blockInterval, setBlockInterval, configData } = context;
 
   const handleBack = () => {
     navigate(`/app-settings`);
@@ -160,7 +147,7 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
             <Button variant="contained" color="primary" onClick={() => resetInterval()}>
               {'Reset Block Interval'}
             </Button>
-            {configData.stateArchiveCapacity == 'full' && (
+            {configData.stateArchiveCapacity === 'full' && (
               <>
                 <Divider variant="middle" />
                 <Typography variant="h6">Abort a block</Typography>

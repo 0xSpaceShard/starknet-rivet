@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { RpcProvider } from 'starknet-6';
 import { Box, Button, CircularProgress, Divider, Stack, Typography } from '@mui/material';
-import { useSharedState } from '../context/context';
 import { useNavigate } from 'react-router-dom';
+import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
 
 interface BlockInfo {
@@ -25,14 +25,16 @@ export const BlockList: React.FC<{
     const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
     const newBlockTransactionsCount: BlockInfo[] = [...blockTransactionsCount];
     setLoading(true);
-    const startBlock = currentBlock - blockTransactionsCount.length;
-    const endBlock = startBlock - pageSize + 1 >= 0 ? startBlock - pageSize + 1 : 0;
-    setEndBlock(endBlock);
-    for (let index = startBlock; index >= endBlock; index--) {
+    const start = currentBlock - blockTransactionsCount.length;
+    const end = start - pageSize + 1 >= 0 ? start - pageSize + 1 : 0;
+    setEndBlock(end);
+    for (let index = start; index >= end; index--) {
       if (index < 0) {
         break;
       }
+      // eslint-disable-next-line no-await-in-loop
       const transactionsCount = await provider.getBlockTransactionCount(index);
+      // eslint-disable-next-line no-await-in-loop
       const tx = await provider.getBlockWithTxs(index);
 
       newBlockTransactionsCount.push({ timestamp: tx.timestamp, transactionsCount });
@@ -87,7 +89,7 @@ export const BlockList: React.FC<{
           </React.Fragment>
         ))
       )}
-      {!loading && endBlock != 0 && (
+      {!loading && endBlock !== 0 && (
         <Button
           onClick={() => handleLoadMore()}
           size="small"
@@ -97,7 +99,7 @@ export const BlockList: React.FC<{
           Load More
         </Button>
       )}
-      {loading && blockTransactionsCount.length != 0 && <CircularProgress />}
+      {loading && blockTransactionsCount.length !== 0 && <CircularProgress />}
     </Box>
   );
 };

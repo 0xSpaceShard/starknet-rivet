@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
+import { DeclareContractPayload } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import ConfirmationSection from '../confirmationSection/confirmationSection';
-import { DeclareContractPayload } from 'starknet-6';
 
 export const DeclareContractMessage: React.FC = () => {
   const context = useSharedState();
@@ -31,7 +31,7 @@ export const DeclareContractMessage: React.FC = () => {
   );
 
   const handleDecline = useCallback(
-    (message: any) => {
+    (_message: any) => {
       if (selectedAccount) {
         chrome.runtime.sendMessage({
           type: 'REQUEST_DECLARE_CONTRACT_RES',

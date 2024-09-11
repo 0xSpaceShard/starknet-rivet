@@ -1,10 +1,10 @@
 import { Button, Stack, styled, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSharedState } from '../context/context';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { CompiledSierraCasm, isSierra } from 'starknet-6';
+import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
-import { CompiledSierraCasm, hash, isSierra } from 'starknet-6';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 
 export const DeclareSmartContract: React.FC = () => {
@@ -25,7 +25,7 @@ export const DeclareSmartContract: React.FC = () => {
   const { selectedAccount } = context;
 
   const handleSierraFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const { files } = event.target;
     if (files && files.length > 0) {
       const file = files[0];
       if (file.type === 'application/json') {
@@ -52,7 +52,7 @@ export const DeclareSmartContract: React.FC = () => {
   };
 
   const handleCasmFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const { files } = event.target;
     if (files && files.length > 0) {
       const file = files[0];
       if (file.type === 'application/json') {

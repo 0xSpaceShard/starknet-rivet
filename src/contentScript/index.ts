@@ -105,11 +105,12 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
         case 'SIMULATE_RIVET_TRANSACTION_RES':
         case 'SIGN_RIVET_MESSAGE_RES':
         case 'REQUEST_CHAIN_ID_HANDLER_RES':
-        case 'RIVET_TRANSACTION_FAILED' || 'SIGNATURE_RIVET_FAILURE':
+        case 'RIVET_TRANSACTION_FAILED' || 'SIGNATURE_RIVET_FAILURE': {
           const res = await chrome.runtime.sendMessage({ type: message.type, data: message.data });
           window.postMessage({ type: message.type, data: res }, '*');
           sendResponse(res);
           break;
+        }
         default:
           console.warn('Unhandled message type:', message.type);
       }

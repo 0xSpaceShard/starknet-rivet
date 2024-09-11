@@ -21,14 +21,13 @@ export const ModifyBalance: React.FC = () => {
   const { selectedAccount, updateCurrentBalance } = context;
 
   const [modifiedBalance, setModifiedBalance] = useState('');
-  const [errorInput, setErrorInput] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleBack = () => {
     navigate(`/accounts/${selectedAccount?.address}`);
   };
 
-  const handleConfirme = useCallback(async () => {
+  const handleConfirm = useCallback(async () => {
     try {
       const newBalance = BigInt(modifiedBalance);
       if (!newBalance || !selectedAccount?.address) return;
@@ -85,9 +84,9 @@ export const ModifyBalance: React.FC = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      handleConfirme();
+                      handleConfirm();
                     }}
-                    disabled={errorInput}
+                    disabled={false}
                     color="primary"
                   >
                     <AddBoxOutlined />
