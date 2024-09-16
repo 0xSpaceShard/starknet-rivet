@@ -22,6 +22,7 @@ import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { sendMessageToRemoveBlockInterval } from '../utils/sendMessageBackground';
 import { DEFAULT_DEVNET_URL } from '../../background/constants';
 import { darkTheme } from '../..';
+import { HomeTab } from '../home/home';
 
 const RegisterRunningDocker: React.FC = () => {
   const context = useSharedState();
@@ -98,7 +99,7 @@ const RegisterRunningDocker: React.FC = () => {
 
   const handleShowAccounts = useCallback(async () => {
     if (devnetIsAlive) {
-      navigate('/accounts');
+      navigate('/', { state: { selectedTab: HomeTab.Accounts } });
     }
   }, [devnetIsAlive]);
 
