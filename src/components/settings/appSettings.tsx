@@ -1,6 +1,7 @@
 import { useNavigate, Link as RouteLink } from 'react-router-dom';
 import { Stack, Box, Button } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { createAccount } from '../../background/utils';
 
 export const AppSettings = () => {
   const navigate = useNavigate();
@@ -72,6 +73,27 @@ export const AppSettings = () => {
             }}
           >
             Block Configuration
+            <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
+              <ChevronRight />
+            </Box>
+          </Button>
+        </Box>
+        <Box>
+          <Button
+            variant="text"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              createAccount();
+            }}
+            fullWidth
+            sx={{
+              height: 48,
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+            }}
+          >
+            Create Account
             <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
               <ChevronRight />
             </Box>

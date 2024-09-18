@@ -1,4 +1,4 @@
-import { Account, RpcProvider } from 'starknet-6';
+import { Account, RpcProvider, ec, stark, hash, CallData } from 'starknet-6';
 import { getSelectedUrl } from './syncStorage';
 import { DeclareContractMessage } from './interface';
 
@@ -32,4 +32,49 @@ export async function getProvider(): Promise<RpcProvider> {
 // Utils functions to check the type of the message.
 export function isDeclareContractMessage(message: any): message is DeclareContractMessage {
   return (message as DeclareContractMessage).data.sierra !== undefined;
+}
+
+export async function createAccount() {
+  const url = await getSelectedUrl();
+  const provider = await getProvider();
+  const privateKey = stark.randomAddress();
+  const starkKeyPub = ec.starkCurve.getStarkKey(privateKey);
+
+  const OZaccountClassHash = '0x061dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f';
+  const OZaccountConstructorCallData = CallData.compile({ publicKey: starkKeyPub });
+  const OZcontractAddress = hash.calculateContractAddressFromHash(
+    starkKeyPub,
+    OZaccountClassHash,
+    OZaccountConstructorCallData,
+    0
+  );
+
+  console.log('Precalculated account address: ', OZcontractAddress);
+  console.log('Funding...');
+
+  const data = {
+    address: OZcontractAddress,
+    amount: 50000000000000000000,
+  };
+
+  await fetch(`${url}/mint`, {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  console.log(`Address ${OZcontractAddress} funded`);
+
+  const OZaccount = new Account(provider, OZcontractAddress, privateKey);
+
+  const { transaction_hash, contract_address } = await OZaccount.deployAccount({
+    classHash: OZaccountClassHash,
+    constructorCalldata: OZaccountConstructorCallData,
+    addressSalt: starkKeyPub,
+  });
+
+  await provider.waitForTransaction(transaction_hash);
+  console.log('✅ New OpenZeppelin account created. Address =', contract_address);
 }
