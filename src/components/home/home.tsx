@@ -5,7 +5,7 @@ import { RpcProvider } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
 import BlockList from '../block/BlockList';
-import { handleCopyAddress, shortenAddress } from '../utils/utils';
+import { handleCopyToClipboard, shortenAddress } from '../utils/utils';
 import { useFetchTransactionsDetails } from '../hooks/hooks';
 import { darkTheme } from '../..';
 
@@ -114,7 +114,7 @@ export const Home = () => {
                             color: darkTheme.palette.text.secondary,
                           }}
                           onClick={() => {
-                            handleCopyAddress(info.transaction_hash);
+                            handleCopyToClipboard(info.transaction_hash);
                           }}
                         >
                           <Typography width={'70%'} whiteSpace={'nowrap'}>

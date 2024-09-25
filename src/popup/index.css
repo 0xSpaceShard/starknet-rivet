@@ -24,6 +24,7 @@
 
 body {
   width: 22rem;
+  min-height: 600px;
   margin: 0;
   overflow-y: auto;
   scrollbar-gutter: stable;

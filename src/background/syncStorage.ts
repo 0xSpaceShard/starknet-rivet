@@ -1,6 +1,6 @@
 import { AccountData } from '../components/context/interfaces';
 import { DEFAULT_DEVNET_URL } from './constants';
-import { ListOfDevnet } from './interface';
+import { DevnetInfo } from './interface';
 
 // Function to save block interval object to Chrome sync storage
 export async function saveBlockIntervalToSyncStorage(
@@ -121,7 +121,7 @@ export async function saveSelectedUrl(selectedUrl: string): Promise<string> {
   return selectedUrl;
 }
 
-export async function getUrlList(): Promise<ListOfDevnet[]> {
+export async function getUrlList(): Promise<DevnetInfo[]> {
   const { urlList } = await chrome.storage.sync.get(['urlList']);
 
   if (chrome.runtime.lastError) {
@@ -131,7 +131,7 @@ export async function getUrlList(): Promise<ListOfDevnet[]> {
   return urlList ?? [{ url: DEFAULT_DEVNET_URL, isAlive: true }];
 }
 
-export async function saveUrlList(urlList: ListOfDevnet[]): Promise<ListOfDevnet[]> {
+export async function saveUrlList(urlList: DevnetInfo[]): Promise<DevnetInfo[]> {
   await chrome.storage.sync.set({ urlList });
 
   if (chrome.runtime.lastError) {
@@ -161,4 +161,43 @@ export async function saveAccountContracts(
   }
 
   return accountContracts;
+}
+
+export interface CustomAccount extends AccountData {
+  type: 'openzeppelin' | 'argent' | 'braavos' | 'eth';
+}
+
+export async function getCustomAccounts(): Promise<CustomAccount[]> {
+  const { customAccounts } = await chrome.storage.sync.get(['customAccounts']);
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return customAccounts ?? [];
+}
+
+export async function saveCustomAccounts(
+  customAccounts: CustomAccount[]
+): Promise<CustomAccount[]> {
+  await chrome.storage.sync.set({ customAccounts });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return customAccounts;
+}
+
+export async function addCustomAccount(customAccount: CustomAccount): Promise<boolean> {
+  const customAccounts = await getCustomAccounts();
+  saveCustomAccounts([...customAccounts, customAccount]);
+  return true;
+}
+
+export async function removeCustomAccount(accountAddress: string): Promise<boolean> {
+  const customAccounts = await getCustomAccounts();
+  customAccounts.filter((acc) => acc.address !== accountAddress);
+  saveCustomAccounts(customAccounts);
+  return true;
 }
