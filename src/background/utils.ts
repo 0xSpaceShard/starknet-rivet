@@ -34,6 +34,22 @@ export function isDeclareContractMessage(message: any): message is DeclareContra
   return (message as DeclareContractMessage).data.sierra !== undefined;
 }
 
+export function printAccountType(type: AccountType) {
+  switch (type) {
+    case AccountType.OpenZeppelin:
+      return 'Open Zeppelin';
+    case AccountType.Argent:
+      return 'Argent';
+    case AccountType.Braavos:
+      return 'Braavos';
+    case AccountType.Ethereum:
+      return 'Ethereum';
+    case AccountType.Predeployed:
+    default:
+      return 'Predeployed';
+  }
+}
+
 export async function createOpenZeppelinAccount() {
   const url = await getSelectedUrl();
   const provider = await getProvider();
@@ -131,7 +147,7 @@ export async function createArgentAccount() {
   const { transaction_hash, contract_address } = await AXaccount.deployAccount({
     classHash: AXAccountClassHash,
     constructorCalldata: AXConstructorCallData,
-    // contractAddress: AXcontractAddress,
+    contractAddress: AXcontractAddress,
     addressSalt: starkKeyPub,
   });
 
@@ -148,6 +164,6 @@ export async function createArgentAccount() {
     type: AccountType.Argent,
   };
 
-  // addCustomAccount(createdAccount);
+  addCustomAccount(createdAccount);
   return createdAccount;
 }

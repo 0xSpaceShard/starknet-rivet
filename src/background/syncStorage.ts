@@ -164,6 +164,7 @@ export async function saveAccountContracts(
 }
 
 export enum AccountType {
+  Predeployed,
   OpenZeppelin,
   Argent,
   Braavos,

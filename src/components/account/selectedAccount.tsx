@@ -23,10 +23,12 @@ import { useCopyTooltip } from '../hooks/hooks';
 import { getTokenBalance } from '../../background/contracts';
 import { useSharedState } from '../context/context';
 import { useAccountContracts } from '../hooks/useAccountContracts';
+import { printAccountType } from '../../background/utils';
+import { AccountType } from '../../background/syncStorage';
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const { state } = useLocation();
-  const type: string = state?.type ?? '';
+  const type: AccountType = state?.type ?? AccountType.Predeployed;
   const context = useSharedState();
   const {
     selectedUrl: url,
@@ -175,20 +177,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
 
   const balanceString = useMemo(() => getBalanceStr(currentBalance), [currentBalance]);
   const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);
-  const typeStr = useMemo(() => {
-    switch (type) {
-      case 'openzeppelin':
-        return 'Open Zeppelin';
-      case 'argent':
-        return 'Argent';
-      case 'braavos':
-        return 'Braavos';
-      case 'eth':
-        return 'Ethereum';
-      default:
-        return 'Predeployed';
-    }
-  }, [type]);
+  const typeStr = useMemo(() => printAccountType(type), [type]);
 
   return (
     <section>
