@@ -4,9 +4,30 @@
   }
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   text-align: center;
   margin: 0 auto;
+}
+
+.status-header {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.content {
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 h3 {
