@@ -1,5 +1,5 @@
 import { Account, RpcProvider, ec, stark, hash, CallData } from 'starknet-6';
-import { CustomAccount, addCustomAccount, getSelectedUrl } from './syncStorage';
+import { AccountType, CustomAccount, addCustomAccount, getSelectedUrl } from './syncStorage';
 import { DeclareContractMessage } from './interface';
 
 // Utils functions Parse error message
@@ -85,7 +85,7 @@ export async function createOpenZeppelinAccount() {
     private_key: privateKey,
     public_key: starkKeyPub,
     initial_balance: data.amount.toString(),
-    type: 'openzeppelin',
+    type: AccountType.OpenZeppelin,
   };
 
   addCustomAccount(createdAccount);
@@ -145,7 +145,7 @@ export async function createArgentAccount() {
     private_key: privateKey,
     public_key: starkKeyPub,
     initial_balance: data.amount.toString(),
-    type: 'argent',
+    type: AccountType.Argent,
   };
 
   // addCustomAccount(createdAccount);

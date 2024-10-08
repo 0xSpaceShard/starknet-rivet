@@ -163,8 +163,15 @@ export async function saveAccountContracts(
   return accountContracts;
 }
 
+export enum AccountType {
+  OpenZeppelin,
+  Argent,
+  Braavos,
+  Ethereum,
+}
+
 export interface CustomAccount extends AccountData {
-  type: 'openzeppelin' | 'argent' | 'braavos' | 'eth';
+  type: AccountType;
 }
 
 export async function getCustomAccounts(): Promise<CustomAccount[]> {
@@ -191,13 +198,13 @@ export async function saveCustomAccounts(
 
 export async function addCustomAccount(customAccount: CustomAccount): Promise<boolean> {
   const customAccounts = await getCustomAccounts();
-  saveCustomAccounts([...customAccounts, customAccount]);
+  await saveCustomAccounts([...customAccounts, customAccount]);
   return true;
 }
 
 export async function removeCustomAccount(accountAddress: string): Promise<boolean> {
   const customAccounts = await getCustomAccounts();
   customAccounts.filter((acc) => acc.address !== accountAddress);
-  saveCustomAccounts(customAccounts);
+  await saveCustomAccounts(customAccounts);
   return true;
 }
