@@ -24,7 +24,12 @@
 
 body {
   width: 22rem;
+  height: 600px;
   margin: 0;
   overflow-y: auto;
   scrollbar-gutter: stable;
+}
+
+#app {
+  height: 100%;
 }

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, Stack, Typography } from '@mui/material';
+import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { darkTheme } from '../..';
-import { handleCopyAddress, shortenAddress } from '../utils/utils';
+import { handleCopyToClipboard, shortenAddress } from '../utils/utils';
+import { useCopyTooltip } from '../hooks/hooks';
 
 interface BlockInfoProps {
   title: string;
@@ -10,6 +11,7 @@ interface BlockInfoProps {
 
 const DisplayBlockInfo: React.FC<BlockInfoProps> = ({ title, value }) => {
   const isCopyable = ['hash', 'sender', 'block hash'].includes(title.toLowerCase());
+  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
   return (
     <Stack alignItems={'flex-start'}>
@@ -18,19 +20,33 @@ const DisplayBlockInfo: React.FC<BlockInfoProps> = ({ title, value }) => {
       </Typography>
       <Stack direction={'row'} alignItems={'center'} spacing={1}>
         {isCopyable ? (
-          <Button
-            fullWidth
-            variant="text"
-            sx={{
-              textTransform: 'none',
-              paddingY: 0,
-              paddingX: 0,
-              color: 'white',
+          <Tooltip
+            PopperProps={{
+              disablePortal: true,
             }}
-            onClick={() => handleCopyAddress(shortenAddress(value as string, 5))}
+            open={isCopyTooltipShown}
+            disableFocusListener
+            disableHoverListener
+            disableTouchListener
+            title={`${title} copied to clipboard`}
           >
-            <Typography fontSize={'0.9rem'}>{shortenAddress(value as string, 5)}</Typography>
-          </Button>
+            <Link
+              sx={{
+                textTransform: 'none',
+                paddingY: 0,
+                paddingX: 0,
+                cursor: 'pointer',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCopyToClipboard(value as string);
+                showTooltip();
+              }}
+            >
+              <Typography fontSize={'0.9rem'}>{shortenAddress(value as string, 5)}</Typography>
+            </Link>
+          </Tooltip>
         ) : (
           <Typography fontSize={'0.9rem'}>{value}</Typography>
         )}

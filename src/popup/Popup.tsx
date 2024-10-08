@@ -149,41 +149,45 @@ export const Popup = () => {
 
   return (
     <main>
-      <StatusHeader />
-      <Divider variant="middle" sx={{ marginY: '0.1em' }} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/app-settings" element={<AppSettings />} />
-        <Route path="/command-generator" element={<DockerCommandGenerator />} />
-        <Route path="/docker-register" element={<RegisterRunningDocker />} />
-        <Route path="/accounts" element={<PredeployedAccounts />} />
-        <Route path="/accounts/:address" element={<SelectedAccountInfo />} />
-        <Route path="/accounts/:address/settings" element={<AccountSettings />} />
-        <Route path="/accounts/:address/declare" element={<DeclareSmartContract />} />
-        <Route path="/accounts/:address/deploy" element={<DeploySmartContract />} />
-        <Route path="/accounts/:address/add-token-contract" element={<AddTokenContract />} />
-        <Route path="/accounts/:address/watch_asset_message" element={<WatchAssetMessage />} />
-        <Route
-          path="/accounts/:address/declare_contract_message"
-          element={<DeclareContractMessage />}
-        />
-        <Route
-          path="/accounts/:address/switch_chain_message"
-          element={<SwitchStarknetChainMessage />}
-        />
-        <Route path="/accounts/:address/modify-balance" element={<ModifyBalance />} />
-        <Route
-          path="/block-configuration"
-          element={
-            <BlockConfiguration
-              creatNewBlock={creatNewBlock}
-              fetchCurrentBlockNumber={fetchCurrentBlockNumber}
-              abortBlock={abortBlock}
-            />
-          }
-        />
-        <Route path="/block/:blockIndex" element={<BlockDetailsPage />} />
-      </Routes>
+      <div className="status-header">
+        <StatusHeader />
+        <Divider variant="middle" sx={{ marginY: '0.1em' }} />
+      </div>
+      <div className="content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/app-settings" element={<AppSettings />} />
+          <Route path="/command-generator" element={<DockerCommandGenerator />} />
+          <Route path="/docker-register" element={<RegisterRunningDocker />} />
+          <Route path="/accounts" element={<PredeployedAccounts />} />
+          <Route path="/accounts/:address" element={<SelectedAccountInfo />} />
+          <Route path="/accounts/:address/settings" element={<AccountSettings />} />
+          <Route path="/accounts/:address/declare" element={<DeclareSmartContract />} />
+          <Route path="/accounts/:address/deploy" element={<DeploySmartContract />} />
+          <Route path="/accounts/:address/add-token-contract" element={<AddTokenContract />} />
+          <Route path="/accounts/:address/watch_asset_message" element={<WatchAssetMessage />} />
+          <Route
+            path="/accounts/:address/declare_contract_message"
+            element={<DeclareContractMessage />}
+          />
+          <Route
+            path="/accounts/:address/switch_chain_message"
+            element={<SwitchStarknetChainMessage />}
+          />
+          <Route path="/accounts/:address/modify-balance" element={<ModifyBalance />} />
+          <Route
+            path="/block-configuration"
+            element={
+              <BlockConfiguration
+                creatNewBlock={creatNewBlock}
+                fetchCurrentBlockNumber={fetchCurrentBlockNumber}
+                abortBlock={abortBlock}
+              />
+            }
+          />
+          <Route path="/block/:blockIndex" element={<BlockDetailsPage />} />
+        </Routes>
+      </div>
     </main>
   );
 };

@@ -4,7 +4,7 @@ import { AccountData } from '../components/context/interfaces';
 // Type
 export type ResponseMessage = {
   success: boolean;
-  urlList?: ListOfDevnet[];
+  urlList?: DevnetInfo[];
   blockInterval?: BlockInterval;
 };
 
@@ -17,7 +17,7 @@ interface Message<D> {
   data: D;
 }
 
-export interface ListOfDevnet {
+export interface DevnetInfo {
   url: string;
   isAlive: boolean;
 }
@@ -54,11 +54,11 @@ export interface BlockIntervalMessage
     interval: number;
   }> {}
 
-export interface UrlListMessage extends Message<ListOfDevnet> {}
+export interface UrlListMessage extends Message<DevnetInfo> {}
 
 export interface NewUrlToListtMessage
   extends Message<{
-    item: ListOfDevnet;
+    item: DevnetInfo;
   }> {}
 
 export interface SlectedAccountMessage

@@ -1,4 +1,4 @@
-import { shortenAddress, handleCopyAddress, getBalanceStr } from '../utils/utils';
+import { shortenAddress, handleCopyToClipboard, getBalanceStr } from '../utils/utils';
 
 describe('shortenAddress', () => {
   test('should properly shorten address', () => {
@@ -29,7 +29,7 @@ describe('handleCopyAddress', () => {
   test('should properly copy address to clipboard', () => {
     expect(global.navigator.clipboard.readText()).toBe('');
     const addr = '0x123456';
-    handleCopyAddress(addr);
+    handleCopyToClipboard(addr);
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(addr);
     expect(navigator.clipboard.readText()).toBe(addr);
   });

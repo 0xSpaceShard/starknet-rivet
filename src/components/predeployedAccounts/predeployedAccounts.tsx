@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
 import { getBalanceStr, shortenAddress } from '../utils/utils';
 import { darkTheme } from '../..';
+import { CustomAccount, getCustomAccounts } from '../../background/syncStorage';
 
 export const PredeployedAccounts: React.FC = () => {
   const context = useSharedState();
@@ -14,7 +15,6 @@ export const PredeployedAccounts: React.FC = () => {
     selectedUrl: url,
     devnetIsAlive,
     setDevnetIsAlive,
-    selectedAccount,
     updateSelectedAccount,
     updateCurrentBalance,
     urlList,
@@ -25,6 +25,27 @@ export const PredeployedAccounts: React.FC = () => {
     setLastFetchedUrl,
   } = context;
   const navigate = useNavigate();
+  const [customAccounts, setCustomAccounts] = useState<CustomAccount[]>([]);
+
+  useEffect(() => {
+    loadCustomAccounts();
+  }, []);
+
+  async function loadCustomAccounts() {
+    const customAccs = await getCustomAccounts();
+
+    const fetchBalancePromises = customAccs.map(async (acc): Promise<CustomAccount> => {
+      const response = await fetch(`${url}/account_balance?address=${acc.address}`);
+      const data = await response?.json();
+      return {
+        ...acc,
+        balance: data?.amount,
+      };
+    });
+    const accountsWithBalance = await Promise.all(fetchBalancePromises);
+
+    setCustomAccounts(accountsWithBalance);
+  }
 
   async function fetchDataAndPrintAccounts() {
     try {
@@ -78,39 +99,33 @@ export const PredeployedAccounts: React.FC = () => {
     fetchData();
   }, [url, lastFetchedUrl, accounts, devnetIsAlive]);
 
-  const handleAccountClick = async (clickedAddress: string) => {
-    const clickedAccount = accounts.find((account) => account.address === clickedAddress);
-    if (clickedAccount) {
-      await fetchCurrentBalance(clickedAccount.address);
-      await updateSelectedAccount(clickedAccount);
-      navigate(`/accounts/${clickedAccount.address}`);
-    }
+  const handleAccountClick = async (account: AccountData) => {
+    if (!account) return;
+    await fetchAndUpdateBalance(account.address);
+    await updateSelectedAccount(account);
+    navigate(`/accounts/${account.address}`);
   };
 
-  async function fetchCurrentBalance(address: string | undefined) {
+  const handleCustomAccountClick = async (account: CustomAccount) => {
+    if (!account) return;
+    await updateCurrentBalance(BigInt(account.balance));
+    await updateSelectedAccount(account);
+    navigate(`/accounts/${account.address}`, { state: { type: account.type } });
+  };
+
+  async function fetchAndUpdateBalance(address: string | undefined) {
     try {
-      let response: Response;
+      let fetchUrl = `${url}/account_balance?address=${address}`;
       if (configData?.block_generation_on === 'demand') {
-        response = await fetch(`${url}/account_balance?address=${address}&block_tag=pending`);
-      } else {
-        response = await fetch(`${url}/account_balance?address=${address}`);
+        fetchUrl += '&block_tag=pending';
       }
-      const array = await response.json();
-      await updateCurrentBalance(array.amount);
+      const response = await fetch(fetchUrl);
+      const data = await response.json();
+      await updateCurrentBalance(BigInt(data.amount));
     } catch (error) {
       console.error('Error fetching balance:', error);
     }
   }
-
-  useEffect(() => {
-    const fetchSelectedAccount = async () => {
-      if (!selectedAccount) {
-        return;
-      }
-      await fetchCurrentBalance(selectedAccount?.address);
-    };
-    fetchSelectedAccount();
-  }, [selectedAccount]);
 
   return (
     <>
@@ -128,13 +143,35 @@ export const PredeployedAccounts: React.FC = () => {
                     paddingX: 2,
                     color: darkTheme.palette.text.secondary,
                   }}
-                  onClick={() => handleAccountClick(account.address)}
+                  onClick={() => handleAccountClick(account)}
                 >
                   <Typography width={'70%'} whiteSpace={'nowrap'}>
                     {shortenAddress(account.address)}
                   </Typography>
                   <Stack direction="row" justifyContent="flex-end" width={'30%'}>
                     {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
+                  </Stack>
+                </Button>
+              </Box>
+            ))}
+            {customAccounts.map((account, index) => (
+              <Box key={index}>
+                <Button
+                  fullWidth
+                  variant="text"
+                  sx={{
+                    textTransform: 'none',
+                    paddingY: 1,
+                    paddingX: 2,
+                    color: darkTheme.palette.text.secondary,
+                  }}
+                  onClick={() => handleCustomAccountClick(account)}
+                >
+                  <Typography width={'70%'} whiteSpace={'nowrap'}>
+                    {shortenAddress(account.address)}
+                  </Typography>
+                  <Stack direction="row" justifyContent="flex-end" width={'30%'}>
+                    {getBalanceStr((account as any)?.balance)} ETH
                   </Stack>
                 </Button>
               </Box>

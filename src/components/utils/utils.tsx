@@ -4,12 +4,12 @@ export function shortenAddress(address: string | null | undefined, length: numbe
   return `${address.slice(0, length)}...${address.slice(-length)}`;
 }
 
-export function handleCopyAddress(address: string | null | undefined) {
-  if (!address) return;
-  navigator.clipboard.writeText(address);
+export function handleCopyToClipboard(str: string | null | undefined) {
+  if (!str) return;
+  navigator.clipboard.writeText(str);
 }
 
-export function getBalanceStr(balance: string): string {
+export function getBalanceStr(balance: string | bigint): string {
   const balanceBigInt = BigInt(balance) / BigInt(10n ** 18n);
   return balanceBigInt.toString();
 }

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, Menu as MenuIcon } from '@mui/icons-material';
 import { num } from 'starknet-6';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -18,13 +18,17 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { handleCopyAddress, shortenAddress } from '../utils/utils';
+import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
 import { getTokenBalance } from '../../background/contracts';
 import { useSharedState } from '../context/context';
 import { useAccountContracts } from '../hooks/useAccountContracts';
+import { printAccountType } from '../../background/utils';
+import { AccountType } from '../../background/syncStorage';
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
+  const { state } = useLocation();
+  const type: AccountType = state?.type ?? AccountType.Predeployed;
   const context = useSharedState();
   const {
     selectedUrl: url,
@@ -171,9 +175,9 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     accountConfig();
   }, []);
 
-  const balanceBigInt = BigInt(currentBalance) / BigInt(10n ** 18n);
-  const balanceString = balanceBigInt.toString();
-  const shortAddress = shortenAddress(selectedAccount?.address);
+  const balanceString = useMemo(() => getBalanceStr(currentBalance), [currentBalance]);
+  const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);
+  const typeStr = useMemo(() => printAccountType(type), [type]);
 
   return (
     <section>
@@ -193,9 +197,16 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             </Button>
           </Box>
           <Container>
-            <Typography variant="h6" margin={0} marginY={2}>
-              Account Info
-            </Typography>
+            <Box>
+              <Typography variant="h6" margin={0} marginY={2}>
+                Account Info
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" margin={0}>
+                {typeStr}
+              </Typography>
+            </Box>
           </Container>
           <Stack
             direction={'row'}
@@ -276,7 +287,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleCopyAddress(selectedAccount?.address);
+                        handleCopyToClipboard(selectedAccount?.address);
                         showTooltip();
                       }}
                     >
