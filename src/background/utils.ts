@@ -1,6 +1,14 @@
 import { Account, RpcProvider, ec, stark, hash, CallData } from 'starknet-6';
-import { AccountType, CustomAccount, addCustomAccount, getSelectedUrl } from './syncStorage';
+import {
+  AccountType,
+  CustomAccount,
+  addCustomAccount,
+  getSelectedUrl,
+  getUrlConfig,
+  saveUrlConfig,
+} from './syncStorage';
 import { DeclareContractMessage } from './interface';
+import { UrlConfig } from '../components/context/interfaces';
 
 // Utils functions Parse error message
 export function parseErrorMessage(error: any): string {
@@ -34,6 +42,24 @@ export function isDeclareContractMessage(message: any): message is DeclareContra
   return (message as DeclareContractMessage).data.sierra !== undefined;
 }
 
+export async function initUrlConfig(url: string) {
+  const response = await fetch(`${url}/config`);
+  const data = await response?.json();
+  const {
+    account_contract_class_hash,
+    fork_config,
+  }: {
+    account_contract_class_hash: string;
+    fork_config: { url: string | null; block_number: number | null };
+  } = data;
+
+  const config: UrlConfig = {
+    openZeppelinAccountClassHash: account_contract_class_hash,
+    isForked: !!fork_config?.url,
+  };
+  await saveUrlConfig(config);
+}
+
 export function printAccountType(type: AccountType) {
   switch (type) {
     case AccountType.OpenZeppelin:
@@ -52,11 +78,16 @@ export function printAccountType(type: AccountType) {
 
 export async function createOpenZeppelinAccount() {
   const url = await getSelectedUrl();
+  const urlConfig = await getUrlConfig();
   const provider = await getProvider();
   const privateKey = stark.randomAddress();
   const starkKeyPub = ec.starkCurve.getStarkKey(privateKey);
 
-  const OZAccountClassHash = '0x061dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f';
+  if (!urlConfig?.openZeppelinAccountClassHash) {
+    throw new Error('No open zeppellin account class hash found on current devnet');
+  }
+
+  const OZAccountClassHash = urlConfig.openZeppelinAccountClassHash;
   const OZAccountConstructorCallData = CallData.compile({ publicKey: starkKeyPub });
   const OZContractAddress = hash.calculateContractAddressFromHash(
     starkKeyPub,

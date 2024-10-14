@@ -75,3 +75,8 @@ export interface MyContextValue {
   blockDetails: any;
   setBlockDetails: React.Dispatch<React.SetStateAction<any>>;
 }
+
+export interface UrlConfig {
+  openZeppelinAccountClassHash: string;
+  isForked: boolean;
+}
