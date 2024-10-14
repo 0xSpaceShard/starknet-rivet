@@ -9,6 +9,7 @@ import {
 } from './syncStorage';
 import { DeclareContractMessage } from './interface';
 import { UrlConfig } from '../components/context/interfaces';
+import { ARGENTX_ACCOUNT_CLASS_HASH, ETH_ACCOUNT_CLASS_HASH } from './constants';
 
 // Utils functions Parse error message
 export function parseErrorMessage(error: any): string {
@@ -42,6 +43,16 @@ export function isDeclareContractMessage(message: any): message is DeclareContra
   return (message as DeclareContractMessage).data.sierra !== undefined;
 }
 
+export async function checkIfClassExists(classHash: string): Promise<boolean> {
+  const provider = await getProvider();
+  try {
+    const classDetails = await provider.getClass(classHash);
+    return !!classDetails;
+  } catch (e) {
+    return false;
+  }
+}
+
 export async function initUrlConfig(url: string) {
   const response = await fetch(`${url}/config`);
   const data = await response?.json();
@@ -53,9 +64,14 @@ export async function initUrlConfig(url: string) {
     fork_config: { url: string | null; block_number: number | null };
   } = data;
 
+  const argentClassExists = await checkIfClassExists(ARGENTX_ACCOUNT_CLASS_HASH);
+  const ethClassExists = await checkIfClassExists(ETH_ACCOUNT_CLASS_HASH);
+
   const config: UrlConfig = {
     openZeppelinAccountClassHash: account_contract_class_hash,
     isForked: !!fork_config?.url,
+    argentClassExists,
+    ethClassExists,
   };
   await saveUrlConfig(config);
 }
@@ -145,14 +161,13 @@ export async function createArgentAccount() {
   const privateKey = stark.randomAddress();
   const starkKeyPub = ec.starkCurve.getStarkKey(privateKey);
 
-  const AXAccountClassHash = '0x1a736d6ed154502257f02b1ccdf4d9d1089f80811cd6acad48e6b6a9d1f2003';
   const AXConstructorCallData = CallData.compile({
     owner: starkKeyPub,
     guardian: '0',
   });
   const AXcontractAddress = hash.calculateContractAddressFromHash(
     starkKeyPub,
-    AXAccountClassHash,
+    ARGENTX_ACCOUNT_CLASS_HASH,
     AXConstructorCallData,
     0
   );
@@ -176,7 +191,7 @@ export async function createArgentAccount() {
 
   const AXaccount = new Account(provider, AXcontractAddress, privateKey);
   const { transaction_hash, contract_address } = await AXaccount.deployAccount({
-    classHash: AXAccountClassHash,
+    classHash: ARGENTX_ACCOUNT_CLASS_HASH,
     constructorCalldata: AXConstructorCallData,
     contractAddress: AXcontractAddress,
     addressSalt: starkKeyPub,

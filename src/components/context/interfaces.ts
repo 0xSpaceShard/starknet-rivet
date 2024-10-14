@@ -79,4 +79,6 @@ export interface MyContextValue {
 export interface UrlConfig {
   openZeppelinAccountClassHash: string;
   isForked: boolean;
+  argentClassExists: boolean;
+  ethClassExists: boolean;
 }
