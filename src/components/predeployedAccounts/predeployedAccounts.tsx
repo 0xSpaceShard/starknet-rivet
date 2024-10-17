@@ -6,6 +6,7 @@ import { useSharedState } from '../context/context';
 import { getBalanceStr, shortenAddress } from '../utils/utils';
 import { darkTheme } from '../..';
 import { CustomAccount, getCustomAccounts } from '../../background/syncStorage';
+import { AccountItem } from './AccountItem';
 
 export const PredeployedAccounts: React.FC = () => {
   const context = useSharedState();
@@ -133,26 +134,11 @@ export const PredeployedAccounts: React.FC = () => {
         <section>
           <Stack marginBottom={1}>
             {accounts.map((account, index) => (
-              <Box key={index}>
-                <Button
-                  fullWidth
-                  variant="text"
-                  sx={{
-                    textTransform: 'none',
-                    paddingY: 1,
-                    paddingX: 2,
-                    color: darkTheme.palette.text.secondary,
-                  }}
-                  onClick={() => handleAccountClick(account)}
-                >
-                  <Typography width={'70%'} whiteSpace={'nowrap'}>
-                    {shortenAddress(account.address)}
-                  </Typography>
-                  <Stack direction="row" justifyContent="flex-end" width={'30%'}>
-                    {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
-                  </Stack>
-                </Button>
-              </Box>
+              <AccountItem
+                key={index}
+                account={account}
+                handleAccountClick={handleAccountClick}
+              ></AccountItem>
             ))}
             {customAccounts.map((account, index) => (
               <Box key={index}>
@@ -171,7 +157,7 @@ export const PredeployedAccounts: React.FC = () => {
                     {shortenAddress(account.address)}
                   </Typography>
                   <Stack direction="row" justifyContent="flex-end" width={'30%'}>
-                    {getBalanceStr((account as any)?.balance)} ETH
+                    {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
                   </Stack>
                 </Button>
               </Box>
