@@ -1,4 +1,4 @@
-import { AccountData } from '../components/context/interfaces';
+import { AccountData, UrlConfig } from '../components/context/interfaces';
 import { DEFAULT_DEVNET_URL } from './constants';
 import { DevnetInfo } from './interface';
 
@@ -77,6 +77,26 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
     console.error('Error removing interval from block interval:', error);
     throw error;
   }
+}
+
+export async function getUrlConfig(): Promise<UrlConfig | null> {
+  const { urlConfig } = await chrome.storage.sync.get(['urlConfig']);
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return urlConfig ?? null;
+}
+
+export async function saveUrlConfig(urlConfig: UrlConfig | null): Promise<UrlConfig | null> {
+  await chrome.storage.sync.set({ urlConfig });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return urlConfig;
 }
 
 export async function getSelectedAccount(): Promise<AccountData | null> {
