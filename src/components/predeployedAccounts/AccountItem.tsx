@@ -1,64 +1,69 @@
-import { Box, Button, Typography, Grid, Tooltip } from '@mui/material';
+import React from 'react';
+import { Box, IconButton, Button, Typography, Grid, Tooltip } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useCopyTooltip } from '../hooks/hooks';
 import { darkTheme } from '../..';
 import { handleCopyToClipboard, getBalanceStr, shortenAddress } from '../utils/utils';
+import { AccountData } from '../context/interfaces';
 
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-
-export const AccountItem = (account: any, handleAccountClick: any) => {
+export const AccountItem: React.FC<{
+  account: AccountData;
+  handleAccountClick: (account: any) => void;
+}> = ({ account, handleAccountClick }) => {
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
   return (
     <Box>
-      <Button
-        variant="text"
-        sx={{
-          width: '90%',
-          textTransform: 'none',
-          paddingY: 1,
-          paddingX: 2,
-          color: darkTheme.palette.text.secondary,
-        }}
-        onClick={() => handleAccountClick(account)}
-      >
-        <Grid container spacing={2}>
-          <Grid item xs={8}>
-            <Typography variant="caption">{shortenAddress(account.address)}</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography variant="caption">
-              {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
-            </Typography>
-          </Grid>
+      <Grid container direction={'row'} alignItems={'center'}>
+        <Grid item flexGrow={1}>
+          <Button
+            variant="text"
+            sx={{
+              width: '100%',
+              textTransform: 'none',
+              padding: 1,
+              color: darkTheme.palette.text.secondary,
+            }}
+            onClick={() => handleAccountClick(account)}
+          >
+            <Grid container justifyContent={'space-between'}>
+              <Grid item xs={9}>
+                <Typography>{shortenAddress(account.address, 10)}</Typography>
+              </Grid>
+              <Grid item xs={3}>
+                <Typography variant="caption">
+                  {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
+                </Typography>
+              </Grid>
+            </Grid>
+          </Button>
         </Grid>
-      </Button>
-      <Tooltip
-        PopperProps={{
-          disablePortal: true,
-        }}
-        open={isCopyTooltipShown}
-        disableFocusListener
-        disableHoverListener
-        disableTouchListener
-        title="Address copied to clipboard"
-      >
-        <Button
-          variant={'text'}
-          sx={{
-            maxWidth: '30px',
-            maxHeight: '30px',
-            minWidth: '30px',
-            minHeight: '30px',
-          }}
-          startIcon={<ContentCopyIcon />}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleCopyToClipboard(account.address);
-            showTooltip();
-          }}
-        ></Button>
-      </Tooltip>
+        <Grid item flexBasis={'50px'} flexGrow={0} padding={'0 10px'}>
+          <Tooltip
+            PopperProps={{
+              disablePortal: true,
+            }}
+            open={isCopyTooltipShown}
+            disableFocusListener
+            disableHoverListener
+            disableTouchListener
+            title="Address copied to clipboard"
+          >
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCopyToClipboard(account.address);
+                showTooltip();
+              }}
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
