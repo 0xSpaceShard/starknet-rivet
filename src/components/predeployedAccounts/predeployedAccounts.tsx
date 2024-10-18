@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
-import { getBalanceStr, shortenAddress } from '../utils/utils';
-import { darkTheme } from '../..';
 import { CustomAccount, getCustomAccounts } from '../../background/syncStorage';
 import { AccountItem } from './AccountItem';
 
@@ -40,7 +38,7 @@ export const PredeployedAccounts: React.FC = () => {
       const data = await response?.json();
       return {
         ...acc,
-        balance: data?.amount,
+        balance: { eth: { amount: data?.amount } },
       };
     });
     const accountsWithBalance = await Promise.all(fetchBalancePromises);
@@ -141,26 +139,11 @@ export const PredeployedAccounts: React.FC = () => {
               ></AccountItem>
             ))}
             {customAccounts.map((account, index) => (
-              <Box key={index}>
-                <Button
-                  fullWidth
-                  variant="text"
-                  sx={{
-                    textTransform: 'none',
-                    paddingY: 1,
-                    paddingX: 2,
-                    color: darkTheme.palette.text.secondary,
-                  }}
-                  onClick={() => handleCustomAccountClick(account)}
-                >
-                  <Typography width={'70%'} whiteSpace={'nowrap'}>
-                    {shortenAddress(account.address)}
-                  </Typography>
-                  <Stack direction="row" justifyContent="flex-end" width={'30%'}>
-                    {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
-                  </Stack>
-                </Button>
-              </Box>
+              <AccountItem
+                key={index}
+                account={account}
+                handleAccountClick={handleCustomAccountClick}
+              ></AccountItem>
             ))}
           </Stack>
         </section>
