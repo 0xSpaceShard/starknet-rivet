@@ -2,6 +2,33 @@ import { AccountData, UrlConfig } from '../components/context/interfaces';
 import { DEFAULT_DEVNET_URL } from './constants';
 import { DevnetInfo } from './interface';
 
+export async function getUrlContextData<T>(key: string, defaultValue: T): Promise<T> {
+  const selectedUrl = await getSelectedUrl();
+  const dataSet = (await chrome.storage.sync.get([key])) ?? {};
+  const storedData = (dataSet[key] ?? {}) as Record<string, T>;
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return storedData[selectedUrl] ?? defaultValue;
+}
+
+export async function saveUrlContextData<T>(key: string, data: T): Promise<T> {
+  const selectedUrl = await getSelectedUrl();
+  const dataSet = (await chrome.storage.sync.get([key])) ?? {};
+  const storedData = (dataSet[key] ?? {}) as Record<string, T>;
+
+  storedData[selectedUrl] = data;
+  await chrome.storage.sync.set({ [key]: storedData });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return data;
+}
+
 // Function to save block interval object to Chrome sync storage
 export async function saveBlockIntervalToSyncStorage(
   blockInterval: Map<string, number>
@@ -162,25 +189,13 @@ export async function saveUrlList(urlList: DevnetInfo[]): Promise<DevnetInfo[]> 
 }
 
 export async function getAccountContracts(): Promise<Record<string, string[]>> {
-  const { accountContracts } = await chrome.storage.sync.get(['accountContracts']);
-
-  if (chrome.runtime.lastError) {
-    throw new Error(chrome.runtime.lastError.message);
-  }
-
-  return accountContracts ?? {};
+  return getUrlContextData<Record<string, string[]>>('accountContracts', {});
 }
 
 export async function saveAccountContracts(
   accountContracts: Record<string, string[]>
 ): Promise<Record<string, string[]>> {
-  await chrome.storage.sync.set({ accountContracts });
-
-  if (chrome.runtime.lastError) {
-    throw new Error(chrome.runtime.lastError.message);
-  }
-
-  return accountContracts;
+  return saveUrlContextData('accountContracts', accountContracts);
 }
 
 export enum AccountType {
@@ -196,25 +211,13 @@ export interface CustomAccount extends AccountData {
 }
 
 export async function getCustomAccounts(): Promise<CustomAccount[]> {
-  const { customAccounts } = await chrome.storage.sync.get(['customAccounts']);
-
-  if (chrome.runtime.lastError) {
-    throw new Error(chrome.runtime.lastError.message);
-  }
-
-  return customAccounts ?? [];
+  return getUrlContextData<CustomAccount[]>('customAccounts', []);
 }
 
 export async function saveCustomAccounts(
   customAccounts: CustomAccount[]
 ): Promise<CustomAccount[]> {
-  await chrome.storage.sync.set({ customAccounts });
-
-  if (chrome.runtime.lastError) {
-    throw new Error(chrome.runtime.lastError.message);
-  }
-
-  return customAccounts;
+  return saveUrlContextData('customAccounts', customAccounts);
 }
 
 export async function addCustomAccount(customAccount: CustomAccount): Promise<boolean> {
