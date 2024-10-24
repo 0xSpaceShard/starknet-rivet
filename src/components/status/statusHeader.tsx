@@ -4,10 +4,11 @@ import { Settings as SettingsIcon } from '@mui/icons-material';
 import { useSharedState } from '../context/context';
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '../..';
+import { MiningMode } from '../settings/blockConfiguration';
 
 export const StatusHeader = () => {
   const context = useSharedState();
-  const { selectedUrl: url, configData, currentBlock } = context;
+  const { selectedUrl: url, configData, currentBlock, blockInterval } = context;
 
   return (
     <Box padding={1.2}>
@@ -39,10 +40,12 @@ export const StatusHeader = () => {
           </Stack>
           <Stack alignItems={'flex-start'}>
             <Typography color={darkTheme.palette.text.secondary} variant="caption">
-              MINING
+              MINING MODE
             </Typography>
             <Stack direction={'row'} alignItems={'center'} spacing={1}>
-              <Typography fontSize={'0.9rem'}>Auto</Typography>
+              <Typography fontSize={'0.9rem'}>
+                {blockInterval.has(url) ? MiningMode.Auto : MiningMode.Transaction}
+              </Typography>
             </Stack>
           </Stack>
           <Stack alignItems={'flex-start'}>

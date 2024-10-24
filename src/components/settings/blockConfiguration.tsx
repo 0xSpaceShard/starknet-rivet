@@ -8,14 +8,19 @@ import {
   sendMessageToSetBlockInterval,
 } from '../utils/sendMessageBackground';
 
+export enum MiningMode {
+  Auto = 'AUTO',
+  Transaction = 'TRANSACTION',
+}
+
 interface BlockConfigurationProps {
-  creatNewBlock: () => Promise<void>;
+  createNewBlock: () => Promise<void>;
   fetchCurrentBlockNumber: () => Promise<void>;
   abortBlock: (blockNumber: number) => Promise<void>;
 }
 
 export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
-  creatNewBlock,
+  createNewBlock,
   fetchCurrentBlockNumber,
   abortBlock,
 }) => {
@@ -51,7 +56,7 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
     setLoading(false);
   };
 
-  const creatNewInterval = () => {
+  const createNewInterval = () => {
     sendMessageToSetBlockInterval(url, newBlockInterval, setBlockInterval);
   };
 
@@ -121,11 +126,13 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
           <Stack direction="column" spacing={2}>
             <Divider variant="middle" />
             <Typography variant="h6">Mint new Block</Typography>
-            <Button variant="contained" color="primary" onClick={() => creatNewBlock()}>
+            <Button variant="contained" color="primary" onClick={() => createNewBlock()}>
               {'Create Block'}
             </Button>
             <Divider variant="middle" />
-            <Typography variant="h6">Change interval at which a new block is minted</Typography>
+            <Typography variant="h6">
+              Change time interval at which a new block is minted
+            </Typography>
             <TextField
               fullWidth
               label="Block interval"
@@ -137,14 +144,19 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
             <Button
               variant="contained"
               color="primary"
-              onClick={() => creatNewInterval()}
+              onClick={() => createNewInterval()}
               disabled={loading}
             >
               {'Set New Block Interval'}
             </Button>
             <Divider variant="middle" />
             <Typography variant="h6">Reset Interval to none</Typography>
-            <Button variant="contained" color="primary" onClick={() => resetInterval()}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => resetInterval()}
+              disabled={!blockInterval.has(url)}
+            >
               {'Reset Block Interval'}
             </Button>
             {configData.stateArchiveCapacity === 'full' && (
