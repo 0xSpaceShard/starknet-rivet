@@ -107,7 +107,7 @@ export const PredeployedAccounts: React.FC = () => {
 
   const handleCustomAccountClick = async (account: CustomAccount) => {
     if (!account) return;
-    await updateCurrentBalance(BigInt(account.balance));
+    await updateCurrentBalance(BigInt(account?.balance?.eth?.amount ?? 0));
     await updateSelectedAccount(account);
     navigate(`/accounts/${account.address}`, { state: { type: account.type } });
   };

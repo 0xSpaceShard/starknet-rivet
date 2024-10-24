@@ -1,16 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouteLink } from 'react-router-dom';
 import { Stack, Box, Button, Typography, Divider, Grid } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { createOpenZeppelinAccount } from '../../background/utils';
+import { createArgentAccount, createOpenZeppelinAccount } from '../../background/utils';
 import { useSharedState } from '../context/context';
 import { Spinner } from '../utils/spinner';
+import { getUrlConfig } from '../../background/syncStorage';
+import { UrlConfig } from '../context/interfaces';
 
 export const AppSettings = () => {
   const navigate = useNavigate();
   const context = useSharedState();
   const { selectedUrl: url, updateSelectedAccount, updateCurrentBalance } = context;
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [config, setConfig] = useState<UrlConfig | null>(null);
+  const getConfig = async () => {
+    const urlConfig = await getUrlConfig();
+    setConfig(urlConfig);
+  };
+  useEffect(() => {
+    getConfig();
+  }, [url]);
 
   return (
     <section>
@@ -125,13 +135,16 @@ export const AppSettings = () => {
               </Button>
               <Button
                 variant="text"
-                disabled
+                disabled={!config?.argentClassExists}
                 onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  // const account = await createArgentAccount();
-                  // const response = await fetch(`${url}/account_balance?address=${account.address}`);
-                  // const accountBalance = await response?.json();
+                  const account = await createArgentAccount();
+                  const response = await fetch(`${url}/account_balance?address=${account.address}`);
+                  const accountBalance = await response?.json();
+                  await updateCurrentBalance(BigInt(accountBalance?.amount));
+                  await updateSelectedAccount(account);
+                  navigate(`/accounts/${account.address}`, { state: { type: account.type } });
                 }}
                 fullWidth
                 sx={{

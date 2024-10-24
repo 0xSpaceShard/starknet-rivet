@@ -61,7 +61,7 @@ export interface NewUrlToListtMessage
     item: DevnetInfo;
   }> {}
 
-export interface SlectedAccountMessage
+export interface SelectedAccountMessage
   extends Message<{
     selectedAccount: AccountData | null;
   }> {}
