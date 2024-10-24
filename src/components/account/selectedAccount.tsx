@@ -191,9 +191,14 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
               onClick={handleBack}
               sx={{
                 padding: '8px 10px',
+                display: 'flex',
+                alignItems: 'center',
+                marginTop: '1px',
               }}
             >
-              Back
+              <Typography marginTop={'1px'} fontSize={'0.8125rem'} lineHeight={'1.5'}>
+                Back
+              </Typography>
             </Button>
           </Box>
           <Container>

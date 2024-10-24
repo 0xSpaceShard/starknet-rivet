@@ -36,6 +36,7 @@ export const ModifyBalance: React.FC = () => {
         await updateCurrentBalance(balance);
       }
       setErrorMessage('');
+      handleBack();
     } catch (error) {
       setErrorMessage('Wrong Input');
     }

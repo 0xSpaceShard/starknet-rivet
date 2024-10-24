@@ -5,7 +5,9 @@ import {
   addCustomAccount,
   getSelectedUrl,
   getUrlConfig,
+  getUrlContextData,
   saveUrlConfig,
+  saveUrlContextData,
 } from './syncStorage';
 import { DeclareContractMessage } from './interface';
 import { UrlConfig } from '../components/context/interfaces';
@@ -59,9 +61,11 @@ export async function initUrlConfig(url: string) {
   const {
     account_contract_class_hash,
     fork_config,
+    seed,
   }: {
     account_contract_class_hash: string;
     fork_config: { url: string | null; block_number: number | null };
+    seed: number;
   } = data;
 
   const argentClassExists = await checkIfClassExists(ARGENTX_ACCOUNT_CLASS_HASH);
@@ -73,6 +77,13 @@ export async function initUrlConfig(url: string) {
     argentClassExists,
     ethClassExists,
   };
+  const savedSeed = await getUrlContextData<number>('seed', 0);
+
+  if (savedSeed && savedSeed !== seed) {
+    await saveUrlContextData('accountContracts', {});
+    await saveUrlContextData('customAccounts', []);
+  }
+  await saveUrlContextData('seed', seed);
   await saveUrlConfig(config);
 }
 
