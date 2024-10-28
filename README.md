@@ -17,6 +17,38 @@ It aims to streamline your development process, offering:
 
 > Take a look at our [Toni](https://github.com/tabaktoni), [presenting](https://www.youtube.com/watch?v=O5vvwZl1bso) Starknet Rivet on stage!
 
+## Features
+
+- Onboarding
+  - Set up local Devnet-rs instance with various configurations
+  - Configure & deploy Devnet docker instance (fork block number, fork rpc url, etc)
+- Devnet configuration
+  - Configure blocks (timestamp interval, etc)
+  - Configure fork settings (block number, RPC URL, etc)
+  - Switch between instances
+- Accounts
+  - List Devnet accounts
+  - Deploy new Accounts
+  - View balances, and other account details
+  - Set balances
+  - Set tokens
+  - Inspect, connect, and manage accounts
+- Blocks
+  - Scroll through previous blocks
+  - View block details & transactions in the block
+  - Toggle between "click-to-mine", interval mining, and auto-mining
+  - Remove blocks
+- Contracts
+  - Declare contracts
+  - Deploy contracts
+- Transactions
+  - TBD
+- Dapp Connections
+  - Connect to Dapps with your Devnet account(s)
+  - Send transactions, sign messages & typed data, etc
+
+> This feature list will expand as we add them to Rivet!
+
 ## Installing and running
 
 > Check if your `Node.js` version is >= **14**
@@ -70,7 +102,7 @@ Steps:
 
 ### Connect to an existing Dapp
 
-If you want to use Starknet Rivet in your existing Dapp (and your Dapp is using Starknet React), you can use the `useInjectedConnectors` hook that automatically discovers injected wallets, as well as Starknet Rivet! 
+If you want to use Starknet Rivet in your existing Dapp (and your Dapp is using Starknet React), you can use the `useInjectedConnectors` hook that automatically discovers injected wallets, as well as Starknet Rivet!
 
 Check the Starknet React [docs](https://www.starknet-react.com/docs/hooks/use-injected-connectors) on how to do so!
 
