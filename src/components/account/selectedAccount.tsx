@@ -263,7 +263,11 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
               Manage Token Contracts
             </MenuItem>
             <MenuItem
-              onClick={() => navigate(`/accounts/${selectedAccount?.address}/modify-balance`)}
+              onClick={() =>
+                navigate(`/accounts/${selectedAccount?.address}/modify-balance`, {
+                  state: { initialBalance: balanceString },
+                })
+              }
             >
               Modify Balance
             </MenuItem>
