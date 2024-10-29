@@ -62,7 +62,7 @@ export const Popup = () => {
     }
   }
 
-  async function creatNewBlock() {
+  async function createNewBlock() {
     try {
       const response = await fetch(`${url}/create_block`, {
         method: 'POST',
@@ -179,7 +179,7 @@ export const Popup = () => {
             path="/block-configuration"
             element={
               <BlockConfiguration
-                creatNewBlock={creatNewBlock}
+                createNewBlock={createNewBlock}
                 fetchCurrentBlockNumber={fetchCurrentBlockNumber}
                 abortBlock={abortBlock}
               />
