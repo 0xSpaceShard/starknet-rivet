@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useCallback } from 'react';
+import React, { useState, ChangeEvent, useCallback, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -15,12 +15,18 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { AddBoxOutlined, ChevronLeft, Delete, List as ListIcon } from '@mui/icons-material';
+import {
+  AddBoxOutlined,
+  ChevronLeft,
+  Delete,
+  List as ListIcon,
+  AddToQueueOutlined,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { sendMessageToRemoveBlockInterval } from '../utils/sendMessageBackground';
-import { DEFAULT_DEVNET_URL } from '../../background/constants';
+import { DEFAULT_DEVNET_URL, LOCALHOST_DEVNET_URL } from '../../background/constants';
 import { darkTheme } from '../..';
 import { HomeTab } from '../home/home';
 
@@ -103,6 +109,16 @@ const RegisterRunningDocker: React.FC = () => {
     }
   }, [devnetIsAlive]);
 
+  const hasLocalhost = useMemo(
+    () => urlList.some((item) => item.url === LOCALHOST_DEVNET_URL),
+    [urlList]
+  );
+
+  const addLocalhostUrl = useCallback(() => {
+    urlList.push({ url: LOCALHOST_DEVNET_URL, isAlive: true });
+    updateUrlList(urlList);
+  }, [urlList]);
+
   return (
     <>
       <section>
@@ -147,7 +163,7 @@ const RegisterRunningDocker: React.FC = () => {
           </Stack>
         </Box>
         <Divider variant="middle" />
-        <Box paddingY={2}>
+        <Box paddingTop={2} paddingBottom={1}>
           <List sx={{ paddingY: 0 }}>
             {urlList.map((list, index) => (
               <ListItem
@@ -204,6 +220,20 @@ const RegisterRunningDocker: React.FC = () => {
             ))}
           </List>
         </Box>
+        {!hasLocalhost ? (
+          <Container>
+            <Button
+              size="small"
+              variant={'text'}
+              startIcon={<AddToQueueOutlined />}
+              onClick={addLocalhostUrl}
+            >
+              <Typography fontSize={'0.8125rem'} lineHeight={'1.5'}>
+                Add local devnet
+              </Typography>
+            </Button>
+          </Container>
+        ) : null}
       </section>
     </>
   );
