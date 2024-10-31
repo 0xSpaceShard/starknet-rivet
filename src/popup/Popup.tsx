@@ -21,6 +21,7 @@ import { SwitchStarknetChainMessage } from '../components/handleWalletMessages/s
 import { DeclareContractMessage } from '../components/handleWalletMessages/declareContractMessage';
 import { ModifyBalance } from '../components/settings/modifyBalance';
 import { fetchCurrentBlockNumber } from '../background/utils';
+import { TransactionDetails } from '../components/transaction/TransactionDetails';
 
 import './Popup.css';
 
@@ -171,6 +172,7 @@ export const Popup = () => {
             element={<BlockConfiguration createNewBlock={createNewBlock} abortBlock={abortBlock} />}
           />
           <Route path="/block/:blockIndex" element={<BlockDetailsPage />} />
+          <Route path="/transaction/:transactionHash" element={<TransactionDetails />} />
         </Routes>
       </div>
     </main>
