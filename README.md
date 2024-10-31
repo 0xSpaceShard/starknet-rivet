@@ -42,7 +42,8 @@ It aims to streamline your development process, offering:
   - Declare contracts
   - Deploy contracts
 - Transactions
-  - TBD
+  - List of transactions from 10 latest blocks
+  - Transaction details
 - Dapp Connections
   - Connect to Dapps with your Devnet account(s)
   - Send transactions, sign messages & typed data, etc
