@@ -1,7 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Box, Typography, Tabs, Tab, Stack, Button } from '@mui/material';
-import { RpcProvider } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
 import BlockList from '../block/BlockList';
@@ -18,13 +17,7 @@ export enum HomeTab {
 export const Home = () => {
   const { state } = useLocation();
   const context = useSharedState();
-  const {
-    selectedUrl: url,
-    currentBlock,
-    setCurrentBlock,
-    blockDetails,
-    selectedAccount,
-  } = context;
+  const { selectedUrl: url, currentBlock, blockDetails, selectedAccount } = context;
   const [selectedTab, setSelectedTab] = useState(state?.selectedTab ?? HomeTab.Accounts);
 
   const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
@@ -32,16 +25,6 @@ export const Home = () => {
   useEffect(() => {
     fetchTransactionsDetailsByBlock(currentBlock);
   }, [fetchTransactionsDetailsByBlock, currentBlock]);
-
-  async function fetchCurrentBlockNumber() {
-    try {
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-      const blockNumber = await provider.getBlockNumber();
-      setCurrentBlock(blockNumber);
-    } catch (error) {
-      console.error('Error fetching block number:', error);
-    }
-  }
 
   const a11yProps = (index: HomeTab) => ({
     id: `simple-tab-${index}`,
@@ -91,7 +74,7 @@ export const Home = () => {
         <PredeployedAccounts />
       </CustomTabPanel>
       <CustomTabPanel idx={HomeTab.Blocks}>
-        <BlockList fetchCurrentBlockNumber={fetchCurrentBlockNumber} />
+        <BlockList />
       </CustomTabPanel>
       <CustomTabPanel idx={HomeTab.Transactions}>
         <section>

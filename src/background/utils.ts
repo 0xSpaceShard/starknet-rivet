@@ -224,3 +224,13 @@ export async function createArgentAccount() {
   addCustomAccount(createdAccount);
   return createdAccount;
 }
+
+export async function fetchCurrentBlockNumber(): Promise<number> {
+  try {
+    const provider = await getProvider();
+    return await provider.getBlockNumber();
+  } catch (error) {
+    console.error('Error fetching block number:', error);
+    return -1;
+  }
+}

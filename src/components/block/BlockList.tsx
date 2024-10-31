@@ -1,31 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { RpcProvider } from 'starknet-6';
-import { Box, Button, CircularProgress, Divider, Stack, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
 
 interface BlockInfo {
+  blockNumber: number;
   timestamp: number;
   transactionsCount: number;
 }
 
-export const BlockList: React.FC<{
-  fetchCurrentBlockNumber: () => Promise<void>;
-}> = ({ fetchCurrentBlockNumber }) => {
+export const BlockList: React.FC = () => {
   const context = useSharedState();
   const { selectedUrl: url, currentBlock } = context;
   const navigate = useNavigate();
-  const [blockTransactionsCount, setBlockTransactionsCount] = useState<BlockInfo[]>([]);
+  const [blocks, setBlocks] = useState<BlockInfo[]>([]);
   const [pageSize, setPageSize] = useState(15);
   const [loading, setLoading] = useState(false);
   const [endBlock, setEndBlock] = useState(0);
 
-  async function fetchTransactionsCountByBlock() {
-    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-    const newBlockTransactionsCount: BlockInfo[] = [...blockTransactionsCount];
+  const fetchTransactionsCountByBlock = useCallback(async () => {
     setLoading(true);
-    const start = currentBlock - blockTransactionsCount.length;
+    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
+    const start = currentBlock - blocks.length;
     const end = start - pageSize + 1 >= 0 ? start - pageSize + 1 : 0;
     setEndBlock(end);
     for (let index = start; index >= end; index--) {
@@ -35,13 +33,17 @@ export const BlockList: React.FC<{
       // eslint-disable-next-line no-await-in-loop
       const transactionsCount = await provider.getBlockTransactionCount(index);
       // eslint-disable-next-line no-await-in-loop
-      const tx = await provider.getBlockWithTxs(index);
+      const block = (await provider.getBlockWithTxs(index)) as any;
 
-      newBlockTransactionsCount.push({ timestamp: tx.timestamp, transactionsCount });
+      blocks.push({
+        blockNumber: block.block_number,
+        timestamp: block.timestamp,
+        transactionsCount,
+      });
     }
-    setBlockTransactionsCount(newBlockTransactionsCount);
+    setBlocks(blocks);
     setLoading(false);
-  }
+  }, [currentBlock, blocks]);
 
   const handleClick = (index: number) => {
     navigate(`/block/${index}`);
@@ -54,53 +56,73 @@ export const BlockList: React.FC<{
   };
 
   useEffect(() => {
-    const fetchCurrentBlock = async () => {
-      try {
-        await fetchCurrentBlockNumber();
-      } catch (error) {
-        console.error('Error fetching current block number:', error);
-      }
-    };
-    fetchCurrentBlock();
-  }, []);
-
-  useEffect(() => {
     fetchTransactionsCountByBlock();
   }, [currentBlock, pageSize]);
 
   return (
-    <Box padding={1} sx={{ height: '80vh', overflow: 'auto' }}>
-      {blockTransactionsCount.length === 0 ? (
-        <CircularProgress />
-      ) : (
-        blockTransactionsCount.map((info, index) => (
-          <React.Fragment key={index}>
-            <Button
-              onClick={() => handleClick(currentBlock - index)}
-              sx={{ cursor: 'pointer', color: darkTheme.palette.text.secondary }}
-            >
-              <Stack key={index} direction="row" spacing={2}>
-                <Typography variant="caption">Block Number {currentBlock - index}</Typography>
-                <Typography variant="caption">Timestamp {info.timestamp}</Typography>
-                <Typography variant="caption">Transactions {info.transactionsCount}</Typography>
+    <section>
+      <Stack marginBottom={1}>
+        {blocks.length === 0 ? (
+          <Stack direction="row" justifyContent="center" paddingY={2}>
+            <CircularProgress />
+          </Stack>
+        ) : (
+          <>
+            {blocks.map((info, index) => (
+              <Box key={index}>
+                <Button
+                  variant="text"
+                  sx={{
+                    width: '100%',
+                    textTransform: 'none',
+                    color: darkTheme.palette.text.secondary,
+                  }}
+                  onClick={() => handleClick(currentBlock - index)}
+                >
+                  <Stack
+                    width="100%"
+                    direction="row"
+                    spacing={2}
+                    paddingX={1}
+                    justifyContent={'space-between'}
+                  >
+                    <Stack alignItems="center" justifyContent={'space-between'} height="100%">
+                      <Typography variant="caption">Block Number</Typography>
+                      <Typography variant="subtitle2">{currentBlock - index}</Typography>
+                    </Stack>
+                    <Stack alignItems="center" justifyContent={'space-between'} height="100%">
+                      <Typography variant="caption">Timestamp</Typography>
+                      <Typography variant="subtitle2">{info.timestamp}</Typography>
+                    </Stack>
+                    <Stack alignItems="center" justifyContent={'space-between'} height="100%">
+                      <Typography variant="caption">Transactions</Typography>
+                      <Typography variant="subtitle2">{info.transactionsCount}</Typography>
+                    </Stack>
+                  </Stack>
+                </Button>
+              </Box>
+            ))}
+            {!loading && !!endBlock && (
+              <Box padding={2}>
+                <Button
+                  onClick={() => handleLoadMore()}
+                  size="small"
+                  variant="text"
+                  sx={{ cursor: 'pointer' }}
+                >
+                  Load More
+                </Button>
+              </Box>
+            )}
+            {loading && (
+              <Stack direction="row" justifyContent="center" paddingY={2}>
+                <CircularProgress size={20} />
               </Stack>
-            </Button>
-            {currentBlock !== index ? <Divider variant="middle" /> : null}
-          </React.Fragment>
-        ))
-      )}
-      {!loading && endBlock !== 0 && (
-        <Button
-          onClick={() => handleLoadMore()}
-          size="small"
-          variant="outlined"
-          sx={{ cursor: 'pointer', color: darkTheme.palette.text.secondary }}
-        >
-          Load More
-        </Button>
-      )}
-      {loading && blockTransactionsCount.length !== 0 && <CircularProgress />}
-    </Box>
+            )}
+          </>
+        )}
+      </Stack>
+    </section>
   );
 };
 
