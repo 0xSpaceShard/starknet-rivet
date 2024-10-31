@@ -1,5 +1,5 @@
 import { Box, Button, Divider, Stack, TextField, Typography, Container } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from '@mui/icons-material';
 import { useSharedState } from '../context/context';
@@ -15,13 +15,11 @@ export enum MiningMode {
 
 interface BlockConfigurationProps {
   createNewBlock: () => Promise<void>;
-  fetchCurrentBlockNumber: () => Promise<void>;
   abortBlock: (blockNumber: number) => Promise<void>;
 }
 
 export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
   createNewBlock,
-  fetchCurrentBlockNumber,
   abortBlock,
 }) => {
   const [newBlockInterval, setNewBlockInterval] = useState<number>(0);
@@ -75,17 +73,6 @@ export const BlockConfiguration: React.FC<BlockConfigurationProps> = ({
     setBlockToAbort(parseInt(event.target.value, 10));
     setLoadingAbort(false);
   };
-
-  useEffect(() => {
-    const fetchCurrentBlock = async () => {
-      try {
-        await fetchCurrentBlockNumber();
-      } catch (error) {
-        console.error('Error fetching current block number:', error);
-      }
-    };
-    fetchCurrentBlock();
-  }, []);
 
   return (
     <section>

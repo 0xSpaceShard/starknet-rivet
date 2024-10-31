@@ -48,7 +48,7 @@ const BlockDetailsPage: React.FC = () => {
           </Button>
         </Box>
       </Stack>
-      <Box padding={1} flexGrow={1}>
+      <Box paddingX={2} paddingY={1} flexGrow={1}>
         <Stack direction={'row'} spacing={{ xs: 2, sm: 2 }} useFlexGap flexWrap="wrap">
           <DisplayBlockInfo
             title="Block Number"

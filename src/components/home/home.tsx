@@ -1,13 +1,10 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Typography, Tabs, Tab, Stack, Button } from '@mui/material';
-import { RpcProvider } from 'starknet-6';
+import { Box, Typography, Tabs, Tab } from '@mui/material';
 import { useSharedState } from '../context/context';
 import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
 import BlockList from '../block/BlockList';
-import { handleCopyToClipboard, shortenAddress } from '../utils/utils';
-import { useFetchTransactionsDetails } from '../hooks/hooks';
-import { darkTheme } from '../..';
+import TransactionList from '../transaction/TransactionList';
 
 export enum HomeTab {
   Accounts,
@@ -18,30 +15,8 @@ export enum HomeTab {
 export const Home = () => {
   const { state } = useLocation();
   const context = useSharedState();
-  const {
-    selectedUrl: url,
-    currentBlock,
-    setCurrentBlock,
-    blockDetails,
-    selectedAccount,
-  } = context;
+  const { selectedUrl: url } = context;
   const [selectedTab, setSelectedTab] = useState(state?.selectedTab ?? HomeTab.Accounts);
-
-  const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
-
-  useEffect(() => {
-    fetchTransactionsDetailsByBlock(currentBlock);
-  }, [fetchTransactionsDetailsByBlock, currentBlock]);
-
-  async function fetchCurrentBlockNumber() {
-    try {
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-      const blockNumber = await provider.getBlockNumber();
-      setCurrentBlock(blockNumber);
-    } catch (error) {
-      console.error('Error fetching block number:', error);
-    }
-  }
 
   const a11yProps = (index: HomeTab) => ({
     id: `simple-tab-${index}`,
@@ -91,45 +66,10 @@ export const Home = () => {
         <PredeployedAccounts />
       </CustomTabPanel>
       <CustomTabPanel idx={HomeTab.Blocks}>
-        <BlockList fetchCurrentBlockNumber={fetchCurrentBlockNumber} />
+        <BlockList />
       </CustomTabPanel>
       <CustomTabPanel idx={HomeTab.Transactions}>
-        <section>
-          <Stack marginBottom={1}>
-            {blockDetails.transactions && blockDetails.transactions.length > 0 ? (
-              blockDetails.transactions
-                .slice()
-                .reverse()
-                .map((info: any, index: number) =>
-                  info.sender_address === selectedAccount?.address ? (
-                    <>
-                      <Box key={index}>
-                        <Button
-                          fullWidth
-                          variant="text"
-                          sx={{
-                            textTransform: 'none',
-                            paddingY: 1,
-                            paddingX: 2,
-                            color: darkTheme.palette.text.secondary,
-                          }}
-                          onClick={() => {
-                            handleCopyToClipboard(info.transaction_hash);
-                          }}
-                        >
-                          <Typography width={'70%'} whiteSpace={'nowrap'}>
-                            {shortenAddress(info.transaction_hash)}
-                          </Typography>
-                        </Button>
-                      </Box>
-                    </>
-                  ) : null
-                )
-            ) : (
-              <Typography variant="caption">No Transactions</Typography>
-            )}
-          </Stack>
-        </section>
+        <TransactionList />
       </CustomTabPanel>
     </Box>
   );

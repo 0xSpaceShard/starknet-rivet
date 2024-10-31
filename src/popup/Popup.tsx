@@ -16,12 +16,14 @@ import BlockDetailsPage from '../components/block/blockDetails';
 import { AppSettings } from '../components/settings/appSettings';
 import { Home } from '../components/home/home';
 import { StatusHeader } from '../components/status/statusHeader';
-
-import './Popup.css';
 import { WatchAssetMessage } from '../components/handleWalletMessages/watchAssetMessage';
 import { SwitchStarknetChainMessage } from '../components/handleWalletMessages/switchStarknetChainMessage';
 import { DeclareContractMessage } from '../components/handleWalletMessages/declareContractMessage';
 import { ModifyBalance } from '../components/settings/modifyBalance';
+import { fetchCurrentBlockNumber } from '../background/utils';
+import { TransactionDetails } from '../components/transaction/TransactionDetails';
+
+import './Popup.css';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -39,10 +41,17 @@ export const Popup = () => {
     selectedUrl: url,
     setTransactionData,
     setSignatureData,
-    setCurrentBlock,
     blockInterval,
     configData,
+    setCurrentBlock,
   } = context;
+
+  const updateCurrentBlockNumber = async () => {
+    const blockNumber = await fetchCurrentBlockNumber();
+    if (blockNumber >= 0) {
+      setCurrentBlock(blockNumber);
+    }
+  };
 
   chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
     if (message.type === 'EXECUTE_RIVET_TRANSACTION') {
@@ -51,16 +60,6 @@ export const Popup = () => {
       setSignatureData(message.data);
     }
   });
-
-  async function fetchCurrentBlockNumber() {
-    try {
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-      const blockNumber = await provider.getBlockNumber();
-      setCurrentBlock(blockNumber);
-    } catch (error) {
-      console.error('Error fetching block number:', error);
-    }
-  }
 
   async function createNewBlock() {
     try {
@@ -73,7 +72,7 @@ export const Popup = () => {
       });
 
       if (response.ok) {
-        await fetchCurrentBlockNumber();
+        await updateCurrentBlockNumber();
       } else {
         console.error('Error creating block:', response.statusText);
       }
@@ -113,7 +112,7 @@ export const Popup = () => {
         }),
       });
       if (response.ok) {
-        await fetchCurrentBlockNumber();
+        await updateCurrentBlockNumber();
       } else {
         console.error('Error aborting block:', response.statusText);
       }
@@ -124,26 +123,19 @@ export const Popup = () => {
 
   // eslint-disable-next-line consistent-return
   useEffect(() => {
-    const fetchCurrentBlock = async () => {
-      try {
-        await fetchCurrentBlockNumber();
-      } catch (error) {
-        console.error('Error fetching current block number:', error);
-      }
-    };
     if (url && blockInterval instanceof Map && blockInterval.has(url)) {
       let interval = blockInterval.get(url);
       if (interval && interval < 60000) {
         interval = 60000;
       }
       const id = setInterval(() => {
-        fetchCurrentBlock();
+        updateCurrentBlockNumber();
       }, interval);
 
       return () => clearInterval(id);
     }
     if (url) {
-      fetchCurrentBlock();
+      updateCurrentBlockNumber();
     }
   }, [url, blockInterval]);
 
@@ -177,15 +169,10 @@ export const Popup = () => {
           <Route path="/accounts/:address/modify-balance" element={<ModifyBalance />} />
           <Route
             path="/block-configuration"
-            element={
-              <BlockConfiguration
-                createNewBlock={createNewBlock}
-                fetchCurrentBlockNumber={fetchCurrentBlockNumber}
-                abortBlock={abortBlock}
-              />
-            }
+            element={<BlockConfiguration createNewBlock={createNewBlock} abortBlock={abortBlock} />}
           />
           <Route path="/block/:blockIndex" element={<BlockDetailsPage />} />
+          <Route path="/transaction/:transactionHash" element={<TransactionDetails />} />
         </Routes>
       </div>
     </main>
