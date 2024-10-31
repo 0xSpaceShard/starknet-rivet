@@ -21,7 +21,7 @@ export const ModifyBalance: React.FC = () => {
   const navigate = useNavigate();
   const context = useSharedState();
 
-  const { selectedAccount, updateCurrentBalance } = context;
+  const { selectedAccount, updateCurrentBalance, setLastFetchedUrl } = context;
 
   const [balanceInputStr, setBalanceInputStr] = useState(state?.initialBalance ?? '');
   const [errorMessage, setErrorMessage] = useState('');
@@ -52,6 +52,7 @@ export const ModifyBalance: React.FC = () => {
       if (balance) {
         await updateCurrentBalance(balance);
       }
+      setLastFetchedUrl('');
       handleBack();
     } catch (error) {
       console.error(error);

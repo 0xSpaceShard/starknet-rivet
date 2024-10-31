@@ -8,7 +8,7 @@ import { shortenAddress } from '../utils/utils';
 
 export const TransactionList: React.FC = () => {
   const navigate = useNavigate();
-  const { currentBlock, selectedAccount } = useSharedState();
+  const { currentBlock } = useSharedState();
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
   const [blockDetailsList, setBlockDetailsList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,31 +45,29 @@ export const TransactionList: React.FC = () => {
                     ? blockDetails.transactions
                         .slice()
                         .reverse()
-                        .map((info: any, index: number) =>
-                          info.sender_address === selectedAccount?.address ? (
-                            <>
-                              <Box key={index}>
-                                <Button
-                                  fullWidth
-                                  variant="text"
-                                  sx={{
-                                    textTransform: 'none',
-                                    paddingY: 1,
-                                    paddingX: 2,
-                                    color: darkTheme.palette.text.secondary,
-                                  }}
-                                  onClick={() => {
-                                    transactionDetails(info);
-                                  }}
-                                >
-                                  <Typography width={'70%'} whiteSpace={'nowrap'}>
-                                    {shortenAddress(info.transaction_hash)}
-                                  </Typography>
-                                </Button>
-                              </Box>
-                            </>
-                          ) : null
-                        )
+                        .map((info: any, index: number) => (
+                          <Box key={index}>
+                            <Button
+                              fullWidth
+                              variant="text"
+                              sx={{
+                                justifyContent: 'flex-start',
+                                paddingLeft: 5,
+                                paddingRight: 2,
+                                textTransform: 'none',
+                                paddingY: 1,
+                                color: darkTheme.palette.text.secondary,
+                              }}
+                              onClick={() => {
+                                transactionDetails(info);
+                              }}
+                            >
+                              <Typography whiteSpace={'nowrap'}>
+                                {shortenAddress(info.transaction_hash, 14)}
+                              </Typography>
+                            </Button>
+                          </Box>
+                        ))
                     : null}
                 </Box>
               ))
