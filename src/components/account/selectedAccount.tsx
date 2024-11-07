@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, Menu as MenuIcon } from '@mui/icons-material';
 import { num } from 'starknet-6';
@@ -19,7 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
-import { useCopyTooltip } from '../hooks/hooks';
+import { useCopyTooltip, useFetchTransactionsDetails } from '../hooks/hooks';
 import { getTokenBalance } from '../../background/contracts';
 import { useSharedState } from '../context/context';
 import { useAccountContracts } from '../hooks/useAccountContracts';
@@ -42,11 +43,15 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setTransactionData,
     signatureData,
     setSignatureData,
+    currentBlock,
+    blocks,
   } = context;
   const { data: accountContracts } = useAccountContracts();
 
   const [tokenBalances, setTokenBalances] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
+  const [transactions, setTransactions] = React.useState<any[]>([]);
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -174,6 +179,19 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     };
     accountConfig();
   }, []);
+
+  const fetchTransactions = async () => {
+    const blocksWithDetails = await fetchTransactionDetailsForLatestBlocks(currentBlock, 15);
+    const trans = blocksWithDetails
+      .map((b: any) => b.transactions)
+      .flat()
+      .filter((t: any) => t.sender_address === selectedAccount?.address);
+    setTransactions(trans);
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [selectedAccount, blocks]);
 
   const balanceString = useMemo(() => getBalanceStr(currentBalance), [currentBalance]);
   const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);

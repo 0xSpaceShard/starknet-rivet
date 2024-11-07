@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AccountData, MyContextValue, Options } from './interfaces';
+import { AccountData, BlockInfo, MyContextValue, Options } from './interfaces';
 import { useSelectedAccount } from '../hooks/useSelectedAccount';
 import { useSelectedUrl } from '../hooks/useSelectedUrl';
 import { useUrlList } from '../hooks/useUrlList';
@@ -29,6 +29,7 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
   const [transactionData, setTransactionData] = useState<any>(null);
   const [signatureData, setSignatureData] = useState<any>(null);
   const [lastFetchedUrl, setLastFetchedUrl] = useState<string | null>(null);
+  const [blocks, setBlocks] = useState<BlockInfo[]>([]);
   const [blockDetails, setBlockDetails] = useState<any[]>([]);
 
   useEffect(() => {
@@ -83,6 +84,8 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
         setSignatureData,
         lastFetchedUrl,
         setLastFetchedUrl,
+        blocks,
+        setBlocks,
         blockDetails,
         setBlockDetails,
       }}

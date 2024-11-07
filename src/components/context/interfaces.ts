@@ -72,6 +72,8 @@ export interface MyContextValue {
   setSignatureData: React.Dispatch<React.SetStateAction<any>>;
   lastFetchedUrl: string | null;
   setLastFetchedUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  blocks: BlockInfo[];
+  setBlocks: React.Dispatch<React.SetStateAction<BlockInfo[]>>;
   blockDetails: any;
   setBlockDetails: React.Dispatch<React.SetStateAction<any>>;
 }
@@ -81,4 +83,11 @@ export interface UrlConfig {
   isForked: boolean;
   argentClassExists: boolean;
   ethClassExists: boolean;
+}
+
+export interface BlockInfo {
+  hash: string;
+  blockNumber: number;
+  timestamp: number;
+  transactionsCount: number;
 }
