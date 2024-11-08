@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, Menu as MenuIcon } from '@mui/icons-material';
 import { num } from 'starknet-6';
@@ -27,6 +26,12 @@ import { useAccountContracts } from '../hooks/useAccountContracts';
 import { printAccountType } from '../../background/utils';
 import { AccountType } from '../../background/syncStorage';
 
+interface TransactionInfo {
+  sender: string;
+  amount: number;
+  timestamp: Date;
+}
+
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const { state } = useLocation();
   const type: AccountType = state?.type ?? AccountType.Predeployed;
@@ -51,7 +56,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const [tokenBalances, setTokenBalances] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
-  const [transactions, setTransactions] = React.useState<any[]>([]);
+  const [transactions, setTransactions] = React.useState<TransactionInfo[]>([]);
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -183,9 +188,18 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const fetchTransactions = async () => {
     const blocksWithDetails = await fetchTransactionDetailsForLatestBlocks(currentBlock, 15);
     const trans = blocksWithDetails
-      .map((b: any) => b.transactions)
+      .map((b: any) => b.transactions.map((t: any) => ({ ...t, timestamp: b.timestamp })))
       .flat()
-      .filter((t: any) => t.sender_address === selectedAccount?.address);
+      .filter((t: any) => t.sender_address === selectedAccount?.address)
+      .map((t: any) => {
+        const amountHex = t.calldata?.[5] ? t.calldata[5] : 0;
+        const amount = Number(BigInt(amountHex)) / 1e18;
+        return {
+          sender: t.sender_address,
+          amount,
+          timestamp: new Date(t.timestamp * 1000),
+        };
+      }) as TransactionInfo[];
     setTransactions(trans);
   };
 
@@ -341,6 +355,28 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 ))}
               </List>
             </Box>
+          </>
+        ) : null}
+        {transactions?.length ? (
+          <>
+            <Divider sx={{ marginY: 3 }} variant="middle" />
+            <Container>
+              <Typography marginBottom={1.5} variant="body1">
+                Transactions
+              </Typography>
+              <Box paddingX={2}>
+                {transactions.map((t, i) => (
+                  <Stack paddingY={0.5} direction="row" width="100%" key={i}>
+                    <Box textAlign="left" flexGrow={1}>
+                      {t.timestamp.toLocaleString()}
+                    </Box>
+                    <Box textAlign="right" width="30%">
+                      {t.amount.toFixed(2)} ETH
+                    </Box>
+                  </Stack>
+                ))}
+              </Box>
+            </Container>
           </>
         ) : null}
         {transactionData && (
