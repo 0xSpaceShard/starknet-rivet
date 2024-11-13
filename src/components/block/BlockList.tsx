@@ -4,11 +4,13 @@ import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
+import { BlockInfo } from '../context/interfaces';
 
 export const BlockList: React.FC = () => {
   const context = useSharedState();
-  const { selectedUrl: url, currentBlock, blocks, setBlocks } = context;
+  const { selectedUrl: url, currentBlock } = context;
   const navigate = useNavigate();
+  const [blocks, setBlocks] = useState<BlockInfo[]>([]);
   const [pageSize, setPageSize] = useState(15);
   const [loading, setLoading] = useState(false);
   const [endBlock, setEndBlock] = useState(0);
@@ -29,7 +31,6 @@ export const BlockList: React.FC = () => {
       const block = (await provider.getBlockWithTxs(index)) as any;
 
       blocks.push({
-        hash: block.block_hash,
         blockNumber: block.block_number,
         timestamp: block.timestamp,
         transactionsCount,

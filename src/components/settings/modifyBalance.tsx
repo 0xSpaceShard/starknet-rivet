@@ -15,13 +15,13 @@ import { CheckBoxOutlined, ChevronLeft } from '@mui/icons-material';
 import { useSharedState } from '../context/context';
 import { modifyEthBalance } from '../../background/contracts';
 import { Spinner } from '../utils/spinner';
+import { fetchCurrentBlockNumber } from '../../background/utils';
 
 export const ModifyBalance: React.FC = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const context = useSharedState();
-
-  const { selectedAccount, updateCurrentBalance, setLastFetchedUrl } = context;
+  const { selectedAccount, updateCurrentBalance, setLastFetchedUrl, setCurrentBlock } =
+    useSharedState();
 
   const [balanceInputStr, setBalanceInputStr] = useState(state?.initialBalance ?? '');
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,6 +29,13 @@ export const ModifyBalance: React.FC = () => {
 
   const handleBack = () => {
     navigate(`/accounts/${selectedAccount?.address}`);
+  };
+
+  const updateCurrentBlockNumber = async () => {
+    const blockNumber = await fetchCurrentBlockNumber();
+    if (blockNumber >= 0) {
+      setCurrentBlock(blockNumber);
+    }
   };
 
   const validateBalance = (balance: number) => {
@@ -51,6 +58,7 @@ export const ModifyBalance: React.FC = () => {
       const balance = await modifyEthBalance(newBalance);
       if (balance) {
         await updateCurrentBalance(balance);
+        await updateCurrentBlockNumber();
       }
       setLastFetchedUrl('');
       handleBack();

@@ -49,7 +49,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     signatureData,
     setSignatureData,
     currentBlock,
-    blocks,
   } = context;
   const { data: accountContracts } = useAccountContracts();
 
@@ -205,7 +204,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, [selectedAccount, blocks]);
+  }, [selectedAccount, currentBlock]);
 
   const balanceString = useMemo(() => getBalanceStr(currentBalance), [currentBalance]);
   const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);
@@ -362,7 +361,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             <Divider sx={{ marginY: 3 }} variant="middle" />
             <Container>
               <Typography marginBottom={1.5} variant="body1">
-                Transactions
+                Sent Transactions
               </Typography>
               <Box paddingX={2}>
                 {transactions.map((t, i) => (

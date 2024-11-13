@@ -121,9 +121,13 @@ export const Popup = () => {
     }
   }
 
-  // eslint-disable-next-line consistent-return
   useEffect(() => {
-    if (url && blockInterval instanceof Map && blockInterval.has(url)) {
+    if (!url) return () => {};
+
+    console.log('0', blockInterval);
+
+    if (blockInterval instanceof Map && blockInterval.has(url)) {
+      console.log('!1', blockInterval);
       let interval = blockInterval.get(url);
       if (interval && interval < 60000) {
         interval = 60000;
@@ -134,9 +138,9 @@ export const Popup = () => {
 
       return () => clearInterval(id);
     }
-    if (url) {
-      updateCurrentBlockNumber();
-    }
+    console.log('!2');
+    updateCurrentBlockNumber();
+    return () => {};
   }, [url, blockInterval]);
 
   return (
