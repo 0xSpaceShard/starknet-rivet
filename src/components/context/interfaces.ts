@@ -82,3 +82,9 @@ export interface UrlConfig {
   argentClassExists: boolean;
   ethClassExists: boolean;
 }
+
+export interface BlockInfo {
+  blockNumber: number;
+  timestamp: number;
+  transactionsCount: number;
+}

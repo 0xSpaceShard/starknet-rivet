@@ -4,12 +4,7 @@ import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom';
 import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
-
-interface BlockInfo {
-  blockNumber: number;
-  timestamp: number;
-  transactionsCount: number;
-}
+import { BlockInfo } from '../context/interfaces';
 
 export const BlockList: React.FC = () => {
   const context = useSharedState();
