@@ -26,12 +26,6 @@ import { useAccountContracts } from '../hooks/useAccountContracts';
 import { printAccountType } from '../../background/utils';
 import { AccountType } from '../../background/syncStorage';
 
-interface TransactionInfo {
-  sender: string;
-  amount: number;
-  timestamp: Date;
-}
-
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const { state } = useLocation();
   const type: AccountType = state?.type ?? AccountType.Predeployed;
@@ -55,7 +49,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const [tokenBalances, setTokenBalances] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
-  const [transactions, setTransactions] = React.useState<TransactionInfo[]>([]);
+  const [transactions, setTransactions] = React.useState<any[]>([]);
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -187,18 +181,25 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const fetchTransactions = async () => {
     const blocksWithDetails = await fetchTransactionDetailsForLatestBlocks(currentBlock, 15);
     const trans = blocksWithDetails
-      .map((b: any) => b.transactions.map((t: any) => ({ ...t, timestamp: b.timestamp })))
+      .map((b: any) =>
+        b.transactions.map((t: any) => ({
+          ...t,
+          timestamp: b.timestamp,
+          blockNumber: b.block_number,
+        }))
+      )
       .flat()
       .filter((t: any) => t.sender_address === selectedAccount?.address)
       .map((t: any) => {
         const amountHex = t.calldata?.[5] ? t.calldata[5] : 0;
         const amount = Number(BigInt(amountHex)) / 1e18;
         return {
-          sender: t.sender_address,
           amount,
-          timestamp: new Date(t.timestamp * 1000),
+          time: new Date(t.timestamp * 1000),
+          ...t,
         };
-      }) as TransactionInfo[];
+      }) as any[];
+    console.log(trans);
     setTransactions(trans);
   };
 
@@ -365,9 +366,18 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
               </Typography>
               <Box paddingX={2}>
                 {transactions.map((t, i) => (
-                  <Stack paddingY={0.5} direction="row" width="100%" key={i}>
+                  <Stack
+                    paddingY={0.5}
+                    direction="row"
+                    width="100%"
+                    key={i}
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() =>
+                      navigate(`/transaction/${t.transaction_hash}`, { state: { transaction: t } })
+                    }
+                  >
                     <Box textAlign="left" flexGrow={1}>
-                      {t.timestamp.toLocaleString()}
+                      {t.time.toLocaleString()}
                     </Box>
                     <Box textAlign="right" width="30%">
                       {t.amount.toFixed(2)} ETH
