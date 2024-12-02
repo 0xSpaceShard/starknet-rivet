@@ -62,7 +62,10 @@ export const TransactionDetails: React.FC = () => {
               value={parseInt(transaction.max_fee || '', 16)}
             ></DisplayBlockInfo>
             {transaction.block_number ? (
-              <DisplayBlockInfo title="Nonce" value={transaction.nonce}></DisplayBlockInfo>
+              <DisplayBlockInfo
+                title="Block Number"
+                value={transaction.block_number}
+              ></DisplayBlockInfo>
             ) : null}
           </Stack>
         </Container>

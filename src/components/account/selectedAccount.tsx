@@ -17,6 +17,7 @@ import {
   Stack,
   Tooltip,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
 import { useCopyTooltip, useFetchTransactionsDetails } from '../hooks/hooks';
@@ -51,6 +52,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
   const [transactions, setTransactions] = React.useState<any[]>([]);
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = React.useState(true);
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
@@ -199,8 +201,8 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
           ...t,
         };
       }) as any[];
-    console.log(trans);
     setTransactions(trans);
+    setIsLoadingTransactions(false);
   };
 
   useEffect(() => {
@@ -357,7 +359,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             </Box>
           </>
         ) : null}
-        {transactions?.length ? (
+        {!isLoadingTransactions ? (
           <>
             <Divider sx={{ marginY: 3 }} variant="middle" />
             <Container>
@@ -387,7 +389,11 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
               </Box>
             </Container>
           </>
-        ) : null}
+        ) : (
+          <Stack direction="row" justifyContent="center" paddingY={2}>
+            <CircularProgress size={20} />
+          </Stack>
+        )}
         {transactionData && (
           <>
             <Divider sx={{ marginY: 3 }} variant="middle" />
