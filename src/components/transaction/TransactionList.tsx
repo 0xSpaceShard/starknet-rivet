@@ -59,7 +59,10 @@ export const TransactionList: React.FC = () => {
                                 color: darkTheme.palette.text.secondary,
                               }}
                               onClick={() => {
-                                transactionDetails(info);
+                                transactionDetails({
+                                  blockNumber: blockDetails.block_number,
+                                  ...info,
+                                });
                               }}
                             >
                               <Typography whiteSpace={'nowrap'}>

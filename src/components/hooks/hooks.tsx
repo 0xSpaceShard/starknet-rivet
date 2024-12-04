@@ -32,11 +32,11 @@ export const useFetchTransactionsDetails = () => {
 
   const fetchTransactionDetailsForLatestBlocks = useCallback(
     async (latestIdx: number, count: number = 10) => {
-      const items: any = [];
-      if (!devnetIsAlive) return items;
+      if (!devnetIsAlive) return [];
 
       const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
       const endIdx = latestIdx - count + 1 > 0 ? latestIdx - count + 1 : 0;
+      const items: Awaited<ReturnType<typeof provider.getBlockWithTxs>>[] = [];
 
       for (let i = latestIdx; i >= endIdx; i--) {
         // eslint-disable-next-line no-await-in-loop
