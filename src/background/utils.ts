@@ -234,3 +234,53 @@ export async function fetchCurrentBlockNumber(): Promise<number> {
     return -1;
   }
 }
+
+export type GasPrices = {
+  gasPriceWei: BigInt;
+  gasPriceWei_data: BigInt;
+  gasPriceFri: BigInt;
+  gasPriceFri_data: BigInt;
+};
+
+export async function fetchCurrentGasPrices(): Promise<GasPrices | null> {
+  try {
+    const provider = await getProvider();
+    const latestBlock = await provider.getBlockLatestAccepted();
+    const blockDetails = (await provider.getBlock(latestBlock.block_number)) as any;
+
+    console.log('Latest block info:');
+    console.log(latestBlock);
+    console.log(blockDetails);
+    console.log('---');
+
+    return {
+      gasPriceWei: BigInt(blockDetails.l1_gas_price?.price_in_wei ?? 0),
+      gasPriceWei_data: BigInt(blockDetails.l1_data_gas_price?.price_in_wei ?? 0),
+      gasPriceFri: BigInt(blockDetails.l1_gas_price?.price_in_fri ?? 0),
+      gasPriceFri_data: BigInt(blockDetails.l1_data_gas_price?.price_in_fri ?? 0),
+    };
+  } catch (error) {
+    console.error('Error fetching gas prices:', error);
+    return null;
+  }
+}
+
+export async function updateGasPrices(gasPrices: GasPrices): Promise<boolean> {
+  try {
+    const provider = await getProvider();
+    const payload = {
+      gas_price_wei: gasPrices.gasPriceWei,
+      data_gas_price_wei: gasPrices.gasPriceWei_data,
+      gas_price_fri: gasPrices.gasPriceFri,
+      data_gas_price_fri: gasPrices.gasPriceFri_data,
+      generate_block: true,
+    };
+    const response = await provider.fetch('devnet_setGasPrice', payload);
+    const data = await response.json();
+    console.log('Update Gas Prices Reponse: ', data);
+    return true;
+  } catch (error) {
+    console.error('Error setting gas prices:', error);
+    return false;
+  }
+}

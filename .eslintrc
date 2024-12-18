@@ -40,5 +40,6 @@
       "devDependencies": ["**/*.test.ts"]
     }],
     "no-plusplus": 0,
+    "no-nested-ternary": "off"
   }
 }
