@@ -31,14 +31,14 @@ export const useFetchTransactionsDetails = () => {
   );
 
   const fetchTransactionDetailsForLatestBlocks = useCallback(
-    async (latestIdx: number, count: number = 10) => {
+    async (endIndex: number, count: number = 10) => {
       if (!devnetIsAlive) return [];
 
       const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-      const endIdx = latestIdx - count + 1 > 0 ? latestIdx - count + 1 : 0;
+      const endIdx = endIndex - count + 1 > 0 ? endIndex - count + 1 : 0;
       const items: Awaited<ReturnType<typeof provider.getBlockWithTxs>>[] = [];
 
-      for (let i = latestIdx; i >= endIdx; i--) {
+      for (let i = endIndex; i >= endIdx; i--) {
         // eslint-disable-next-line no-await-in-loop
         const block = await provider.getBlockWithTxs(i);
         items.push(block);

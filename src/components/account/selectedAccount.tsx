@@ -26,6 +26,7 @@ import { useSharedState } from '../context/context';
 import { useAccountContracts } from '../hooks/useAccountContracts';
 import { printAccountType } from '../../background/utils';
 import { AccountType } from '../../background/syncStorage';
+import { darkTheme } from '../..';
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const { state } = useLocation();
@@ -48,11 +49,13 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const { data: accountContracts } = useAccountContracts();
 
   const [tokenBalances, setTokenBalances] = useState<string[]>([]);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
-  const [transactions, setTransactions] = React.useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
-  const [isLoadingTransactions, setIsLoadingTransactions] = React.useState(true);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
+  const [transactionsPage, setTransactionsPage] = useState(1);
+  const pageSize = 15;
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
@@ -180,8 +183,9 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     accountConfig();
   }, []);
 
-  const fetchTransactions = async () => {
-    const blocksWithDetails = await fetchTransactionDetailsForLatestBlocks(currentBlock, 15);
+  const fetchTransactions = useCallback(async () => {
+    const endBlockIndex = currentBlock - (transactionsPage - 1) * pageSize;
+    const blocksWithDetails = await fetchTransactionDetailsForLatestBlocks(endBlockIndex, pageSize);
     const trans = blocksWithDetails
       .map((b: any) =>
         b.transactions.map((t: any) => ({
@@ -201,13 +205,13 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
           ...t,
         };
       }) as any[];
-    setTransactions(trans);
+    setTransactions([...transactions, ...trans]);
     setIsLoadingTransactions(false);
-  };
+  }, [currentBlock, transactionsPage]);
 
   useEffect(() => {
     fetchTransactions();
-  }, [selectedAccount, currentBlock]);
+  }, [selectedAccount, currentBlock, transactionsPage]);
 
   const balanceString = useMemo(() => getBalanceStr(currentBalance), [currentBalance]);
   const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);
@@ -360,35 +364,56 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
           </>
         ) : null}
         {!isLoadingTransactions ? (
-          <>
-            <Divider sx={{ marginY: 3 }} variant="middle" />
-            <Container>
-              <Typography marginBottom={1.5} variant="body1">
-                Sent Transactions
-              </Typography>
-              <Box paddingX={2}>
-                {transactions.map((t, i) => (
-                  <Stack
-                    paddingY={0.5}
-                    direction="row"
-                    width="100%"
-                    key={i}
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() =>
-                      navigate(`/transaction/${t.transaction_hash}`, { state: { transaction: t } })
-                    }
-                  >
-                    <Box textAlign="left" flexGrow={1}>
-                      {t.time.toLocaleString()}
-                    </Box>
-                    <Box textAlign="right" width="30%">
-                      {t.amount.toFixed(2)} ETH
-                    </Box>
-                  </Stack>
-                ))}
-              </Box>
-            </Container>
-          </>
+          transactions.length ? (
+            <>
+              <Divider sx={{ marginY: 3 }} variant="middle" />
+              <Container>
+                <Typography marginBottom={1.5} variant="body1">
+                  Sent Transactions
+                </Typography>
+                <Box>
+                  {transactions.map((t, i) => (
+                    <Button
+                      key={i}
+                      fullWidth
+                      variant="text"
+                      sx={{
+                        textTransform: 'none',
+                        color: darkTheme.palette.text.secondary,
+                        paddingY: '4px',
+                      }}
+                      onClick={() =>
+                        navigate(`/transaction/${t.transaction_hash}`, {
+                          state: { transaction: t },
+                        })
+                      }
+                    >
+                      <Stack paddingY={0.5} direction="row" alignItems="center" width="100%">
+                        <Box textAlign="left" flexGrow={1}>
+                          <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
+                        </Box>
+                        <Box textAlign="right" width="35%">
+                          {t.amount.toFixed(2)} ETH
+                        </Box>
+                      </Stack>
+                    </Button>
+                  ))}
+                </Box>
+                {currentBlock - transactionsPage * pageSize >= 0 ? (
+                  <Box>
+                    <Button
+                      onClick={() => setTransactionsPage(transactionsPage + 1)}
+                      size="small"
+                      variant="text"
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      Load More
+                    </Button>
+                  </Box>
+                ) : null}
+              </Container>
+            </>
+          ) : null
         ) : (
           <Stack direction="row" justifyContent="center" paddingY={2}>
             <CircularProgress size={20} />

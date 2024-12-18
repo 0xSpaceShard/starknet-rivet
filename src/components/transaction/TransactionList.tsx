@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { useSharedState } from '../context/context';
@@ -11,18 +11,21 @@ export const TransactionList: React.FC = () => {
   const { currentBlock } = useSharedState();
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
   const [blockDetailsList, setBlockDetailsList] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const pageSize = 15;
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchTransactions = async (latestBlockIdx: number) => {
-    setIsLoading(true);
-    const data: any[] = await fetchTransactionDetailsForLatestBlocks(latestBlockIdx);
-    setBlockDetailsList(data.filter((block) => block?.transactions?.length));
+  const fetchTransactions = useCallback(async () => {
+    const endBlockIndex = currentBlock - (page - 1) * pageSize;
+    const data: any[] = await fetchTransactionDetailsForLatestBlocks(endBlockIndex, pageSize);
+    const blockDetailsFetched = data.filter((block) => block?.transactions?.length);
+    setBlockDetailsList([...blockDetailsList, ...blockDetailsFetched]);
     setIsLoading(false);
-  };
+  }, [currentBlock, page]);
 
   useEffect(() => {
-    fetchTransactions(currentBlock);
-  }, [currentBlock]);
+    fetchTransactions();
+  }, [currentBlock, page]);
 
   const transactionDetails = async (transaction: any) => {
     if (!transaction) return;
@@ -39,41 +42,55 @@ export const TransactionList: React.FC = () => {
         ) : (
           <>
             {blockDetailsList.length ? (
-              blockDetailsList.map((blockDetails, idx) => (
-                <Box key={idx}>
-                  {blockDetails.transactions && blockDetails.transactions.length > 0
-                    ? blockDetails.transactions
-                        .slice()
-                        .reverse()
-                        .map((info: any, index: number) => (
-                          <Box key={index}>
-                            <Button
-                              fullWidth
-                              variant="text"
-                              sx={{
-                                justifyContent: 'flex-start',
-                                paddingLeft: 5,
-                                paddingRight: 2,
-                                textTransform: 'none',
-                                paddingY: 1,
-                                color: darkTheme.palette.text.secondary,
-                              }}
-                              onClick={() => {
-                                transactionDetails({
-                                  blockNumber: blockDetails.block_number,
-                                  ...info,
-                                });
-                              }}
-                            >
-                              <Typography whiteSpace={'nowrap'}>
-                                {shortenAddress(info.transaction_hash, 14)}
-                              </Typography>
-                            </Button>
-                          </Box>
-                        ))
-                    : null}
-                </Box>
-              ))
+              <>
+                {blockDetailsList.map((blockDetails, idx) => (
+                  <Box key={idx}>
+                    {blockDetails.transactions && blockDetails.transactions.length > 0
+                      ? blockDetails.transactions
+                          .slice()
+                          .reverse()
+                          .map((info: any, index: number) => (
+                            <Box key={index}>
+                              <Button
+                                fullWidth
+                                variant="text"
+                                sx={{
+                                  justifyContent: 'flex-start',
+                                  paddingLeft: 5,
+                                  paddingRight: 2,
+                                  textTransform: 'none',
+                                  paddingY: 1,
+                                  color: darkTheme.palette.text.secondary,
+                                }}
+                                onClick={() => {
+                                  transactionDetails({
+                                    blockNumber: blockDetails.block_number,
+                                    ...info,
+                                  });
+                                }}
+                              >
+                                <Typography whiteSpace={'nowrap'}>
+                                  {shortenAddress(info.transaction_hash, 14)}
+                                </Typography>
+                              </Button>
+                            </Box>
+                          ))
+                      : null}
+                  </Box>
+                ))}
+                {currentBlock - page * pageSize >= 0 ? (
+                  <Box padding={2}>
+                    <Button
+                      onClick={() => setPage(page + 1)}
+                      size="small"
+                      variant="text"
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      Load More
+                    </Button>
+                  </Box>
+                ) : null}
+              </>
             ) : (
               <Typography variant="caption">No Transactions</Typography>
             )}
