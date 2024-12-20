@@ -22,6 +22,7 @@ import { DeclareContractMessage } from '../components/handleWalletMessages/decla
 import { ModifyBalance } from '../components/settings/modifyBalance';
 import { fetchCurrentBlockNumber } from '../background/utils';
 import { TransactionDetails } from '../components/transaction/TransactionDetails';
+import { GasPriceModification } from '../components/settings/gasPriceModification';
 
 import './Popup.css';
 
@@ -172,6 +173,7 @@ export const Popup = () => {
             path="/block-configuration"
             element={<BlockConfiguration createNewBlock={createNewBlock} abortBlock={abortBlock} />}
           />
+          <Route path="/gas-price-modification" element={<GasPriceModification />} />
           <Route path="/block/:blockIndex" element={<BlockDetailsPage />} />
           <Route path="/transaction/:transactionHash" element={<TransactionDetails />} />
         </Routes>

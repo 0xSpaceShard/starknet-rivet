@@ -103,6 +103,24 @@ export const AppSettings = () => {
                 </Box>
               </Button>
             </Box>
+            <Box>
+              <Button
+                variant="text"
+                component={RouteLink}
+                to="/gas-price-modification"
+                fullWidth
+                sx={{
+                  height: 48,
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                }}
+              >
+                Modify Gas Price
+                <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
+                  <ChevronRight />
+                </Box>
+              </Button>
+            </Box>
             <Divider variant="middle" />
             <Box marginTop={2} marginBottom={1}>
               <Typography variant="body2">Account Creation</Typography>
