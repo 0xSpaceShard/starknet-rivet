@@ -248,11 +248,6 @@ export async function fetchCurrentGasPrices(): Promise<GasPrices | null> {
     const latestBlock = await provider.getBlockLatestAccepted();
     const blockDetails = (await provider.getBlock(latestBlock.block_number)) as any;
 
-    console.log('Latest block info:');
-    console.log(latestBlock);
-    console.log(blockDetails);
-    console.log('---');
-
     return {
       gasPriceWei: BigInt(blockDetails.l1_gas_price?.price_in_wei ?? 0),
       gasPriceWei_data: BigInt(blockDetails.l1_data_gas_price?.price_in_wei ?? 0),
@@ -277,8 +272,7 @@ export async function updateGasPrices(gasPrices: GasPrices): Promise<boolean> {
     };
     const response = await provider.fetch('devnet_setGasPrice', payload);
     const data = await response.json();
-    console.log('Update Gas Prices Reponse: ', data);
-    return true;
+    return !!data;
   } catch (error) {
     console.error('Error setting gas prices:', error);
     return false;
