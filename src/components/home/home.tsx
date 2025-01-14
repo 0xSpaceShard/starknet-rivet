@@ -1,16 +1,27 @@
 import { useState, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Typography, Tabs, Tab } from '@mui/material';
+import { Box, Typography, Tabs, Tab, TabScrollButton, styled } from '@mui/material';
 import { useSharedState } from '../context/context';
 import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
 import BlockList from '../block/BlockList';
 import TransactionList from '../transaction/TransactionList';
+import { ContractList } from '../contract/ContractList';
 
 export enum HomeTab {
   Accounts,
   Blocks,
   Transactions,
+  Contracts,
 }
+
+const MyTabScrollButton = styled(TabScrollButton)({
+  '&.Mui-disabled': {
+    width: 0,
+  },
+  overflow: 'hidden',
+  transition: 'width 0.5s',
+  width: 28,
+});
 
 export const Home = () => {
   const { state } = useLocation();
@@ -50,8 +61,12 @@ export const Home = () => {
         <Tabs
           centered
           value={selectedTab}
-          onChange={(e, newValue) => setSelectedTab(newValue)}
+          onChange={(_, newValue) => setSelectedTab(newValue)}
           aria-label="Home Tabs"
+          variant="scrollable"
+          scrollButtons
+          allowScrollButtonsMobile
+          ScrollButtonComponent={MyTabScrollButton}
         >
           <Tab sx={{ fontSize: '0.8rem' }} label="Accounts" {...a11yProps(HomeTab.Accounts)} />
           <Tab sx={{ fontSize: '0.8rem' }} label="Blocks" {...a11yProps(HomeTab.Blocks)} />
@@ -60,6 +75,7 @@ export const Home = () => {
             label="Transactions"
             {...a11yProps(HomeTab.Transactions)}
           />
+          <Tab sx={{ fontSize: '0.8rem' }} label="Contracts" {...a11yProps(HomeTab.Contracts)} />
         </Tabs>
       </Box>
       <CustomTabPanel idx={HomeTab.Accounts}>
@@ -70,6 +86,9 @@ export const Home = () => {
       </CustomTabPanel>
       <CustomTabPanel idx={HomeTab.Transactions}>
         <TransactionList />
+      </CustomTabPanel>
+      <CustomTabPanel idx={HomeTab.Contracts}>
+        <ContractList />
       </CustomTabPanel>
     </Box>
   );
