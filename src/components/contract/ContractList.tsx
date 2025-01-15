@@ -1,22 +1,21 @@
-import { CircularProgress, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
-import { useFetchDevnetConfig } from '../hooks/useFetchDevnetConfig';
 import { ContractItem } from './ContractItem';
 import { darkTheme } from '../..';
+import { useSharedState } from '../context/context';
 
 export const ContractList: React.FC = () => {
-  const { data: devnetConfig, isLoading } = useFetchDevnetConfig();
-
+  const { configData } = useSharedState();
   return (
     <section>
-      <Stack marginBottom={1}>
-        {isLoading ? (
+      <Stack marginBottom={1} color={darkTheme.palette.text.secondary}>
+        {!configData ? (
           <Stack direction="row" justifyContent="center" paddingY={2}>
-            <CircularProgress />
+            <Typography variant="h4">No data found</Typography>
           </Stack>
         ) : (
           <>
-            <Stack marginBottom={1} color={darkTheme.palette.text.secondary}>
+            <Stack marginBottom={1}>
               <Typography variant="subtitle1">Predeployed FeeToken</Typography>
               <Stack>
                 <ContractItem
@@ -24,7 +23,7 @@ export const ContractList: React.FC = () => {
                   name="ETH Address"
                 />
                 <ContractItem
-                  address={devnetConfig?.eth_erc20_class_hash as string}
+                  address={configData?.eth_erc20_class_hash as string}
                   name="Class Hash"
                 />
                 <ContractItem
@@ -32,7 +31,7 @@ export const ContractList: React.FC = () => {
                   name="STRK Address"
                 />
                 <ContractItem
-                  address={devnetConfig?.strk_erc20_class_hash as string}
+                  address={configData?.strk_erc20_class_hash as string}
                   name="Class Hash"
                 />
               </Stack>

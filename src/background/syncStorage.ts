@@ -1,6 +1,6 @@
 import { AccountData, UrlConfig } from '../components/context/interfaces';
 import { DEFAULT_DEVNET_URL } from './constants';
-import { DevnetConfig, DevnetInfo } from './interface';
+import { DevnetInfo } from './interface';
 
 export async function getUrlContextData<T>(key: string, defaultValue: T): Promise<T> {
   const selectedUrl = await getSelectedUrl();
@@ -231,16 +231,4 @@ export async function removeCustomAccount(accountAddress: string): Promise<boole
   customAccounts.filter((acc) => acc.address !== accountAddress);
   await saveCustomAccounts(customAccounts);
   return true;
-}
-
-export async function saveDevnetConfig(
-  devnetConfig: DevnetConfig | null
-): Promise<DevnetConfig | null> {
-  await chrome.storage.sync.set({ devnetConfig });
-
-  if (chrome.runtime.lastError) {
-    throw new Error(chrome.runtime.lastError.message);
-  }
-
-  return devnetConfig;
 }

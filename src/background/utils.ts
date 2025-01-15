@@ -9,7 +9,7 @@ import {
   saveUrlConfig,
   saveUrlContextData,
 } from './syncStorage';
-import { DeclareContractMessage, DevnetConfig } from './interface';
+import { DeclareContractMessage } from './interface';
 import { UrlConfig } from '../components/context/interfaces';
 import { ARGENTX_ACCOUNT_CLASS_HASH, ETH_ACCOUNT_CLASS_HASH } from './constants';
 
@@ -276,20 +276,5 @@ export async function updateGasPrices(gasPrices: GasPrices): Promise<boolean> {
   } catch (error) {
     console.error('Error setting gas prices:', error);
     return false;
-  }
-}
-
-export async function fetchDevnetConfig(): Promise<DevnetConfig | null> {
-  try {
-    const provider = await getProvider();
-    const response = await provider.fetch('devnet_getConfig', []);
-    const data = await response.json();
-
-    if (data) return data.result;
-
-    return null;
-  } catch (error) {
-    console.error('Error fetching deployed contracts:', error);
-    return null;
   }
 }

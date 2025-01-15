@@ -15,7 +15,7 @@ export const ContractItem: React.FC<StackItemProps> = ({ address, name }) => {
   return (
     <Box>
       <Grid container direction="row" alignItems="center">
-        <Grid item flexGrow={1} padding={1}>
+        <Grid item flexGrow={1} padding={1} paddingLeft={2} alignItems="center">
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
               <Typography variant="subtitle1">{name}:</Typography>
