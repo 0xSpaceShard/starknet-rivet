@@ -1,11 +1,16 @@
-import { Stack, Typography } from '@mui/material';
+import React from 'react';
+import { CircularProgress, Stack, Typography } from '@mui/material';
 
 import { ContractItem } from './ContractItem';
 import { darkTheme } from '../..';
 import { useSharedState } from '../context/context';
+import { useDeployedContracts } from '../hooks/useDeployedContracts';
+import { Contract } from '../../background/interface';
 
 export const ContractList: React.FC = () => {
+  const { data: deployedContracts, isLoading } = useDeployedContracts();
   const { configData } = useSharedState();
+
   return (
     <section>
       <Stack marginBottom={1} color={darkTheme.palette.text.secondary}>
@@ -34,6 +39,19 @@ export const ContractList: React.FC = () => {
                   address={configData?.strk_erc20_class_hash as string}
                   name="Class Hash"
                 />
+              </Stack>
+
+              <Typography variant="subtitle1">Deployed Contracts</Typography>
+              <Stack>
+                {isLoading ? (
+                  <Stack direction="row" justifyContent="center" paddingY={2}>
+                    <CircularProgress />
+                  </Stack>
+                ) : (
+                  deployedContracts?.map((contract: Contract) => (
+                    <ContractItem address={contract.address} name={contract.name} />
+                  ))
+                )}
               </Stack>
             </Stack>
           </>

@@ -7,7 +7,7 @@ import {
 } from './utils';
 import { DeclareContractMessage, DeployContractMessage } from './interface';
 import { ETH_ADDRESS, MAX_AMOUNT_TO_MINT } from './constants';
-import { getSelectedUrl } from './syncStorage';
+import { getSelectedUrl, saveDeployedContract } from './syncStorage';
 
 // Function to declare a Contract from Rivet extension
 export async function declareContract(
@@ -65,6 +65,14 @@ export async function deployContract(
       constructorCalldata: ConstructorCallData,
     });
     await provider.waitForTransaction(deployResponse.transaction_hash);
+
+    const contractObj = {
+      name: message.data.call_data.name as string,
+      address: deployResponse.contract_address,
+      classHash: deployResponse.classHash,
+    };
+
+    await saveDeployedContract(contractObj);
 
     sendResponse({ contract_address: deployResponse.contract_address });
   } catch (error) {
