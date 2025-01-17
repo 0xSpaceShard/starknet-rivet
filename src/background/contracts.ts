@@ -147,3 +147,40 @@ export async function modifyEthBalance(amount: bigint) {
     return null;
   }
 }
+
+export async function sendToAccount(recipientAddr: string, amount: bigint) {
+  try {
+    const provider = await getProvider();
+    const acc = await getSelectedAccount();
+
+    const contract = await provider.getClassAt(ETH_ADDRESS);
+    const erc20 = new Contract(contract.abi, ETH_ADDRESS, provider);
+
+    erc20.connect(acc);
+    const balance = await erc20.balanceOf(acc.address);
+
+    if (amount > balance) {
+      console.error('Insufficient account balance');
+      return balance;
+    }
+
+    let transferResponse;
+    const estimate = await acc.estimateInvokeFee({
+      contractAddress: erc20.address,
+      entrypoint: 'transfer',
+      calldata: [recipientAddr, uint256.bnToUint256(amount)],
+    });
+    if (estimate.suggestedMaxFee > amount) {
+      transferResponse = await erc20.transfer(recipientAddr, amount + estimate.suggestedMaxFee);
+    } else {
+      transferResponse = await erc20.transfer(recipientAddr, amount);
+    }
+    await provider.waitForTransaction(transferResponse.transaction_hash);
+
+    const newBalance = await erc20.balanceOf(acc.address);
+
+    return newBalance;
+  } catch (error) {
+    return null;
+  }
+}
