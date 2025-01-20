@@ -16,16 +16,16 @@ export const ContractItem: React.FC<StackItemProps> = ({ address, name }) => {
     <Box>
       <Grid container direction="row" alignItems="center">
         <Grid item flexGrow={1} padding={1} paddingLeft={2} alignItems="center">
-          <Grid container alignItems="center" justifyContent="space-between">
+          <Grid container alignItems="center" gap={2}>
             <Grid item>
-              <Typography variant="subtitle1">{name}:</Typography>
+              <Typography variant="subtitle2">{name}:</Typography>
             </Grid>
             <Grid item>
-              <Typography variant="subtitle2">{shortenAddress(address, 10)}</Typography>
+              <Typography variant="subtitle2">{shortenAddress(address, 8)}</Typography>
             </Grid>
           </Grid>
         </Grid>
-        <Grid item flexBasis="50px" flexGrow={0} padding="0 10px">
+        <Grid item flexBasis="30px" flexGrow={0} padding="0 10px">
           <Tooltip
             PopperProps={{
               disablePortal: true,

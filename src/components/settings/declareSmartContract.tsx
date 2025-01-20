@@ -1,4 +1,4 @@
-import { Button, Stack, styled, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Stack, styled, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -10,8 +10,8 @@ import AddressTooltip from '../addressTooltip/addressTooltip';
 export const DeclareSmartContract: React.FC = () => {
   const [selectedSierraFile, setSelectedSierraFile] = useState<object | null>(null);
   const [selectedCasmFile, setSelectedCasmFile] = useState<CompiledSierraCasm | null>(null);
-  const [declareClassHash, setDeclareClassHash] = useState('');
   const [errorDeclaration, setErrorDeclaration] = useState('');
+  const [isDeclaring, setIsDeclaring] = useState(false);
 
   const [selectedSierraFileName, setSelectedSierraFileName] = useState(
     'Click to upload sierra JSON'
@@ -22,7 +22,7 @@ export const DeclareSmartContract: React.FC = () => {
   const navigate = useNavigate();
   const context = useSharedState();
 
-  const { selectedAccount } = context;
+  const { selectedAccount, declaredClassHash, setDeclaredClassHash } = context;
 
   const handleSierraFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = event.target;
@@ -80,6 +80,7 @@ export const DeclareSmartContract: React.FC = () => {
   };
 
   const handleDeclare = () => {
+    setIsDeclaring(true);
     chrome.runtime.sendMessage(
       {
         type: 'RIVET_DECLARE_CONTRACT',
@@ -90,11 +91,15 @@ export const DeclareSmartContract: React.FC = () => {
       },
       (response) => {
         if (response?.error) {
-          setDeclareClassHash('');
+          setDeclaredClassHash('');
           setErrorDeclaration(response.error);
+          setIsDeclaring(false);
         } else {
           setErrorDeclaration('');
-          setDeclareClassHash(response.class_hash);
+          setDeclaredClassHash(response.class_hash);
+          setIsDeclaring(false);
+          navigator.clipboard.writeText(response.class_hash);
+          navigate(`/accounts/${selectedAccount?.address}/deploy`);
         }
       }
     );
@@ -128,7 +133,12 @@ export const DeclareSmartContract: React.FC = () => {
             startIcon={<CloudUploadIcon />}
           >
             {selectedSierraFileName}
-            <VisuallyHiddenInput type="file" onChange={handleSierraFileUpload} accept=".json" />
+            <VisuallyHiddenInput
+              type="file"
+              onChange={handleSierraFileUpload}
+              accept=".json"
+              disabled={isDeclaring}
+            />
           </Button>
           <Button
             component="label"
@@ -138,7 +148,12 @@ export const DeclareSmartContract: React.FC = () => {
             startIcon={<CloudUploadIcon />}
           >
             {selectedCasmFileName}
-            <VisuallyHiddenInput type="file" onChange={handleCasmFileUpload} accept=".json" />
+            <VisuallyHiddenInput
+              type="file"
+              onChange={handleCasmFileUpload}
+              accept=".json"
+              disabled={isDeclaring}
+            />
           </Button>
           {!checkSierra && (
             <Typography color="error" variant="body2">
@@ -146,10 +161,10 @@ export const DeclareSmartContract: React.FC = () => {
             </Typography>
           )}
           <Button
-            disabled={!checkSierra || !selectedSierraFile || !selectedCasmFile}
+            disabled={!checkSierra || !selectedSierraFile || !selectedCasmFile || isDeclaring}
             variant="outlined"
             color="primary"
-            onClick={() => handleDeclare()}
+            onClick={handleDeclare}
             sx={{ width: '100%' }}
           >
             Declare
@@ -161,7 +176,12 @@ export const DeclareSmartContract: React.FC = () => {
             </Typography>
           )}
 
-          {!errorDeclaration && declareClassHash && <AddressTooltip address={declareClassHash} />}
+          {!errorDeclaration && declaredClassHash && <AddressTooltip address={declaredClassHash} />}
+          {isDeclaring && (
+            <Box display="flex" width="100%" justifyContent="center" alignItems="center">
+              <CircularProgress />
+            </Box>
+          )}
         </Stack>
       </PageHeader>
     </section>

@@ -234,19 +234,10 @@ export async function removeCustomAccount(accountAddress: string): Promise<boole
 }
 
 export async function getDeployedContracts(): Promise<Contract[]> {
-  const { contractList } = await chrome.storage.sync.get(['contractList']);
-
-  return contractList;
+  return getUrlContextData<Contract[]>('deployedContracts', []);
 }
 
-export async function saveDeployedContract(contract: Contract): Promise<void> {
-  let contractList = await getDeployedContracts();
-  if (contractList) contractList.push(contract);
-  else contractList = [contract];
-
-  await chrome.storage.sync.set({ contractList });
-
-  if (chrome.runtime.lastError) {
-    throw new Error(chrome.runtime.lastError.message);
-  }
+export async function saveDeployedContracts(deployedContract: Contract): Promise<Contract[]> {
+  const deployedContracts = await getDeployedContracts();
+  return saveUrlContextData('deployedContracts', [...deployedContracts, deployedContract]);
 }

@@ -30,6 +30,8 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
   const [signatureData, setSignatureData] = useState<any>(null);
   const [lastFetchedUrl, setLastFetchedUrl] = useState<string | null>(null);
   const [blockDetails, setBlockDetails] = useState<any[]>([]);
+  const [declaredClassHash, setDeclaredClassHash] = useState('');
+  const [deployedContractAddress, setDeployedContractAddress] = useState('');
 
   useEffect(() => {
     chrome.storage.local.get(null, (data) => {
@@ -85,6 +87,10 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
         setLastFetchedUrl,
         blockDetails,
         setBlockDetails,
+        declaredClassHash,
+        setDeclaredClassHash,
+        deployedContractAddress,
+        setDeployedContractAddress,
       }}
     >
       {children}
