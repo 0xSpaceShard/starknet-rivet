@@ -7,6 +7,7 @@ import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
 import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker';
 import { useSharedState } from '../components/context/context';
 import SelectedAccountInfo from '../components/account/selectedAccount';
+import { AccountSend } from '../components/account/accountSend';
 import { AccountSettings } from '../components/settings/accountSettings';
 import { DeploySmartContract } from '../components/settings/deploySmartContract';
 import { DeclareSmartContract } from '../components/settings/declareSmartContract';
@@ -169,6 +170,7 @@ export const Popup = () => {
             element={<SwitchStarknetChainMessage />}
           />
           <Route path="/accounts/:address/modify-balance" element={<ModifyBalance />} />
+          <Route path="/accounts/:address/send" element={<AccountSend />} />
           <Route
             path="/block-configuration"
             element={<BlockConfiguration createNewBlock={createNewBlock} abortBlock={abortBlock} />}

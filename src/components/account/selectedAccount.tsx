@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, Menu as MenuIcon } from '@mui/icons-material';
+import { ChevronLeft, Menu as MenuIcon, Send as SendIcon } from '@mui/icons-material';
 import { num } from 'starknet-6';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -315,8 +315,20 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
           <>
             {selectedAccount.address && (
               <Container>
-                <Box padding={4}>
-                  <Typography variant="h5">{balanceString} ETH</Typography>
+                <Box padding={4} display="flex" justifyContent="center">
+                  <Typography variant="h5" display="inline-block" paddingRight={1}>
+                    {balanceString} ETH
+                  </Typography>
+                  <Tooltip title="Send">
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => navigate(`/accounts/${selectedAccount.address}/send`)}
+                      aria-haspopup="true"
+                    >
+                      <SendIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
                 <Box paddingY={1}>
                   <Tooltip
