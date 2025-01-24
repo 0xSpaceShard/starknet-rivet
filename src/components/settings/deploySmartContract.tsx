@@ -1,10 +1,11 @@
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Abi, RpcProvider } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
+import { useDeployedContracts } from '../hooks/useDeployedContracts';
 
 interface AbiEntry {
   name?: string;
@@ -19,16 +20,24 @@ interface ConstructorParam {
 }
 
 export const DeploySmartContract: React.FC = () => {
-  const [selectedClassHash, setSelectedClassHash] = useState('');
-  const [deployedContractAddress, setDeployedContractAddress] = useState('');
+  const context = useSharedState();
+  const {
+    selectedAccount,
+    selectedUrl: url,
+    declaredClassHash,
+    deployedContractAddress,
+    setDeployedContractAddress,
+  } = context;
+
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [selectedClassHash, setSelectedClassHash] = useState(declaredClassHash || '');
   const [errorDeployment, setErrorDeployment] = useState('');
 
   const [constructorParams, setConstructorParams] = useState<ConstructorParam[]>([]);
 
-  const navigate = useNavigate();
-  const context = useSharedState();
+  const { update: saveDeployedContract } = useDeployedContracts();
 
-  const { selectedAccount, selectedUrl: url } = context;
+  const navigate = useNavigate();
 
   const handleBack = () => {
     navigate(`/accounts/${selectedAccount?.address}`);
@@ -56,6 +65,7 @@ export const DeploySmartContract: React.FC = () => {
   };
 
   const handleDeploy = () => {
+    setIsDeploying(true);
     const paramsObject = constructParamsObject(constructorParams);
 
     chrome.runtime.sendMessage(
@@ -66,13 +76,20 @@ export const DeploySmartContract: React.FC = () => {
           call_data: paramsObject,
         },
       },
-      (response) => {
+      async (response) => {
         if (response?.error) {
           setDeployedContractAddress('');
           setErrorDeployment(response.error);
+          setIsDeploying(false);
         } else {
           setErrorDeployment('');
           setDeployedContractAddress(response.contract_address);
+          await saveDeployedContract({
+            name: paramsObject.name,
+            address: response.contract_address,
+            classHash: selectedClassHash,
+          });
+          setIsDeploying(false);
         }
       }
     );
@@ -126,6 +143,7 @@ export const DeploySmartContract: React.FC = () => {
             id="fullWidth"
             value={selectedClassHash}
             onChange={handleInputChange}
+            disabled={isDeploying}
           />
           {constructorParams.map((param, index) => (
             <TextField
@@ -135,10 +153,11 @@ export const DeploySmartContract: React.FC = () => {
               id={`param-${index}`}
               value={param.value}
               onChange={(e) => handleParamChange(index, e)}
+              disabled={isDeploying}
             />
           ))}
           <Button
-            disabled={selectedClassHash === ''}
+            disabled={selectedClassHash === '' || isDeploying}
             variant="outlined"
             color="primary"
             onClick={() => handleDeploy()}
@@ -154,6 +173,11 @@ export const DeploySmartContract: React.FC = () => {
 
           {!errorDeployment && deployedContractAddress && (
             <AddressTooltip address={deployedContractAddress} />
+          )}
+          {isDeploying && (
+            <Box display="flex" width="100%" justifyContent="center" alignItems="center">
+              <CircularProgress />
+            </Box>
           )}
         </Stack>
       </PageHeader>

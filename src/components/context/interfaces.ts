@@ -74,6 +74,12 @@ export interface MyContextValue {
   setLastFetchedUrl: React.Dispatch<React.SetStateAction<string | null>>;
   blockDetails: any;
   setBlockDetails: React.Dispatch<React.SetStateAction<any>>;
+
+  declaredClassHash: string;
+  setDeclaredClassHash: React.Dispatch<React.SetStateAction<string>>;
+
+  deployedContractAddress: string;
+  setDeployedContractAddress: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export interface UrlConfig {

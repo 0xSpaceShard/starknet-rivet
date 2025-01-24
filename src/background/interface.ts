@@ -100,3 +100,9 @@ export interface ServerConfig {
   request_body_size_limit: number;
   restricted_methods: null;
 }
+
+export interface Contract {
+  name: string;
+  address: string;
+  classHash: string;
+}

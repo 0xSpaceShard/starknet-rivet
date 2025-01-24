@@ -1,11 +1,16 @@
-import { Stack, Typography } from '@mui/material';
+import React from 'react';
+import { CircularProgress, Stack, Typography } from '@mui/material';
 
 import { ContractItem } from './ContractItem';
 import { darkTheme } from '../..';
 import { useSharedState } from '../context/context';
+import { useDeployedContracts } from '../hooks/useDeployedContracts';
+import { Contract } from '../../background/interface';
 
 export const ContractList: React.FC = () => {
   const { configData } = useSharedState();
+  const { data: deployedContracts, isLoading } = useDeployedContracts();
+
   return (
     <section>
       <Stack marginBottom={1} color={darkTheme.palette.text.secondary}>
@@ -24,7 +29,7 @@ export const ContractList: React.FC = () => {
                 />
                 <ContractItem
                   address={configData?.eth_erc20_class_hash as string}
-                  name="Class Hash"
+                  name="Class hash"
                 />
                 <ContractItem
                   address="0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
@@ -32,8 +37,24 @@ export const ContractList: React.FC = () => {
                 />
                 <ContractItem
                   address={configData?.strk_erc20_class_hash as string}
-                  name="Class Hash"
+                  name="Class hash"
                 />
+              </Stack>
+
+              <Typography variant="subtitle1">Deployed Contracts</Typography>
+              <Stack>
+                {isLoading ? (
+                  <Stack direction="row" justifyContent="center" paddingY={2}>
+                    <CircularProgress />
+                  </Stack>
+                ) : (
+                  (deployedContracts as Contract[]).map((contract: Contract) => (
+                    <>
+                      <ContractItem address={contract.address} name={contract.name} />
+                      <ContractItem address={contract.classHash} name="Class hash" />
+                    </>
+                  ))
+                )}
               </Stack>
             </Stack>
           </>

@@ -1,6 +1,6 @@
 import { AccountData, UrlConfig } from '../components/context/interfaces';
 import { DEFAULT_DEVNET_URL } from './constants';
-import { DevnetInfo } from './interface';
+import { Contract, DevnetInfo } from './interface';
 
 export async function getUrlContextData<T>(key: string, defaultValue: T): Promise<T> {
   const selectedUrl = await getSelectedUrl();
@@ -231,4 +231,13 @@ export async function removeCustomAccount(accountAddress: string): Promise<boole
   customAccounts.filter((acc) => acc.address !== accountAddress);
   await saveCustomAccounts(customAccounts);
   return true;
+}
+
+export async function getDeployedContracts(): Promise<Contract[]> {
+  return getUrlContextData<Contract[]>('deployedContracts', []);
+}
+
+export async function saveDeployedContracts(deployedContract: Contract): Promise<Contract[]> {
+  const deployedContracts = await getDeployedContracts();
+  return saveUrlContextData('deployedContracts', [...deployedContracts, deployedContract]);
 }
