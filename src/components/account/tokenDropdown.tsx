@@ -71,7 +71,7 @@ export const TokenDropdown: React.FC<ITokenDropdownProps> = ({ value, onChange }
       <InputLabel id="token-dropdown">Token</InputLabel>
       <Select labelId="token-dropdown" value={value} label="Token" onChange={onChange}>
         {tokenBalances.map((token) => (
-          <MenuItem key={token.address} value={token.address}>
+          <MenuItem key={token.address} value={token.address} disabled={token.balance === '0'}>
             <Box display="flex" alignItems="center" gap={1}>
               <Typography variant="subtitle1">{token.symbol}</Typography>-
               <Typography variant="subtitle2">{token.balance}</Typography>
