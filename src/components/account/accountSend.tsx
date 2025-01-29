@@ -6,6 +6,7 @@ import {
   Typography,
   Container,
   CircularProgress,
+  SelectChangeEvent,
 } from '@mui/material';
 import React, { useState, useCallback, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,14 +14,21 @@ import { ChevronLeft } from '@mui/icons-material';
 import { fetchCurrentBlockNumber } from '../../background/utils';
 import { useSharedState } from '../context/context';
 import { sendToAccount } from '../../background/contracts';
+import { TokenDropdown } from './tokenDropdown';
+import { ETH_ADDRESS } from '../../background/constants';
 
 export const AccountSend: React.FC = () => {
   const navigate = useNavigate();
   const { selectedAccount, updateCurrentBalance, setLastFetchedUrl, setCurrentBlock } =
     useSharedState();
-  const [formData, setFormData] = useState<{ recipient: string; amount: number }>({
+  const [formData, setFormData] = useState<{
+    recipient: string;
+    amount: number;
+    tokenAddress: string;
+  }>({
     recipient: '',
     amount: 0,
+    tokenAddress: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,8 +49,8 @@ export const AccountSend: React.FC = () => {
       if (!formData.recipient || formData.amount <= 0) return;
       setIsSubmitting(true);
       const sendAmountWei = BigInt(formData.amount * 10 ** 18);
-      const balance = await sendToAccount(formData.recipient, sendAmountWei);
-      if (balance) {
+      const balance = await sendToAccount(formData.recipient, sendAmountWei, formData.tokenAddress);
+      if (balance && formData.tokenAddress === ETH_ADDRESS) {
         await updateCurrentBalance(balance);
         await updateCurrentBlockNumber();
       }
@@ -81,6 +89,14 @@ export const AccountSend: React.FC = () => {
             <>
               <Stack textAlign={'left'} paddingX={3} spacing={3}>
                 <Box flex={1}>
+                  <TokenDropdown
+                    value={formData.tokenAddress}
+                    onChange={(e: SelectChangeEvent) =>
+                      setFormData((prev) => ({ ...prev, tokenAddress: e.target.value }))
+                    }
+                  />
+                </Box>
+                <Box flex={1}>
                   <TextField
                     fullWidth
                     name="recipient"
@@ -99,7 +115,7 @@ export const AccountSend: React.FC = () => {
                     fullWidth
                     name="amount"
                     value={formData.amount}
-                    label={'Amount (ETH)'}
+                    label={'Amount'}
                     onChange={(e) => {
                       setFormData({ ...formData, amount: parseInt(e.target.value, 10) });
                     }}

@@ -148,13 +148,17 @@ export async function modifyEthBalance(amount: bigint) {
   }
 }
 
-export async function sendToAccount(recipientAddr: string, amount: bigint) {
+export async function sendToAccount(
+  recipientAddr: string,
+  amount: bigint,
+  tokenAddress: string = ETH_ADDRESS
+) {
   try {
     const provider = await getProvider();
     const acc = await getSelectedAccount();
 
-    const contract = await provider.getClassAt(ETH_ADDRESS);
-    const erc20 = new Contract(contract.abi, ETH_ADDRESS, provider);
+    const contract = await provider.getClassAt(tokenAddress);
+    const erc20 = new Contract(contract.abi, tokenAddress, provider);
 
     erc20.connect(acc);
     const balance = await erc20.balanceOf(acc.address);
@@ -170,6 +174,7 @@ export async function sendToAccount(recipientAddr: string, amount: bigint) {
       entrypoint: 'transfer',
       calldata: [recipientAddr, uint256.bnToUint256(amount)],
     });
+
     if (estimate.suggestedMaxFee > amount) {
       transferResponse = await erc20.transfer(recipientAddr, amount + estimate.suggestedMaxFee);
     } else {
