@@ -21,12 +21,11 @@ import {
 } from '@mui/material';
 import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
 import { useCopyTooltip, useFetchTransactionsDetails } from '../hooks/hooks';
-import { getTokenBalance } from '../../background/contracts';
 import { useSharedState } from '../context/context';
-import { useAccountContracts } from '../hooks/useAccountContracts';
 import { printAccountType } from '../../background/utils';
 import { AccountType } from '../../background/syncStorage';
 import { darkTheme } from '../..';
+import { useTokens } from '../hooks/useTokens';
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const { state } = useLocation();
@@ -46,9 +45,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setSignatureData,
     currentBlock,
   } = context;
-  const { data: accountContracts } = useAccountContracts();
 
-  const [tokenBalances, setTokenBalances] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -60,26 +57,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setAnchorEl(null);
   };
 
-  const contracts = useMemo(
-    () => accountContracts.get(selectedAccount?.address ?? '') ?? [],
-    [accountContracts, selectedAccount]
-  );
-
-  useEffect(() => {
-    if (!contracts?.length) return;
-
-    // TODO: add validation for address format
-    const balancePromises = contracts.map(async (address) => {
-      const resp = await getTokenBalance(address);
-      if (!resp) return '';
-
-      const balance = resp.balance / BigInt(10n ** 18n);
-      const balanceStr = balance.toString();
-      return `${balanceStr} ${resp.symbol}`;
-    });
-
-    Promise.all(balancePromises).then(setTokenBalances);
-  }, [contracts]);
+  const { tokenBalances } = useTokens();
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
@@ -366,11 +344,16 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             </Box>
             <Box>
               <List sx={{ padding: 0 }}>
-                {tokenBalances.map((balance, idx) => (
-                  <ListItem key={idx}>
-                    <ListItemText sx={{ paddingLeft: 2 }}>{balance}</ListItemText>
-                  </ListItem>
-                ))}
+                {tokenBalances.map(
+                  (balance, idx) =>
+                    idx !== 0 && (
+                      <ListItem key={idx}>
+                        <ListItemText sx={{ paddingLeft: 2 }}>
+                          {balance.balance} {balance.symbol}
+                        </ListItemText>
+                      </ListItem>
+                    )
+                )}
               </List>
             </Box>
           </>
@@ -405,7 +388,8 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                           <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
                         </Box>
                         <Box textAlign="right" width="35%">
-                          {t.amount.toFixed(2)} ETH
+                          {t.amount.toFixed(2)}{' '}
+                          {tokenBalances.find((token) => token.address === t.calldata[1])?.symbol}
                         </Box>
                       </Stack>
                     </Button>

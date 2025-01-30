@@ -7,10 +7,10 @@ import { useCopyTooltip } from '../hooks/hooks';
 interface BlockInfoProps {
   title: string;
   value: string | number;
+  isCopyable?: boolean;
 }
 
-const DisplayBlockInfo: React.FC<BlockInfoProps> = ({ title, value }) => {
-  const isCopyable = ['hash', 'sender', 'block hash'].includes(title.toLowerCase());
+const DisplayBlockInfo: React.FC<BlockInfoProps> = ({ title, value, isCopyable = false }) => {
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
   return (
