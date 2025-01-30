@@ -57,7 +57,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setAnchorEl(null);
   };
 
-  const { tokenBalances } = useTokens();
+  const { tokenBalances, getTokenSymbol } = useTokens();
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
@@ -388,8 +388,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                           <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
                         </Box>
                         <Box textAlign="right" width="35%">
-                          {t.amount.toFixed(2)}{' '}
-                          {tokenBalances.find((token) => token.address === t.calldata[1])?.symbol}
+                          {t.amount.toFixed(2)} {getTokenSymbol(t.calldata[1])}
                         </Box>
                       </Stack>
                     </Button>
