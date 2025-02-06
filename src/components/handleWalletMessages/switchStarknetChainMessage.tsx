@@ -44,7 +44,7 @@ export const SwitchStarknetChainMessage: React.FC = () => {
         }
       });
     } catch (error) {
-      console.error('Error fetching URL status:', error);
+      console.debug('Error fetching URL status:', error);
       chrome.runtime.sendMessage({
         type: 'SWITCH_STARKNET_CHAIN_RES',
         data: false,
@@ -72,7 +72,7 @@ export const SwitchStarknetChainMessage: React.FC = () => {
           }
         }
       } catch (error) {
-        console.error(`Failed to fetch info for ${item.url}:`, error);
+        console.debug(`Failed to fetch info for ${item.url}:`, error);
       }
     });
     setNewUrlList(filteredUrlList);

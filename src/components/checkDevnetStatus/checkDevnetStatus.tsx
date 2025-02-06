@@ -39,7 +39,7 @@ const CheckDevnetStatus: React.FC<{
           updateIsAliveStatus(false);
         }
         setIsAlive(false);
-        console.error('Error checking devnet status:', error);
+        console.debug('Error checking devnet status:', error);
       }
     };
 

@@ -25,7 +25,7 @@ const BlockDetailsPage: React.FC = () => {
       try {
         await fetchTransactionsDetailsByBlock(index);
       } catch (error) {
-        console.error('Error fetching current block number:', error);
+        console.debug('Error fetching current block number:', error);
       }
     };
     fetchTransactionsDetails();

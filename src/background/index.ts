@@ -192,7 +192,7 @@ async function executeRivetTransaction(
     const { selectedAccount } = result;
 
     if (!selectedAccount) {
-      console.error('No selected account found in storage.');
+      console.debug('No selected account found in storage.');
       sendResponse({
         type: 'RIVET_TRANSACTION_FAILED',
         data: { error: 'Error retrieving selected account from storage.' },
@@ -253,7 +253,7 @@ async function executeRivetTransaction(
       }
     );
   } catch (error) {
-    console.error('Error retrieving selected account from storage.', error);
+    console.debug('Error retrieving selected account from storage.', error);
     sendResponse({
       type: 'RIVET_TRANSACTION_FAILED',
       data: { transaction_hash: '', error: 'Error retrieving selected account from storage.' },
@@ -271,7 +271,7 @@ async function signRivetMessage(
     const { selectedAccount } = result;
 
     if (!selectedAccount) {
-      console.error('No selected account found in storage.');
+      console.debug('No selected account found in storage.');
       sendResponse({ error: 'No selected account found in storage.' });
       return;
     }
@@ -321,7 +321,7 @@ async function signRivetMessage(
       }
     );
   } catch (error) {
-    console.error('Error retrieving selected account from storage.', error);
+    console.debug('Error retrieving selected account from storage.', error);
     sendResponse({ error: 'Error retrieving selected account from storage.' });
   }
 }

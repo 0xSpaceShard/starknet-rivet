@@ -23,7 +23,7 @@ export async function createMintBlockAlarm(url: string, interval: number): Promi
             // Update block interval and set new alarm
             updateAndSetAlarm(url, interval, blockInterval);
           } else {
-            console.error(`Failed to clear existing alarm for URL: ${url}`);
+            console.debug(`Failed to clear existing alarm for URL: ${url}`);
           }
         });
       } else {
@@ -32,7 +32,7 @@ export async function createMintBlockAlarm(url: string, interval: number): Promi
       }
     });
   } catch (error) {
-    console.error('Error create Mint Block Alarm:', error);
+    console.debug('Error create Mint Block Alarm:', error);
   }
 }
 
@@ -64,9 +64,9 @@ export async function mintBlock(url: string): Promise<void> {
     if (response.ok) {
       console.log(`Minted block for ${url}`);
     } else {
-      console.error('Error creating block:', response.statusText);
+      console.debug('Error creating block:', response.statusText);
     }
   } catch (error) {
-    console.error('Error creating block:', error);
+    console.debug('Error creating block:', error);
   }
 }

@@ -29,7 +29,7 @@ async function loadModules() {
           });
         } else {
           // If it's not configurable, log an error or handle it accordingly
-          console.error('Cannot modify read-only and non-configurable property:', name);
+          console.debug('Cannot modify read-only and non-configurable property:', name);
         }
       } else {
         // If it doesn't exist or is already writable, assign directly

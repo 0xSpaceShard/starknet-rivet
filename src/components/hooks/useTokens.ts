@@ -1,8 +1,8 @@
-import React from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { validateAndParseAddress } from 'starknet-6';
 
-import { ETH_ADDRESS } from '../../background/constants';
+import { ETH_ADDRESS, ETH_SYMBOL } from '../../background/constants';
 import { getBalanceStr } from '../utils/utils';
 import { useAccountContracts } from './useAccountContracts';
 import { useSharedState } from '../context/context';
@@ -18,20 +18,20 @@ export const useTokens = () => {
   const { data: accountContracts } = useAccountContracts();
   const { selectedAccount, currentBalance } = useSharedState();
 
-  const [tokenBalances, setTokenBalances] = React.useState<Array<Token>>([
+  const [tokenBalances, setTokenBalances] = useState<Array<Token>>([
     {
       address: ETH_ADDRESS,
-      symbol: 'ETH',
+      symbol: ETH_SYMBOL,
       balance: getBalanceStr(currentBalance || BigInt(0)),
     },
   ]);
 
-  const contracts = React.useMemo(
+  const contracts = useMemo(
     () => accountContracts.get(selectedAccount?.address ?? '') ?? [],
     [accountContracts, selectedAccount]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!contracts?.length) return;
 
     const balancePromises = contracts.map(async (address) => {
@@ -56,5 +56,10 @@ export const useTokens = () => {
   const getTokenSymbol = (address: string) =>
     tokenBalances?.find((token) => token.address === address)?.symbol;
 
-  return { tokenBalances, getTokenSymbol };
+  const hasNonEthTokens: boolean = useMemo(
+    () => tokenBalances?.some((t) => t.symbol !== ETH_SYMBOL) ?? false,
+    [tokenBalances]
+  );
+
+  return { tokenBalances, getTokenSymbol, hasNonEthTokens };
 };

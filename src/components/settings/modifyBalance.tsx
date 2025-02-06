@@ -63,7 +63,7 @@ export const ModifyBalance: React.FC = () => {
       setLastFetchedUrl('');
       handleBack();
     } catch (error) {
-      console.error(error);
+      console.debug(error);
     } finally {
       setIsUpdating(false);
     }

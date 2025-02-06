@@ -34,7 +34,7 @@
     ],
     "@typescript-eslint/no-use-before-define": ["error", "nofunc"],
     "func-names": 0,
-    "no-console": ["warn", { "allow": ["info", "warn", "error"] }],
+    "no-console": ["warn", { "allow": ["info", "debug"] }],
     "import/extensions": ["error", { "ts": "never", "json": "always" }],
     "import/no-extraneous-dependencies": ["warn", {
       "devDependencies": ["**/*.test.ts"]

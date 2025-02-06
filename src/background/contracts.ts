@@ -89,7 +89,7 @@ export async function getTokenBalance(contractAddr: string) {
       symbol,
     };
   } catch (error) {
-    console.error('ERR: ', error);
+    console.debug('ERR: ', error);
     return null;
   }
 }
@@ -164,7 +164,7 @@ export async function sendToAccount(
     const balance = await erc20.balanceOf(acc.address);
 
     if (amount > balance) {
-      console.error('Insufficient account balance');
+      console.debug('Insufficient account balance');
       return balance;
     }
 

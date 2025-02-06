@@ -116,10 +116,10 @@ export const DeploySmartContract: React.FC = () => {
         const params = parseConstructorParams(constructorEntry);
         setConstructorParams(params);
       } else {
-        console.error('Constructor not found in the ABI');
+        console.debug('Constructor not found in the ABI');
       }
     } catch (error) {
-      console.error('Error fetching ABI or parsing constructor:', error);
+      console.debug('Error fetching ABI or parsing constructor:', error);
     }
   }
 
