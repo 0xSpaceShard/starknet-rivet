@@ -230,7 +230,7 @@ export async function fetchCurrentBlockNumber(): Promise<number> {
     const provider = await getProvider();
     return await provider.getBlockNumber();
   } catch (error) {
-    console.error('Error fetching block number:', error);
+    console.debug('Error fetching block number:', error);
     return -1;
   }
 }
@@ -255,7 +255,7 @@ export async function fetchCurrentGasPrices(): Promise<GasPrices | null> {
       gasPriceFri_data: BigInt(blockDetails.l1_data_gas_price?.price_in_fri ?? 0),
     };
   } catch (error) {
-    console.error('Error fetching gas prices:', error);
+    console.debug('Error fetching gas prices:', error);
     return null;
   }
 }
@@ -274,7 +274,7 @@ export async function updateGasPrices(gasPrices: GasPrices): Promise<boolean> {
     const data = await response.json();
     return !!data;
   } catch (error) {
-    console.error('Error setting gas prices:', error);
+    console.debug('Error setting gas prices:', error);
     return false;
   }
 }

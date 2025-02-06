@@ -57,7 +57,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setAnchorEl(null);
   };
 
-  const { tokenBalances, getTokenSymbol } = useTokens();
+  const { tokenBalances, getTokenSymbol, hasNonEthTokens } = useTokens();
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
@@ -93,7 +93,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
       setConfigData(data);
       return data;
     } catch (error) {
-      console.error('Error fetching config logs:', error);
+      console.debug('Error fetching config logs:', error);
       return null;
     }
   }
@@ -155,7 +155,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
       try {
         await fetchAccountConfig();
       } catch (error) {
-        console.error(error);
+        console.debug(error);
       }
     };
     accountConfig();
@@ -293,7 +293,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
           <>
             {selectedAccount.address && (
               <Container>
-                <Box padding={4} display="flex" justifyContent="center">
+                <Box padding={4} paddingLeft={7} display="flex" justifyContent="center">
                   <Typography variant="h5" display="inline-block" paddingRight={1}>
                     {balanceString} ETH
                   </Typography>
@@ -336,7 +336,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             )}
           </>
         )}
-        {tokenBalances?.length ? (
+        {hasNonEthTokens ? (
           <>
             <Divider sx={{ marginY: 2 }} variant="middle" />
             <Box>

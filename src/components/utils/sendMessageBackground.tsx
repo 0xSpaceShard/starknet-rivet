@@ -38,7 +38,7 @@ export function sendMessageToSetBlockInterval(
     },
     (response) => {
       if (!response.success) {
-        console.error('Failed to set new block inteval');
+        console.debug('Failed to set new block inteval');
       } else {
         const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
         setBlockInterval(newBlockInterval);
@@ -60,7 +60,7 @@ export function sendMessageToRemoveBlockInterval(
     },
     (response) => {
       if (!response.success) {
-        console.error('Failed to remove block interval');
+        console.debug('Failed to remove block interval');
       } else {
         const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
         setBlockInterval(newBlockInterval);

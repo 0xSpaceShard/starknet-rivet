@@ -76,10 +76,10 @@ export const Popup = () => {
       if (response.ok) {
         await updateCurrentBlockNumber();
       } else {
-        console.error('Error creating block:', response.statusText);
+        console.debug('Error creating block:', response.statusText);
       }
     } catch (error) {
-      console.error('Error creating block:', error);
+      console.debug('Error creating block:', error);
     }
   }
 
@@ -92,7 +92,7 @@ export const Popup = () => {
       if (configData?.fork_config) {
         if (configData.fork_config?.block_number) {
           if (blockNumber <= configData.fork_config?.block_number) {
-            console.error('Error can not abort block: ', blockNumber);
+            console.debug('Error can not abort block: ', blockNumber);
             return;
           }
         }
@@ -101,7 +101,7 @@ export const Popup = () => {
       const tx = await provider.getBlockWithTxs(blockNumber);
 
       if (!isBlockWithTxs(tx)) {
-        console.error('Error no block hash');
+        console.debug('Error no block hash');
         return;
       }
       const response = await fetch(`${url}/abort_blocks`, {
@@ -116,10 +116,10 @@ export const Popup = () => {
       if (response.ok) {
         await updateCurrentBlockNumber();
       } else {
-        console.error('Error aborting block:', response.statusText);
+        console.debug('Error aborting block:', response.statusText);
       }
     } catch (error) {
-      console.error('Error aborting block:', error);
+      console.debug('Error aborting block:', error);
     }
   }
 

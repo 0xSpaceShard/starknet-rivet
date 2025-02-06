@@ -82,10 +82,10 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
                 .then(resolve)
                 .catch((error) => {
                   reject(error);
-                  console.error(`Failed to save updated block interval: ${error}`);
+                  console.debug(`Failed to save updated block interval: ${error}`);
                 });
             } else {
-              console.error(`Failed to clear alarm for URL: ${url}`);
+              console.debug(`Failed to clear alarm for URL: ${url}`);
               reject(new Error(`Failed to clear alarm for URL: ${url}`));
             }
           });
@@ -95,13 +95,13 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
             .then(resolve)
             .catch((error) => {
               reject(error);
-              console.error(`Failed to save updated block interval: ${error}`);
+              console.debug(`Failed to save updated block interval: ${error}`);
             });
         }
       });
     });
   } catch (error) {
-    console.error('Error removing interval from block interval:', error);
+    console.debug('Error removing interval from block interval:', error);
     throw error;
   }
 }

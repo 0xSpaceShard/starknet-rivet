@@ -40,13 +40,13 @@ export const DeclareSmartContract: React.FC = () => {
               setCheckSierra(isValidSierra);
               setSelectedSierraFile(json);
             } catch (error) {
-              console.error('Error parsing JSON file:', error);
+              console.debug('Error parsing JSON file:', error);
             }
           }
         };
         reader.readAsText(file);
       } else {
-        console.error('Invalid file type. Please upload a JSON file.');
+        console.debug('Invalid file type. Please upload a JSON file.');
       }
     }
   };
@@ -65,13 +65,13 @@ export const DeclareSmartContract: React.FC = () => {
               const json = JSON.parse(content);
               setSelectedCasmFile(json);
             } catch (error) {
-              console.error('Error parsing JSON file:', error);
+              console.debug('Error parsing JSON file:', error);
             }
           }
         };
         reader.readAsText(file);
       } else {
-        console.error('Invalid file type. Please upload a JSON file.');
+        console.debug('Invalid file type. Please upload a JSON file.');
       }
     }
   };

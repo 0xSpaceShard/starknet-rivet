@@ -73,7 +73,7 @@ const RegisterRunningDocker: React.FC = () => {
       setDevnetIsAlive(true);
       await updateSelectedUrl(clickedUrl);
     } catch (error) {
-      console.error('Error fetching URL status:', error);
+      console.debug('Error fetching URL status:', error);
       setDevnetIsAlive(false);
     }
   };

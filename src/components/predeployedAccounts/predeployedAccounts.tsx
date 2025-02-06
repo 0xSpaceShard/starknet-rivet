@@ -54,7 +54,7 @@ export const PredeployedAccounts: React.FC = () => {
       }
       setAccounts(data);
     } catch (error) {
-      console.error('Error fetching container logs:', error);
+      console.debug('Error fetching container logs:', error);
     }
   }
 
@@ -84,7 +84,7 @@ export const PredeployedAccounts: React.FC = () => {
 
       return data;
     } catch (error) {
-      console.error('Error fetching container logs:', error);
+      console.debug('Error fetching container logs:', error);
       return null;
     }
   }
@@ -122,7 +122,7 @@ export const PredeployedAccounts: React.FC = () => {
       const data = await response.json();
       await updateCurrentBalance(BigInt(data.amount));
     } catch (error) {
-      console.error('Error fetching balance:', error);
+      console.debug('Error fetching balance:', error);
     }
   }
 
