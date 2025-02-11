@@ -5,6 +5,7 @@ import { AccountData } from '../context/interfaces';
 import { useSharedState } from '../context/context';
 import { CustomAccount, getCustomAccounts } from '../../background/syncStorage';
 import { AccountItem } from './AccountItem';
+import { logError } from '../../background/analytics';
 
 export const PredeployedAccounts: React.FC = () => {
   const context = useSharedState();
@@ -54,7 +55,7 @@ export const PredeployedAccounts: React.FC = () => {
       }
       setAccounts(data);
     } catch (error) {
-      console.debug('Error fetching container logs:', error);
+      logError('Error fetching container logs:', error);
     }
   }
 
@@ -84,7 +85,7 @@ export const PredeployedAccounts: React.FC = () => {
 
       return data;
     } catch (error) {
-      console.debug('Error fetching container logs:', error);
+      logError('Error fetching container logs:', error);
       return null;
     }
   }
@@ -122,7 +123,7 @@ export const PredeployedAccounts: React.FC = () => {
       const data = await response.json();
       await updateCurrentBalance(BigInt(data.amount));
     } catch (error) {
-      console.debug('Error fetching balance:', error);
+      logError('Error fetching balance:', error);
     }
   }
 

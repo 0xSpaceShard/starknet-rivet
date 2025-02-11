@@ -8,6 +8,7 @@ import {
 import { DeclareContractMessage, DeployContractMessage } from './interface';
 import { ETH_ADDRESS, MAX_AMOUNT_TO_MINT } from './constants';
 import { getSelectedUrl } from './syncStorage';
+import { logError } from './analytics';
 
 // Function to declare a Contract from Rivet extension
 export async function declareContract(
@@ -89,7 +90,7 @@ export async function getTokenBalance(contractAddr: string) {
       symbol,
     };
   } catch (error) {
-    console.debug('ERR: ', error);
+    logError('ERR: ', error);
     return null;
   }
 }
@@ -164,7 +165,7 @@ export async function sendToAccount(
     const balance = await erc20.balanceOf(acc.address);
 
     if (amount > balance) {
-      console.debug('Insufficient account balance');
+      logError('Insufficient account balance');
       return balance;
     }
 

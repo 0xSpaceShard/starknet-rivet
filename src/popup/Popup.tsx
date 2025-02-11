@@ -26,6 +26,7 @@ import { TransactionDetails } from '../components/transaction/TransactionDetails
 import { GasPriceModification } from '../components/settings/gasPriceModification';
 
 import './Popup.css';
+import { logError } from '../background/analytics';
 
 interface BlockWithTxs {
   block_hash: string;
@@ -76,10 +77,10 @@ export const Popup = () => {
       if (response.ok) {
         await updateCurrentBlockNumber();
       } else {
-        console.debug('Error creating block:', response.statusText);
+        logError('Error creating block:', response.statusText);
       }
     } catch (error) {
-      console.debug('Error creating block:', error);
+      logError('Error creating block:', error);
     }
   }
 
@@ -92,7 +93,7 @@ export const Popup = () => {
       if (configData?.fork_config) {
         if (configData.fork_config?.block_number) {
           if (blockNumber <= configData.fork_config?.block_number) {
-            console.debug('Error can not abort block: ', blockNumber);
+            logError('Error can not abort block: ', blockNumber);
             return;
           }
         }
@@ -101,7 +102,7 @@ export const Popup = () => {
       const tx = await provider.getBlockWithTxs(blockNumber);
 
       if (!isBlockWithTxs(tx)) {
-        console.debug('Error no block hash');
+        logError('Error no block hash');
         return;
       }
       const response = await fetch(`${url}/abort_blocks`, {
@@ -116,10 +117,10 @@ export const Popup = () => {
       if (response.ok) {
         await updateCurrentBlockNumber();
       } else {
-        console.debug('Error aborting block:', response.statusText);
+        logError('Error aborting block:', response.statusText);
       }
     } catch (error) {
-      console.debug('Error aborting block:', error);
+      logError('Error aborting block:', error);
     }
   }
 

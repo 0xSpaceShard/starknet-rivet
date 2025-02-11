@@ -1,3 +1,5 @@
+import { logError } from '../background/analytics';
+
 console.info('contentScript is running');
 
 const container = document.head || document.documentElement;
@@ -31,7 +33,7 @@ getExtensionId()
     extensionId = id;
   })
   .catch((error) => {
-    console.debug('Error getting extension ID:', error);
+    logError('Error getting extension ID:', error);
   });
 
 interface ExtensionMessage {
@@ -79,12 +81,12 @@ window.addEventListener('message', async function (event: MessageEvent) {
           res = await chrome.runtime.sendMessage({ type: eventData.type });
           break;
         default:
-          console.debug('Unhandled message type:', eventData.type);
+          logError('Unhandled message type:', eventData.type);
           return;
       }
       window.postMessage({ ...res, type: res.type }, window.location.origin);
     } catch (error) {
-      console.debug('Unexpected error:', error);
+      logError('Unexpected error:', error);
     }
   }
 });
@@ -112,14 +114,14 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
           break;
         }
         default:
-          console.debug('Unhandled message type:', message.type);
+          logError('Unhandled message type:', message.type);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.debug('Error in handling message:', error.message);
+        logError('Error in handling message:', error.message);
         sendResponse({ success: false, error: error.message });
       } else {
-        console.debug('An unknown error occurred', error);
+        logError('An unknown error occurred', error);
         sendResponse({ success: false, error: 'An unknown error occurred' });
       }
     }

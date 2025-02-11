@@ -6,6 +6,7 @@ import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 import { useDeployedContracts } from '../hooks/useDeployedContracts';
+import { logError } from '../../background/analytics';
 
 interface AbiEntry {
   name?: string;
@@ -116,10 +117,10 @@ export const DeploySmartContract: React.FC = () => {
         const params = parseConstructorParams(constructorEntry);
         setConstructorParams(params);
       } else {
-        console.debug('Constructor not found in the ABI');
+        logError('Constructor not found in the ABI');
       }
     } catch (error) {
-      console.debug('Error fetching ABI or parsing constructor:', error);
+      logError('Error fetching ABI or parsing constructor:', error);
     }
   }
 

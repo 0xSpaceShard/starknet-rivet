@@ -1,3 +1,4 @@
+import { logError } from '../../background/analytics';
 import { AccountData } from '../context/interfaces';
 
 export async function sendAccountUpdatedMessage(selectedAccount: AccountData | null) {
@@ -38,7 +39,7 @@ export function sendMessageToSetBlockInterval(
     },
     (response) => {
       if (!response.success) {
-        console.debug('Failed to set new block inteval');
+        logError('Failed to set new block inteval');
       } else {
         const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
         setBlockInterval(newBlockInterval);
@@ -60,7 +61,7 @@ export function sendMessageToRemoveBlockInterval(
     },
     (response) => {
       if (!response.success) {
-        console.debug('Failed to remove block interval');
+        logError('Failed to remove block interval');
       } else {
         const newBlockInterval = setBlockIntervalFromObject(response.blockInterval);
         setBlockInterval(newBlockInterval);

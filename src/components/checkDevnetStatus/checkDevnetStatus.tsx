@@ -3,6 +3,7 @@ import { Typography } from '@mui/material';
 import { useSharedState } from '../context/context';
 
 import './checkDevnetStatus.css';
+import { logError } from '../../background/analytics';
 
 const CheckDevnetStatus: React.FC<{
   url: string;
@@ -39,7 +40,7 @@ const CheckDevnetStatus: React.FC<{
           updateIsAliveStatus(false);
         }
         setIsAlive(false);
-        console.debug('Error checking devnet status:', error);
+        logError('Error checking devnet status:', error);
       }
     };
 
