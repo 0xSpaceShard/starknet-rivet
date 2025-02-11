@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-globals */
+
 // const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX';
 // const API_SECRET = 'API';
 const CLIENT_ID_KEY = 'ga_client_id';
@@ -53,7 +55,7 @@ export function logError(
 }
 
 export function setupErrorTracking() {
-  window.addEventListener('error', (event) => {
+  self.addEventListener('error', (event) => {
     sendAnalyticsEvent('extension_error', {
       message: event.message,
       source: event.filename,
@@ -62,7 +64,7 @@ export function setupErrorTracking() {
     });
   });
 
-  window.addEventListener('unhandledrejection', (event) => {
+  self.addEventListener('unhandledrejection', (event) => {
     sendAnalyticsEvent('unhandled_promise_rejection', {
       reason: event.reason,
     });
