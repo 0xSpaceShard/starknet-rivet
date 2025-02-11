@@ -16,6 +16,7 @@ import { useSharedState } from '../context/context';
 import { modifyEthBalance } from '../../background/contracts';
 import { Spinner } from '../utils/spinner';
 import { fetchCurrentBlockNumber } from '../../background/utils';
+import { logError } from '../../background/analytics';
 
 export const ModifyBalance: React.FC = () => {
   const { state } = useLocation();
@@ -63,7 +64,7 @@ export const ModifyBalance: React.FC = () => {
       setLastFetchedUrl('');
       handleBack();
     } catch (error) {
-      console.debug(error);
+      logError('Error modifying balance', error);
     } finally {
       setIsUpdating(false);
     }

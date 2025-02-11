@@ -8,8 +8,11 @@ import {
   RequestMessageHandler,
   TransactionMessage,
 } from '../components/contractInteraction/messageActions';
+import { logError, setupErrorTracking } from './analytics';
 
 console.log('Background script is running');
+
+setupErrorTracking();
 
 // Listener for incoming messages from the extension popup or content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -192,7 +195,7 @@ async function executeRivetTransaction(
     const { selectedAccount } = result;
 
     if (!selectedAccount) {
-      console.debug('No selected account found in storage.');
+      logError('No selected account found in storage.');
       sendResponse({
         type: 'RIVET_TRANSACTION_FAILED',
         data: { error: 'Error retrieving selected account from storage.' },
@@ -253,7 +256,7 @@ async function executeRivetTransaction(
       }
     );
   } catch (error) {
-    console.debug('Error retrieving selected account from storage.', error);
+    logError('Error retrieving selected account from storage.', error);
     sendResponse({
       type: 'RIVET_TRANSACTION_FAILED',
       data: { transaction_hash: '', error: 'Error retrieving selected account from storage.' },
@@ -271,7 +274,7 @@ async function signRivetMessage(
     const { selectedAccount } = result;
 
     if (!selectedAccount) {
-      console.debug('No selected account found in storage.');
+      logError('No selected account found in storage.');
       sendResponse({ error: 'No selected account found in storage.' });
       return;
     }
@@ -321,7 +324,7 @@ async function signRivetMessage(
       }
     );
   } catch (error) {
-    console.debug('Error retrieving selected account from storage.', error);
+    logError('Error retrieving selected account from storage.', error);
     sendResponse({ error: 'Error retrieving selected account from storage.' });
   }
 }

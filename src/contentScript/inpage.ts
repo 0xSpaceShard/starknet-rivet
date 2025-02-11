@@ -5,6 +5,7 @@ import {
   userEventHandlers,
 } from '../components/contractInteraction/starknetWindowObject';
 import { WindowMessageType } from '../components/contractInteraction/messageActions';
+import { logError } from '../background/analytics';
 
 async function loadModules() {
   const { starknetWindowObject } = await import(
@@ -29,7 +30,7 @@ async function loadModules() {
           });
         } else {
           // If it's not configurable, log an error or handle it accordingly
-          console.debug('Cannot modify read-only and non-configurable property:', name);
+          logError('Cannot modify read-only and non-configurable property:', name);
         }
       } else {
         // If it doesn't exist or is already writable, assign directly

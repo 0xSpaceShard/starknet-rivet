@@ -29,6 +29,7 @@ import { sendMessageToRemoveBlockInterval } from '../utils/sendMessageBackground
 import { DEFAULT_DEVNET_URL, LOCALHOST_DEVNET_URL } from '../../background/constants';
 import { darkTheme } from '../..';
 import { HomeTab } from '../home/home';
+import { logError } from '../../background/analytics';
 
 const RegisterRunningDocker: React.FC = () => {
   const context = useSharedState();
@@ -73,7 +74,7 @@ const RegisterRunningDocker: React.FC = () => {
       setDevnetIsAlive(true);
       await updateSelectedUrl(clickedUrl);
     } catch (error) {
-      console.debug('Error fetching URL status:', error);
+      logError('Error fetching URL status:', error);
       setDevnetIsAlive(false);
     }
   };
