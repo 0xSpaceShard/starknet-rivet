@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
-
-// const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX';
-// const API_SECRET = 'API';
+const GA_MEASUREMENT_ID = 'G-W218P76E1F';
+const API_SECRET = 'TRg4pCQcTYGloEouzhMBoA';
 const CLIENT_ID_KEY = 'ga_client_id';
 
 async function getClientId(): Promise<string> {
@@ -10,7 +9,7 @@ async function getClientId(): Promise<string> {
       if (result[CLIENT_ID_KEY]) {
         resolve(result[CLIENT_ID_KEY]);
       } else {
-        const newClientId = crypto.randomUUID(); // Generate a unique ID
+        const newClientId = crypto.randomUUID();
         chrome.storage.local.set({ [CLIENT_ID_KEY]: newClientId });
         resolve(newClientId);
       }
@@ -32,8 +31,7 @@ export async function sendAnalyticsEvent(eventName: string, params: Record<strin
 
   try {
     await fetch(
-      `dummyurl`,
-      // `https://www.google-analytics.com/mp/collect?measurement_id=${GA_MEASUREMENT_ID}&api_secret=${API_SECRET}`,
+      `https://www.google-analytics.com/mp/collect?measurement_id=${GA_MEASUREMENT_ID}&api_secret=${API_SECRET}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,7 +49,7 @@ export function logError(
   context: Record<string, any> = {}
 ) {
   console.debug(errorMessage, error);
-  sendAnalyticsEvent('extension_error', { message: errorMessage, ...context });
+  sendAnalyticsEvent('extension_error', { errorMessage, ...context });
 }
 
 export function setupErrorTracking() {

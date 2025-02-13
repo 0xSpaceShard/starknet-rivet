@@ -2,7 +2,7 @@
   "name": "Starknet Rivet",
   "displayName": "starknet_rivet",
   "version": "1.0.0",
-  "version_name": "1.0 rc",
+  "version_name": "1.0.0",
   "author": "Toni Tabak",
   "description": "Starknet Devnet Developer Wallet",
   "type": "module",
