@@ -5,7 +5,7 @@ import packageData from '../package.json';
 // const isDev = process.env.NODE_ENV === 'development';
 
 export default defineManifest({
-  name: 'starknet_rivet',
+  name: packageData.displayName,
   description: packageData.description,
   version: packageData.version,
   manifest_version: 3,
