@@ -6,6 +6,7 @@ import { CompiledSierraCasm, isSierra } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
+import { logError } from '../../background/analytics';
 
 export const DeclareSmartContract: React.FC = () => {
   const [selectedSierraFile, setSelectedSierraFile] = useState<object | null>(null);
@@ -40,13 +41,13 @@ export const DeclareSmartContract: React.FC = () => {
               setCheckSierra(isValidSierra);
               setSelectedSierraFile(json);
             } catch (error) {
-              console.debug('Error parsing JSON file:', error);
+              logError('Error parsing JSON file:', error);
             }
           }
         };
         reader.readAsText(file);
       } else {
-        console.debug('Invalid file type. Please upload a JSON file.');
+        logError('Invalid file type. Please upload a JSON file.');
       }
     }
   };
@@ -65,13 +66,13 @@ export const DeclareSmartContract: React.FC = () => {
               const json = JSON.parse(content);
               setSelectedCasmFile(json);
             } catch (error) {
-              console.debug('Error parsing JSON file:', error);
+              logError('Error parsing JSON file:', error);
             }
           }
         };
         reader.readAsText(file);
       } else {
-        console.debug('Invalid file type. Please upload a JSON file.');
+        logError('Invalid file type. Please upload a JSON file.');
       }
     }
   };

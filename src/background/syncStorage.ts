@@ -1,4 +1,5 @@
 import { AccountData, UrlConfig } from '../components/context/interfaces';
+import { logError } from './analytics';
 import { DEFAULT_DEVNET_URL } from './constants';
 import { Contract, DevnetInfo } from './interface';
 
@@ -82,10 +83,10 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
                 .then(resolve)
                 .catch((error) => {
                   reject(error);
-                  console.debug(`Failed to save updated block interval: ${error}`);
+                  logError(`Failed to save updated block interval: ${error}`);
                 });
             } else {
-              console.debug(`Failed to clear alarm for URL: ${url}`);
+              logError(`Failed to clear alarm for URL: ${url}`);
               reject(new Error(`Failed to clear alarm for URL: ${url}`));
             }
           });
@@ -95,13 +96,13 @@ export async function removeIntervalFromBlockIntervalInSyncStorage(url: string):
             .then(resolve)
             .catch((error) => {
               reject(error);
-              console.debug(`Failed to save updated block interval: ${error}`);
+              logError(`Failed to save updated block interval: ${error}`);
             });
         }
       });
     });
   } catch (error) {
-    console.debug('Error removing interval from block interval:', error);
+    logError('Error removing interval from block interval:', error);
     throw error;
   }
 }

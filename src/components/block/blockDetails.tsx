@@ -7,6 +7,7 @@ import { darkTheme } from '../..';
 import DisplayBlockInfo from './displayBlockInfo';
 import { useFetchTransactionsDetails } from '../hooks/hooks';
 import { HomeTab } from '../home/home';
+import { logError } from '../../background/analytics';
 
 const BlockDetailsPage: React.FC = () => {
   const context = useSharedState();
@@ -25,7 +26,7 @@ const BlockDetailsPage: React.FC = () => {
       try {
         await fetchTransactionsDetailsByBlock(index);
       } catch (error) {
-        console.debug('Error fetching current block number:', error);
+        logError('Error fetching current block number:', error);
       }
     };
     fetchTransactionsDetails();

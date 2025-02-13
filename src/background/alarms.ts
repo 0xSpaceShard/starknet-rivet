@@ -1,3 +1,4 @@
+import { logError } from './analytics';
 import { getBlockIntervalFromSyncStorage } from './syncStorage';
 
 // Listener for Chrome alarms
@@ -23,7 +24,7 @@ export async function createMintBlockAlarm(url: string, interval: number): Promi
             // Update block interval and set new alarm
             updateAndSetAlarm(url, interval, blockInterval);
           } else {
-            console.debug(`Failed to clear existing alarm for URL: ${url}`);
+            logError(`Failed to clear existing alarm for URL: ${url}`);
           }
         });
       } else {
@@ -32,7 +33,7 @@ export async function createMintBlockAlarm(url: string, interval: number): Promi
       }
     });
   } catch (error) {
-    console.debug('Error create Mint Block Alarm:', error);
+    logError('Error create Mint Block Alarm:', error);
   }
 }
 
@@ -64,9 +65,9 @@ export async function mintBlock(url: string): Promise<void> {
     if (response.ok) {
       console.log(`Minted block for ${url}`);
     } else {
-      console.debug('Error creating block:', response.statusText);
+      logError('Error creating block:', response.statusText);
     }
   } catch (error) {
-    console.debug('Error creating block:', error);
+    logError('Error creating block:', error);
   }
 }

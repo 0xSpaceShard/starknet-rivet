@@ -5,7 +5,7 @@ import packageData from '../package.json';
 // const isDev = process.env.NODE_ENV === 'development';
 
 export default defineManifest({
-  name: 'starknet_rivet',
+  name: packageData.displayName,
   description: packageData.description,
   version: packageData.version,
   manifest_version: 3,
@@ -50,7 +50,7 @@ export default defineManifest({
       matches: ['<all_urls>'],
     },
   ],
-  host_permissions: ['http://localhost:3000/*'],
+  host_permissions: ['http://localhost/*, http://127.0.0.1/*'],
   permissions: ['storage', 'activeTab', 'tabs', 'alarms'],
   chrome_url_overrides: {
     newtab: 'newtab.html',

@@ -14,6 +14,7 @@ import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '../..';
 import { UrlItem } from '../context/interfaces';
 import { useSharedState } from '../context/context';
+import { logError } from '../../background/analytics';
 
 export const SwitchStarknetChainMessage: React.FC = () => {
   const context = useSharedState();
@@ -44,7 +45,7 @@ export const SwitchStarknetChainMessage: React.FC = () => {
         }
       });
     } catch (error) {
-      console.debug('Error fetching URL status:', error);
+      logError('Error fetching URL status:', error);
       chrome.runtime.sendMessage({
         type: 'SWITCH_STARKNET_CHAIN_RES',
         data: false,
@@ -72,7 +73,7 @@ export const SwitchStarknetChainMessage: React.FC = () => {
           }
         }
       } catch (error) {
-        console.debug(`Failed to fetch info for ${item.url}:`, error);
+        logError(`Failed to fetch info for ${item.url}:`, error);
       }
     });
     setNewUrlList(filteredUrlList);

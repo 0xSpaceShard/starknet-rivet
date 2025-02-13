@@ -26,6 +26,7 @@ import { printAccountType } from '../../background/utils';
 import { AccountType } from '../../background/syncStorage';
 import { darkTheme } from '../..';
 import { useTokens } from '../hooks/useTokens';
+import { logError } from '../../background/analytics';
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const { state } = useLocation();
@@ -93,7 +94,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
       setConfigData(data);
       return data;
     } catch (error) {
-      console.debug('Error fetching config logs:', error);
+      logError('Error fetching config logs:', error);
       return null;
     }
   }
@@ -155,7 +156,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
       try {
         await fetchAccountConfig();
       } catch (error) {
-        console.debug(error);
+        logError('Error fetching account', error);
       }
     };
     accountConfig();
