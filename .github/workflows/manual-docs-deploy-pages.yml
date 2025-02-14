@@ -36,7 +36,7 @@ jobs:
           path: www/build
 
   deploy:
-    name: documentation deploy
+    name: Documentation deploy
     runs-on: ubuntu-latest
     needs: [build]
     permissions:

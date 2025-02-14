@@ -4,8 +4,6 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
-const generateBaseUrl = (baseUrl = '') => `/${baseUrl.trim()}/`.replace(/\/+/g, '/');
-
 const config: Config = {
   title: 'Starknet Rivet',
   tagline: 'Starknet Devnet Wallet for Developers',
@@ -17,7 +15,7 @@ const config: Config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   // TODO: Check if we're going to do it like this
-  baseUrl: generateBaseUrl(process.env.DOCS_BASE_URL),
+  baseUrl: '/starknet-rivet/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
