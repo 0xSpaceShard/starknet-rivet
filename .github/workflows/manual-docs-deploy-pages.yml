@@ -1,14 +1,6 @@
 name: '[Manual] Documentation Deploy Pages'
 on: workflow_dispatch
 
-# populate the following environment variables for the "github-pages" environment
-# - default:
-#     ORGANIZATION_NAME
-#     PROJECT_NAME
-#     DEPLOYMENT_BRANCH
-# - custom:
-#     DOCS_BASE_URL
-
 jobs:
   build:
     name: Documentation build

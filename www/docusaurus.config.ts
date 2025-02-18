@@ -10,11 +10,11 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  // TODO: Check if we're going to have a site
+  // TODO: Change once we get a domain
   url: 'https://starknet-rivet.com',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  // TODO: Check if we're going to do it like this
+  // TODO: Change once we get a domain
   baseUrl: '/starknet-rivet/',
 
   // GitHub pages deployment config.
@@ -61,6 +61,11 @@ const config: Config = {
           label: 'Guide',
           docId: 'getting_started',
           type: 'doc',
+          position: 'left',
+        },
+        {
+          type: 'docsVersionDropdown',
+          dropdownActiveClassDisabled: true,
           position: 'left',
         },
         {
