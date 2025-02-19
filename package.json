@@ -28,7 +28,10 @@
     "test": "jest -i",
     "test:watch": "jest --watch",
     "test:coverage": "jest -i --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs:build": "cd www && GIT_REVISION_OVERRIDE=${npm_config_git_revision_override} npm run build",
+    "docs:build:version": "v=$(npm run info:version -s) && npm run docs:build --git-revision-override=${npm_config_git_revision_override=v$v}",
+    "info:version": "npm pkg get version | xargs"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
