@@ -19,6 +19,8 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
+import JsonView from 'react18-json-view';
+import 'react18-json-view/src/dark.css';
 import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
 import { useCopyTooltip, useFetchTransactionsDetails } from '../hooks/hooks';
 import { useSharedState } from '../context/context';
@@ -38,6 +40,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setDevnetIsAlive,
     selectedAccount,
     currentBalance,
+    updateCurrentBalance,
     setConfigData,
     configData,
     transactionData,
@@ -51,6 +54,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
   const [transactions, setTransactions] = useState<any[]>([]);
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
   const [transactionsPage, setTransactionsPage] = useState(1);
   const pageSize = 15;
@@ -151,15 +155,32 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     navigate('/');
   };
 
-  useEffect(() => {
-    const accountConfig = async () => {
-      try {
-        await fetchAccountConfig();
-      } catch (error) {
-        logError('Error fetching account', error);
+  const fetchAndUpdateBalance = async (address: string | undefined) => {
+    try {
+      let fetchUrl = `${url}/account_balance?address=${address}`;
+      if (configData?.block_generation_on === 'demand') {
+        fetchUrl += '&block_tag=pending';
       }
-    };
-    accountConfig();
+      const response = await fetch(fetchUrl);
+      const data = await response.json();
+      await updateCurrentBalance(BigInt(data.amount));
+    } catch (error) {
+      logError('Error fetching balance:', error);
+    }
+  };
+
+  const fetchAccountData = useCallback(async () => {
+    try {
+      await fetchAccountConfig();
+      await fetchAndUpdateBalance(selectedAccount?.address);
+      setIsLoading(false);
+    } catch (error) {
+      logError('Error fetching account data', error);
+    }
+  }, [selectedAccount]);
+
+  useEffect(() => {
+    fetchAccountData();
   }, []);
 
   const fetchTransactions = useCallback(async () => {
@@ -192,7 +213,10 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     fetchTransactions();
   }, [selectedAccount, currentBlock, transactionsPage]);
 
-  const balanceString = useMemo(() => getBalanceStr(currentBalance), [currentBalance]);
+  const balanceString = useMemo(
+    () => (!isLoading ? getBalanceStr(currentBalance) : ''),
+    [currentBalance, isLoading]
+  );
   const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);
   const typeStr = useMemo(() => printAccountType(type), [type]);
 
@@ -295,9 +319,15 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             {selectedAccount.address && (
               <Container>
                 <Box padding={4} paddingLeft={7} display="flex" justifyContent="center">
-                  <Typography variant="h5" display="inline-block" paddingRight={1}>
-                    {balanceString} ETH
-                  </Typography>
+                  {!isLoading ? (
+                    <Typography variant="h5" display="inline-block" paddingRight={1}>
+                      {balanceString} ETH
+                    </Typography>
+                  ) : (
+                    <Stack direction="row" justifyContent="center" paddingY={2}>
+                      <CircularProgress size={20} />
+                    </Stack>
+                  )}
                   <Tooltip title="Send">
                     <IconButton
                       size="small"
@@ -431,9 +461,11 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                   color: transactionData.error ? 'red' : 'inherit',
                 }}
               >
-                {transactionData.error
-                  ? JSON.stringify(transactionData.error, null, 2)
-                  : JSON.stringify(transactionData.data, null, 2)}
+                {transactionData.error ? (
+                  <JsonView src={transactionData.error} />
+                ) : (
+                  <JsonView src={transactionData.data} />
+                )}
               </Box>
               {transactionData.gas_fee && (
                 <Box
@@ -488,7 +520,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                   wordBreak: 'break-word',
                 }}
               >
-                {JSON.stringify(signatureData, null, 2)}
+                <JsonView src={signatureData} />
               </Box>
               <Stack justifyContent={'center'} direction={'row'} spacing={3}>
                 <Button

@@ -19,7 +19,6 @@ export const PredeployedAccounts: React.FC = () => {
     updateCurrentBalance,
     urlList,
     updateUrlList,
-    configData,
     setConfigData,
     lastFetchedUrl,
     setLastFetchedUrl,
@@ -101,7 +100,6 @@ export const PredeployedAccounts: React.FC = () => {
 
   const handleAccountClick = async (account: AccountData) => {
     if (!account) return;
-    await fetchAndUpdateBalance(account.address);
     await updateSelectedAccount(account);
     navigate(`/accounts/${account.address}`);
   };
@@ -112,20 +110,6 @@ export const PredeployedAccounts: React.FC = () => {
     await updateSelectedAccount(account);
     navigate(`/accounts/${account.address}`, { state: { type: account.type } });
   };
-
-  async function fetchAndUpdateBalance(address: string | undefined) {
-    try {
-      let fetchUrl = `${url}/account_balance?address=${address}`;
-      if (configData?.block_generation_on === 'demand') {
-        fetchUrl += '&block_tag=pending';
-      }
-      const response = await fetch(fetchUrl);
-      const data = await response.json();
-      await updateCurrentBalance(BigInt(data.amount));
-    } catch (error) {
-      logError('Error fetching balance:', error);
-    }
-  }
 
   return (
     <>
