@@ -19,6 +19,8 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
+import JsonView from 'react18-json-view';
+import 'react18-json-view/src/dark.css';
 import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
 import { useCopyTooltip, useFetchTransactionsDetails } from '../hooks/hooks';
 import { useSharedState } from '../context/context';
@@ -459,9 +461,11 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                   color: transactionData.error ? 'red' : 'inherit',
                 }}
               >
-                {transactionData.error
-                  ? JSON.stringify(transactionData.error, null, 2)
-                  : JSON.stringify(transactionData.data, null, 2)}
+                {transactionData.error ? (
+                  <JsonView src={transactionData.error} />
+                ) : (
+                  <JsonView src={transactionData.data} />
+                )}
               </Box>
               {transactionData.gas_fee && (
                 <Box
@@ -516,7 +520,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                   wordBreak: 'break-word',
                 }}
               >
-                {JSON.stringify(signatureData, null, 2)}
+                <JsonView src={signatureData} />
               </Box>
               <Stack justifyContent={'center'} direction={'row'} spacing={3}>
                 <Button
