@@ -71,13 +71,13 @@ export const starknetWindowObject: StarknetWindowObject = {
       });
     } else {
       assertNever(event);
-      throw new Error(`Unknwown event: ${event}`);
+      throw new Error(`Unknown event: ${event}`);
     }
   },
   off: (event, handleEvent) => {
     if (event !== 'accountsChanged' && event !== 'networkChanged') {
       assertNever(event);
-      throw new Error(`Unknwown event: ${event}`);
+      throw new Error(`Unknown event: ${event}`);
     }
 
     const eventIndex = userEventHandlers.findIndex(

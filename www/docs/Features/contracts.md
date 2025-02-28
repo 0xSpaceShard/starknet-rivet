@@ -10,7 +10,7 @@ You are able to view all of the predeployed and deployed contracts on the Contra
 
 ![](../../static/img/features/contracts/contracts_1.png)
 
-### Declare and delpoy
+### Declare and deploy
 
 You are also able to declare and then deploy a new contract.
 
