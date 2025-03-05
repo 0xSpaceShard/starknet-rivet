@@ -1,6 +1,8 @@
 import React, { ReactNode } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { DataContextProvider } from './components/context/context';
 import { StarknetProvider } from './components/starknet/starknet-provider';
 
@@ -17,15 +19,19 @@ export const darkTheme = createTheme({
   },
 });
 
+const queryClient = new QueryClient({});
+
 export const SharedComponent: React.FC<SharedComponentProps> = ({ children }) => (
-  <DataContextProvider>
-    <StarknetProvider>
-      <React.StrictMode>
-        <ThemeProvider theme={darkTheme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
-      </React.StrictMode>
-    </StarknetProvider>
-  </DataContextProvider>
+  <QueryClientProvider client={queryClient}>
+    <DataContextProvider>
+      <StarknetProvider>
+        <React.StrictMode>
+          <ThemeProvider theme={darkTheme}>
+            <CssBaseline />
+            {children}
+          </ThemeProvider>
+        </React.StrictMode>
+      </StarknetProvider>
+    </DataContextProvider>
+  </QueryClientProvider>
 );

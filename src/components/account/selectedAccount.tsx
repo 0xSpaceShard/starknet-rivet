@@ -390,7 +390,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
           </>
         ) : null}
         {!isLoadingTransactions ? (
-          transactions.length ? (
+          transactions.length > 0 ? (
             <>
               <Divider sx={{ marginY: 3 }} variant="middle" />
               <Container>
