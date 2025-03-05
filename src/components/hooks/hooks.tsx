@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
-import { RpcProvider } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import useGetBlockWithTxs from '../../api/starknet/hooks/useGetBlockWithTxs';
+import { useProviderState } from '../../context/provider/ProviderContext';
 
 export const useCopyTooltip = (initialState: boolean = false, timeout: number = 3000) => {
   const [isCopyTooltipShown, setIsCopyTooltipShown] = useState(initialState);
@@ -20,6 +20,7 @@ export const useCopyTooltip = (initialState: boolean = false, timeout: number = 
 export const useFetchTransactionsDetails = () => {
   const { selectedUrl: url, setBlockDetails, devnetIsAlive } = useSharedState();
   const { mutateAsync: getBlockWithTxs } = useGetBlockWithTxs();
+  const { provider } = useProviderState();
 
   const fetchTransactionsDetailsByBlock = useCallback(
     async (index: number) => {
@@ -33,9 +34,8 @@ export const useFetchTransactionsDetails = () => {
 
   const fetchTransactionDetailsForLatestBlocks = useCallback(
     async (endIndex: number, count: number = 10) => {
-      if (!devnetIsAlive) return [];
+      if (!devnetIsAlive || !provider) return [];
 
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
       const endIdx = endIndex - count + 1 > 0 ? endIndex - count + 1 : 0;
       const items: Awaited<ReturnType<typeof provider.getBlockWithTxs>>[] = [];
 
