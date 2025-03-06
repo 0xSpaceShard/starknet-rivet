@@ -54,7 +54,7 @@ export const BlockList: React.FC = () => {
                       </Stack>
                       <Stack alignItems="center" justifyContent={'space-between'} height="100%">
                         <Typography variant="caption">Transactions</Typography>
-                        <Typography variant="subtitle2">{elem.transactionCount}</Typography>
+                        <Typography variant="subtitle2">{elem.transactions.length}</Typography>
                       </Stack>
                     </Stack>
                   </Button>

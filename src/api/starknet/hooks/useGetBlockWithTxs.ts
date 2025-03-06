@@ -2,14 +2,16 @@ import { useMutation } from '@tanstack/react-query';
 import { RpcProvider } from 'starknet-6';
 
 import starknetApi from '../service';
-import { useProviderState } from '../../../context/provider/ProviderContext';
+import { useRpcProviderState } from '../../../context/rpcProvider/RpcProviderContext';
+import { useSharedState } from '../../../components/context/context';
 
 const useGetBlockWithTxs = () => {
-  const { provider } = useProviderState();
+  const { rpcProvider } = useRpcProviderState();
+  const { setBlockDetails } = useSharedState();
 
   return useMutation({
     mutationFn: (blockNumber: number) =>
-      starknetApi.getBlockWithTxs(provider as RpcProvider, blockNumber),
+      starknetApi.getBlockWithTxs(rpcProvider as RpcProvider, blockNumber, setBlockDetails),
   });
 };
 

@@ -28,7 +28,3 @@ export interface Transaction {
   sender_address: string;
   calldata: string[];
 }
-
-export interface BlocksWithTxs extends BlockWithTxs {
-  transactionCount: number;
-}

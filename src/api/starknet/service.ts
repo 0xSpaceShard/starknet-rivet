@@ -2,27 +2,19 @@
 import { RpcProvider } from 'starknet-6';
 
 import { logError } from '../../background/analytics';
-import { BlockWithTxs, BlocksWithTxs } from './types';
+import { BlockWithTxs } from './types';
 
 const starknetApi = {
-  getBlockTransactionCount: async (
-    provider: RpcProvider,
-    index: number
-  ): Promise<number | null> => {
-    try {
-      return await provider.getBlockTransactionCount(index);
-    } catch (error) {
-      logError('getTransactionBlock error:', error);
-      return null;
-    }
-  },
-
   getBlockWithTxs: async (
     provider: RpcProvider,
-    blockNumber: number
+    blockNumber: number,
+    setBlockDetails: React.Dispatch<any>
   ): Promise<BlockWithTxs | null> => {
     try {
-      return (await provider.getBlockWithTxs(blockNumber)) as unknown as BlockWithTxs;
+      const block = (await provider.getBlockWithTxs(blockNumber)) as unknown as BlockWithTxs;
+      setBlockDetails(block);
+
+      return block;
     } catch (error) {
       logError('getBlockWithTxs error:', error);
       return null;
@@ -34,8 +26,9 @@ const starknetApi = {
     index: number,
     currentBlock: number,
     pageSize: number
-  ): Promise<BlocksWithTxs[]> => {
+  ): Promise<BlockWithTxs[]> => {
     try {
+      console.log('Called', index, currentBlock, pageSize);
       const start = currentBlock - index * pageSize;
       const end = index + 1 >= 0 ? start - pageSize + 1 : 0;
       const indices: number[] = [];
@@ -47,24 +40,8 @@ const starknetApi = {
       const blockPromises = indices.map(
         (i) => provider.getBlockWithTxs(i) as Promise<BlockWithTxs>
       );
-      const transactionCountPromises = indices.map((i) =>
-        starknetApi.getBlockTransactionCount(provider, i)
-      );
 
-      const [blocks, transactionCounts] = await Promise.all([
-        Promise.all(blockPromises),
-        Promise.all(transactionCountPromises),
-      ]);
-
-      const blockData: BlocksWithTxs[] = blocks
-        .map((block, idx) => {
-          const transactionCount = transactionCounts[idx];
-          return {
-            ...block,
-            transactionCount: transactionCount as number,
-          };
-        })
-        .filter((block): block is BlocksWithTxs => block !== null);
+      const blockData = await Promise.all(blockPromises);
 
       return blockData;
     } catch (error) {

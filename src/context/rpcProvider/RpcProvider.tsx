@@ -1,30 +1,30 @@
 import React from 'react';
-import { RpcProvider } from 'starknet-6';
+import { RpcProvider as RpcConstructor } from 'starknet-6';
 
-import { ProviderActionsContext, ProviderStateContext } from './ProviderContext';
 import { providerReducer } from './reducer';
 import { initialState } from './state';
 import { useSharedState } from '../../components/context/context';
-import { ActionType, IProviderProps } from './types';
+import { ActionType, IRpcProviderProps } from './types';
 import { logError } from '../../background/analytics';
+import { RpcProviderActionsContext, RpcProviderStateContext } from './RpcProviderContext';
 
-const Provider = ({ children }: IProviderProps) => {
+const RpcProvider = ({ children }: IRpcProviderProps) => {
   const [state, dispatch] = React.useReducer(providerReducer, initialState);
 
   const { selectedUrl: url } = useSharedState();
 
-  const loadProvider = React.useCallback(() => {
+  const loadRpcProvider = React.useCallback(() => {
     try {
       dispatch({
         type: ActionType.IS_LOADING,
         payload: { isLoading: true },
       });
 
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
+      const provider = new RpcConstructor({ nodeUrl: `${url}/rpc` });
 
       dispatch({
-        type: ActionType.LOAD_PROVIDER,
-        payload: { provider },
+        type: ActionType.LOAD_RPC_PROVIDER,
+        payload: { rpcProvider: provider },
       });
 
       dispatch({
@@ -40,7 +40,7 @@ const Provider = ({ children }: IProviderProps) => {
   }, [url]);
 
   React.useEffect(() => {
-    loadProvider();
+    loadRpcProvider();
   }, [url]);
 
   const clearState = () =>
@@ -50,17 +50,19 @@ const Provider = ({ children }: IProviderProps) => {
 
   const actions = React.useMemo(
     () => ({
-      loadProvider,
+      loadRpcProvider,
       clearState,
     }),
     []
   );
 
   return (
-    <ProviderStateContext.Provider value={state}>
-      <ProviderActionsContext.Provider value={actions}>{children}</ProviderActionsContext.Provider>
-    </ProviderStateContext.Provider>
+    <RpcProviderStateContext.Provider value={state}>
+      <RpcProviderActionsContext.Provider value={actions}>
+        {children}
+      </RpcProviderActionsContext.Provider>
+    </RpcProviderStateContext.Provider>
   );
 };
 
-export default Provider;
+export default RpcProvider;

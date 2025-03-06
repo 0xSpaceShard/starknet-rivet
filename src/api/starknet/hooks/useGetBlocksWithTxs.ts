@@ -3,18 +3,23 @@ import { RpcProvider } from 'starknet-6';
 
 import starknetApi from '../service';
 import { useSharedState } from '../../../components/context/context';
-import { useProviderState } from '../../../context/provider/ProviderContext';
+import { useRpcProviderState } from '../../../context/rpcProvider/RpcProviderContext';
 
 const PAGE_SIZE = 15;
 
-const useGetBlocksWithTxs = () => {
+const useGetBlocksWithTxs = (pageSize?: number) => {
   const { currentBlock } = useSharedState();
-  const { provider } = useProviderState();
+  const { rpcProvider } = useRpcProviderState();
 
   return useInfiniteQuery({
-    queryKey: ['BLOCKS_WITH_TXS', currentBlock, PAGE_SIZE],
+    queryKey: ['BLOCKS_WITH_TXS', currentBlock, pageSize || PAGE_SIZE],
     queryFn: ({ pageParam = 0 }) =>
-      starknetApi.getBlocksWithTxs(provider as RpcProvider, pageParam, currentBlock, PAGE_SIZE),
+      starknetApi.getBlocksWithTxs(
+        rpcProvider as RpcProvider,
+        pageParam,
+        currentBlock,
+        pageSize || PAGE_SIZE
+      ),
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length > 0 ? allPages.length : undefined;
     },

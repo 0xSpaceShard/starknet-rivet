@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { DataContextProvider } from './components/context/context';
 import { StarknetProvider } from './components/starknet/starknet-provider';
-import Provider from './context/provider/Provider';
+import RpcProvider from './context/rpcProvider/RpcProvider';
 
 interface SharedComponentProps {
   children: ReactNode;
@@ -25,7 +25,7 @@ const queryClient = new QueryClient({});
 export const SharedComponent: React.FC<SharedComponentProps> = ({ children }) => (
   <QueryClientProvider client={queryClient}>
     <DataContextProvider>
-      <Provider>
+      <RpcProvider>
         <StarknetProvider>
           <React.StrictMode>
             <ThemeProvider theme={darkTheme}>
@@ -34,7 +34,7 @@ export const SharedComponent: React.FC<SharedComponentProps> = ({ children }) =>
             </ThemeProvider>
           </React.StrictMode>
         </StarknetProvider>
-      </Provider>
+      </RpcProvider>
     </DataContextProvider>
   </QueryClientProvider>
 );

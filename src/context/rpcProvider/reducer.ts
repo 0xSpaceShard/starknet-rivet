@@ -1,15 +1,15 @@
 import { initialState } from './state';
-import { IProviderState, IProviderActionReducer, ActionType } from './types';
+import { IRpcProviderState, IRpcProviderActionReducer, ActionType } from './types';
 
 export const providerReducer = (
-  state: IProviderState,
-  action: IProviderActionReducer
-): IProviderState => {
+  state: IRpcProviderState,
+  action: IRpcProviderActionReducer
+): IRpcProviderState => {
   switch (action.type) {
-    case ActionType.LOAD_PROVIDER:
+    case ActionType.LOAD_RPC_PROVIDER:
       return {
         ...state,
-        provider: action.payload?.provider,
+        rpcProvider: action.payload?.rpcProvider,
         isLoading: action.payload?.isLoading as boolean,
       };
     case ActionType.CLEAR_STATE:

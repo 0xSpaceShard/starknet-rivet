@@ -7,7 +7,7 @@ import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 import { useDeployedContracts } from '../hooks/useDeployedContracts';
 import { logError } from '../../background/analytics';
-import { useProviderState } from '../../context/provider/ProviderContext';
+import { useRpcProviderState } from '../../context/rpcProvider/RpcProviderContext';
 
 interface AbiEntry {
   name?: string;
@@ -29,7 +29,7 @@ export const DeploySmartContract: React.FC = () => {
     deployedContractAddress,
     setDeployedContractAddress,
   } = context;
-  const { provider } = useProviderState();
+  const { rpcProvider } = useRpcProviderState();
 
   const [isDeploying, setIsDeploying] = useState(false);
   const [selectedClassHash, setSelectedClassHash] = useState(declaredClassHash || '');
@@ -110,8 +110,8 @@ export const DeploySmartContract: React.FC = () => {
 
   async function fetchAbiAndParseConstructor() {
     try {
-      if (!provider) return;
-      const { abi: testAbi } = await provider.getClassByHash(selectedClassHash);
+      if (!rpcProvider) return;
+      const { abi: testAbi } = await rpcProvider.getClassByHash(selectedClassHash);
       const constructorEntry = findConstructor(testAbi);
       if (constructorEntry) {
         const params = parseConstructorParams(constructorEntry);
