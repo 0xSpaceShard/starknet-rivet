@@ -50,6 +50,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@starknet-react/chains": "^0.1.7",
     "@starknet-react/core": "^2.8.3",
+    "@tanstack/react-query": "^5.66.9",
     "@types/webextension-polyfill": "^0.10.7",
     "chrome": "^0.1.0",
     "get-starknet-core": "^3.3.2",

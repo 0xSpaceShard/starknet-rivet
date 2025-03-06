@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
 import { useSharedState } from '../context/context';
 import { darkTheme } from '../..';
 import DisplayBlockInfo from './displayBlockInfo';
-import { useFetchTransactionsDetails } from '../hooks/hooks';
 import { HomeTab } from '../home/home';
-import { logError } from '../../background/analytics';
+import useGetBlockWithTxs from '../../api/starknet/hooks/useGetBlockWithTxs';
 
 const BlockDetailsPage: React.FC = () => {
   const context = useSharedState();
@@ -15,22 +14,16 @@ const BlockDetailsPage: React.FC = () => {
   const { blockDetails } = context;
   const { blockIndex } = useParams<{ blockIndex: string }>();
   const index = parseInt(blockIndex || '', 10);
-  const { fetchTransactionsDetailsByBlock } = useFetchTransactionsDetails();
+
+  const { mutateAsync: getBlockWithTx } = useGetBlockWithTxs();
+
+  React.useEffect(() => {
+    getBlockWithTx(index);
+  }, []);
 
   const handleBack = () => {
     navigate('/', { state: { selectedTab: HomeTab.Blocks } });
   };
-
-  useEffect(() => {
-    const fetchTransactionsDetails = async () => {
-      try {
-        await fetchTransactionsDetailsByBlock(index);
-      } catch (error) {
-        logError('Error fetching current block number:', error);
-      }
-    };
-    fetchTransactionsDetails();
-  }, []);
 
   return (
     <>

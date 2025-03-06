@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { RpcProvider } from 'starknet-6';
 import { Divider } from '@mui/material';
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
@@ -27,16 +26,8 @@ import { GasPriceModification } from '../components/settings/gasPriceModificatio
 
 import './Popup.css';
 import { logError } from '../background/analytics';
-
-interface BlockWithTxs {
-  block_hash: string;
-}
-
-interface PendingBlockWithTxs {
-  starknet_version: string;
-}
-
-type BlockWithTxsUnion = BlockWithTxs | PendingBlockWithTxs;
+import useGetBlockWithTxs from '../api/starknet/hooks/useGetBlockWithTxs';
+import { BlockWithTxs } from '../api/starknet/types';
 
 export const Popup = () => {
   const context = useSharedState();
@@ -48,6 +39,7 @@ export const Popup = () => {
     configData,
     setCurrentBlock,
   } = context;
+  const { mutateAsync: getBlockWithTxs } = useGetBlockWithTxs();
 
   const updateCurrentBlockNumber = async () => {
     const blockNumber = await fetchCurrentBlockNumber();
@@ -84,7 +76,7 @@ export const Popup = () => {
     }
   }
 
-  function isBlockWithTxs(block: BlockWithTxsUnion): block is BlockWithTxs {
+  function isBlockWithTxs(block: BlockWithTxs) {
     return (block as BlockWithTxs).block_hash !== undefined;
   }
 
@@ -98,26 +90,25 @@ export const Popup = () => {
           }
         }
       }
-      const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-      const tx = await provider.getBlockWithTxs(blockNumber);
+      const tx = await getBlockWithTxs(blockNumber);
 
-      if (!isBlockWithTxs(tx)) {
-        logError('Error no block hash');
-        return;
-      }
-      const response = await fetch(`${url}/abort_blocks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          starting_block_hash: tx.block_hash,
-        }),
-      });
-      if (response.ok) {
-        await updateCurrentBlockNumber();
-      } else {
-        logError('Error aborting block:', response.statusText);
+      if (tx) {
+        if (!isBlockWithTxs(tx)) {
+          logError('Error no block hash');
+          return;
+        }
+        const response = await fetch(`${url}/abort_blocks`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            starting_block_hash: tx.block_hash,
+          }),
+        });
+        if (response.ok) {
+          await updateCurrentBlockNumber();
+        }
       }
     } catch (error) {
       logError('Error aborting block:', error);
