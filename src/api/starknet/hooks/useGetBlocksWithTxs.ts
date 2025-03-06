@@ -24,6 +24,10 @@ const useGetBlocksWithTxs = (pageSize?: number) => {
       return lastPage.length > 0 ? allPages.length : undefined;
     },
     initialPageParam: 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 

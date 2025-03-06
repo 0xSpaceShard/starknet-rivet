@@ -28,7 +28,6 @@ const starknetApi = {
     pageSize: number
   ): Promise<BlockWithTxs[]> => {
     try {
-      console.log('Called', index, currentBlock, pageSize);
       const start = currentBlock - index * pageSize;
       const end = index + 1 >= 0 ? start - pageSize + 1 : 0;
       const indices: number[] = [];
