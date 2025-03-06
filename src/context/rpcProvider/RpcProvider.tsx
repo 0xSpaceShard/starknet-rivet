@@ -53,7 +53,7 @@ const RpcProvider = ({ children }: IRpcProviderProps) => {
       loadRpcProvider,
       clearState,
     }),
-    []
+    [loadRpcProvider, clearState]
   );
 
   return (

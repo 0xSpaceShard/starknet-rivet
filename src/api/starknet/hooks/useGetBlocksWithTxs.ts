@@ -12,7 +12,12 @@ const useGetBlocksWithTxs = (pageSize?: number) => {
   const { rpcProvider } = useRpcProviderState();
 
   return useInfiniteQuery({
-    queryKey: ['BLOCKS_WITH_TXS', currentBlock, pageSize || PAGE_SIZE],
+    queryKey: [
+      'BLOCKS_WITH_TXS',
+      currentBlock,
+      pageSize || PAGE_SIZE,
+      rpcProvider?.channel.nodeUrl,
+    ],
     queryFn: ({ pageParam = 0 }) =>
       starknetApi.getBlocksWithTxs(
         rpcProvider as RpcProvider,
