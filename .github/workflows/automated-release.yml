@@ -1,0 +1,84 @@
+name: Release on merge to main (Gitmoji + PR Changelog)
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "develop-spaceshard"
+          git config --global user.email "develop@spaceshard.io"
+
+      - name: Get PR description (Changelog)
+        id: pr_body
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_BODY=$(gh pr view $PR_NUMBER --json body -q .body)
+          CHANGELOG=$(echo "$PR_BODY" | awk '/### Changelog/,0' | sed '1d')
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latest commit message
+        id: commit
+        run: |
+          echo "message<<EOF" >> $GITHUB_ENV
+          git log -1 --pretty=%B >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Determine version bump (Gitmoji-based)
+        id: version
+        run: |
+          COMMIT_MSG="${{ env.message }}"
+          if [[ "$COMMIT_MSG" == *":boom:"* ]]; then
+            echo "level=major" >> $GITHUB_ENV
+          elif [[ "$COMMIT_MSG" == *":sparkles:"* ]]; then
+            echo "level=minor" >> $GITHUB_ENV
+          elif [[ "$COMMIT_MSG" == *":bug:"* || "$COMMIT_MSG" == *":ambulance:"* ]]; then
+            echo "level=patch" >> $GITHUB_ENV
+          else
+            echo "level=patch" >> $GITHUB_ENV
+          fi
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install standard-version
+        run: npm install -g standard-version
+
+      - name: Bump version
+        env:
+          PAT_TOKEN: ${{ secrets.BOT_ACTIONS_ACCESS_TOKEN }}
+        run: |
+          standard-version --release-as ${{ env.level }}
+          git push --follow-tags "https://${PAT_TOKEN}@github.com/0xSpaceShard/starknet-rivet.git" HEAD:main
+
+      - name: Create GitHub release with PR Changelog
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v$(node -p \"require('./package.json').version\")"
+          name: "v$(node -p \"require('./package.json').version\")"
+          body: "${{ env.CHANGELOG }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
