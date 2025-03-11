@@ -72,7 +72,7 @@ jobs:
           PAT_TOKEN: ${{ secrets.BOT_ACTIONS_ACCESS_TOKEN }}
         run: |
           standard-version --release-as ${{ env.level }}
-          git push --follow-tags "https://${PAT_TOKEN}@github.com/<OWNER>/<REPO>.git" HEAD:main
+          git push --follow-tags "https://${PAT_TOKEN}@github.com/0xSpaceShard/starknet-rivet.git" HEAD:main
 
       - name: Create GitHub release with PR Changelog
         uses: softprops/action-gh-release@v1
