@@ -23,8 +23,8 @@ jobs:
 
       - name: Configure Git user
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "develop-spaceshard"
+          git config --global user.email "develop@spaceshard.io"
 
       - name: Get PR description (Changelog)
         id: pr_body
@@ -68,9 +68,11 @@ jobs:
         run: npm install -g standard-version
 
       - name: Bump version
+        env:
+          PAT_TOKEN: ${{ secrets.BOT_ACTIONS_ACCESS_TOKEN }}
         run: |
           standard-version --release-as ${{ env.level }}
-          git push --follow-tags
+          git push --follow-tags "https://${PAT_TOKEN}@github.com/<OWNER>/<REPO>.git" HEAD:main
 
       - name: Create GitHub release with PR Changelog
         uses: softprops/action-gh-release@v1
