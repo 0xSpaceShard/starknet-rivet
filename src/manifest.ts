@@ -19,8 +19,6 @@ export default defineManifest({
     default_popup: 'popup.html',
     default_icon: 'icons/icon48.png',
   },
-  options_page: 'options.html',
-  devtools_page: 'devtools.html',
   background: {
     service_worker: 'build/src/background/index.js',
     type: 'module',
@@ -51,9 +49,6 @@ export default defineManifest({
     },
   ],
   permissions: ['storage', 'activeTab', 'tabs', 'alarms'],
-  chrome_url_overrides: {
-    newtab: 'newtab.html',
-  },
   content_security_policy: {
     extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   },
