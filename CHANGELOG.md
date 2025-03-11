@@ -1,13 +1,8 @@
-# CHANGELOG
+# Changelog
 
-```txt
-Summary
-  1. document grouping follow 'SemVer2.0' protocol
-  2. use 'PATCH' as a minimum granularity
-  3. use concise descriptions
-  4. type: feat \ fix \ update \ perf \ remove \ docs \ chore
-  5. version timestamp follow the yyyy.MM.dd format
-```
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### [1.0.1](https://github.com/0xSpaceShard/starknet-rivet/compare/v1.0.0...v1.0.1) (2025-03-11)
 
 ## 0.0.0 [2024.04.08]
 
