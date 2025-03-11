@@ -1,12 +1,13 @@
 import { Box, Button, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Abi, RpcProvider } from 'starknet-6';
+import { Abi } from 'starknet-6';
 import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 import { useDeployedContracts } from '../hooks/useDeployedContracts';
 import { logError } from '../../background/analytics';
+import { useRpcProviderState } from '../../context/rpcProvider/RpcProviderContext';
 
 interface AbiEntry {
   name?: string;
@@ -24,11 +25,11 @@ export const DeploySmartContract: React.FC = () => {
   const context = useSharedState();
   const {
     selectedAccount,
-    selectedUrl: url,
     declaredClassHash,
     deployedContractAddress,
     setDeployedContractAddress,
   } = context;
+  const { rpcProvider } = useRpcProviderState();
 
   const [isDeploying, setIsDeploying] = useState(false);
   const [selectedClassHash, setSelectedClassHash] = useState(declaredClassHash || '');
@@ -108,10 +109,9 @@ export const DeploySmartContract: React.FC = () => {
   }
 
   async function fetchAbiAndParseConstructor() {
-    const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
-
     try {
-      const { abi: testAbi } = await provider.getClassByHash(selectedClassHash);
+      if (!rpcProvider) return;
+      const { abi: testAbi } = await rpcProvider.getClassByHash(selectedClassHash);
       const constructorEntry = findConstructor(testAbi);
       if (constructorEntry) {
         const params = parseConstructorParams(constructorEntry);

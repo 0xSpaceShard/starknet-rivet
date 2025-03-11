@@ -22,13 +22,20 @@ import {
 import JsonView from 'react18-json-view';
 import 'react18-json-view/src/dark.css';
 import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
-import { useCopyTooltip, useFetchTransactionsDetails } from '../hooks/hooks';
+import { useCopyTooltip } from '../hooks/hooks';
 import { useSharedState } from '../context/context';
 import { printAccountType } from '../../background/utils';
 import { AccountType } from '../../background/syncStorage';
 import { darkTheme } from '../..';
 import { useTokens } from '../hooks/useTokens';
 import { logError } from '../../background/analytics';
+import useGetBlocksWithTxs from '../../api/starknet/hooks/useGetBlocksWithTxs';
+import { Transaction } from '../../api/starknet/types';
+
+interface ExtendedTransaction extends Transaction {
+  time: Date;
+  amount: number;
+}
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
   const { state } = useLocation();
@@ -47,24 +54,26 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setTransactionData,
     signatureData,
     setSignatureData,
-    currentBlock,
   } = context;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { fetchTransactionDetailsForLatestBlocks } = useFetchTransactionsDetails();
-  const [transactions, setTransactions] = useState<any[]>([]);
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
-  const [transactionsPage, setTransactionsPage] = useState(1);
-  const pageSize = 15;
+  const [displayLimit, setDisplayLimit] = useState(15);
+  const TRANSACTIONS_PER_PAGE = 15;
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
   const { tokenBalances, getTokenSymbol, hasNonEthTokens } = useTokens();
-
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const {
+    data: blocks,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetBlocksWithTxs();
 
   const navigate = useNavigate();
 
@@ -183,42 +192,37 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     fetchAccountData();
   }, []);
 
-  const fetchTransactions = useCallback(async () => {
-    const endBlockIndex = currentBlock - (transactionsPage - 1) * pageSize;
-    const blocksWithDetails = await fetchTransactionDetailsForLatestBlocks(endBlockIndex, pageSize);
-    const trans = blocksWithDetails
-      .map((b: any) =>
-        b.transactions.map((t: any) => ({
-          ...t,
-          timestamp: b.timestamp,
-          blockNumber: b.block_number,
-        }))
-      )
-      .flat()
-      .filter((t: any) => t.sender_address === selectedAccount?.address)
-      .map((t: any) => {
-        const amountHex = t.calldata?.[5] ? t.calldata[5] : 0;
-        const amount = Number(BigInt(amountHex)) / 1e18;
-        return {
-          amount,
-          time: new Date(t.timestamp * 1000),
-          ...t,
-        };
-      }) as any[];
-    setTransactions([...transactions, ...trans]);
-    setIsLoadingTransactions(false);
-  }, [currentBlock, transactionsPage]);
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [selectedAccount, currentBlock, transactionsPage]);
-
   const balanceString = useMemo(
     () => (!isLoading ? getBalanceStr(currentBalance) : ''),
     [currentBalance, isLoading]
   );
   const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);
   const typeStr = useMemo(() => printAccountType(type), [type]);
+  const transactions = useMemo(
+    () =>
+      (blocks?.pages.flatMap((page) =>
+        page
+          .map((b) =>
+            b.transactions.map((t: any) => ({
+              ...t,
+              timestamp: b.timestamp,
+              blockNumber: b.block_number,
+            }))
+          )
+          .flat()
+          .filter((t) => t.sender_address === selectedAccount?.address)
+          .map((t) => {
+            const amountHex = t.calldata && t.calldata?.[5] ? t.calldata[5] : 0;
+            const amount = Number(BigInt(amountHex)) / 1e18;
+            return {
+              amount,
+              time: new Date(t.timestamp * 1000),
+              ...t,
+            };
+          })
+      ) as ExtendedTransaction[]) || [],
+    [blocks]
+  );
 
   return (
     <section>
@@ -389,8 +393,8 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             </Box>
           </>
         ) : null}
-        {!isLoadingTransactions ? (
-          transactions.length ? (
+        {!isFetching || !isFetchingNextPage ? (
+          transactions.length > 0 ? (
             <>
               <Divider sx={{ marginY: 3 }} variant="middle" />
               <Container>
@@ -398,7 +402,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                   Sent Transactions
                 </Typography>
                 <Box>
-                  {transactions.map((t, i) => (
+                  {transactions.slice(0, displayLimit).map((t, i) => (
                     <Button
                       key={i}
                       fullWidth
@@ -419,16 +423,21 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                           <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
                         </Box>
                         <Box textAlign="right" width="35%">
-                          {t.amount.toFixed(2)} {getTokenSymbol(t.calldata[1])}
+                          {t.amount.toFixed(2)}{' '}
+                          {t.calldata && t.calldata[1] && getTokenSymbol(t.calldata[1])}
                         </Box>
                       </Stack>
                     </Button>
                   ))}
                 </Box>
-                {currentBlock - transactionsPage * pageSize >= 0 ? (
+                {hasNextPage ? (
                   <Box>
                     <Button
-                      onClick={() => setTransactionsPage(transactionsPage + 1)}
+                      onClick={() => {
+                        if (transactions.length > displayLimit)
+                          setDisplayLimit((prev) => prev + TRANSACTIONS_PER_PAGE);
+                        fetchNextPage();
+                      }}
                       size="small"
                       variant="text"
                       sx={{ cursor: 'pointer' }}
