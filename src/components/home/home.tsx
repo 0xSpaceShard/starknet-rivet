@@ -1,5 +1,5 @@
-import { useState, ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, ReactNode } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Tabs, Tab, TabScrollButton, styled } from '@mui/material';
 import { useSharedState } from '../context/context';
 import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
@@ -28,6 +28,12 @@ export const Home = () => {
   const context = useSharedState();
   const { selectedUrl: url } = context;
   const [selectedTab, setSelectedTab] = useState(state?.selectedTab ?? HomeTab.Accounts);
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    // TODO: Check if Anvil instance up and running
+    if (true) navigate('/onboarding');
+  }, []);
 
   const a11yProps = (index: HomeTab) => ({
     id: `simple-tab-${index}`,
