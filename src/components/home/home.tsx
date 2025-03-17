@@ -26,14 +26,13 @@ const MyTabScrollButton = styled(TabScrollButton)({
 export const Home = () => {
   const { state } = useLocation();
   const context = useSharedState();
-  const { selectedUrl: url } = context;
+  const { selectedUrl: url, onboarded } = context;
   const [selectedTab, setSelectedTab] = useState(state?.selectedTab ?? HomeTab.Accounts);
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    // TODO: Check if Anvil instance up and running
-    if (true) navigate('/onboarding');
-  }, []);
+    if (!onboarded) navigate('/onboarding');
+  }, [onboarded]);
 
   const a11yProps = (index: HomeTab) => ({
     id: `simple-tab-${index}`,

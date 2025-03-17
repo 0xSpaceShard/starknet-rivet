@@ -41,6 +41,7 @@ export const Popup = () => {
     blockInterval,
     configData,
     setCurrentBlock,
+    onboarded,
   } = context;
   const { mutateAsync: getBlockWithTxs } = useGetBlockWithTxs();
 
@@ -139,7 +140,7 @@ export const Popup = () => {
 
   return (
     <main>
-      {false && (
+      {onboarded && (
         <div className="status-header">
           <StatusHeader />
           <Divider variant="middle" sx={{ marginY: '0.1em' }} />

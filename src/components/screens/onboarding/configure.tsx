@@ -12,40 +12,38 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// import { useSelectedUrl } from '../../../components/hooks/useSelectedUrl';
 import { logError } from '../../../background/analytics';
 
 import OnboardingContainer from './container';
 
 const formSchema = z.object({
   autoMine: z.boolean(),
-  blockBaseFeePerGas: z.string().min(1, { message: 'Required' }),
-  blockTime: z.string().min(1, { message: 'Required' }),
+  blockBaseFeePerGas: z.string(),
+  blockTime: z.string(),
   chainId: z.string().min(1, { message: 'Required' }),
   networkName: z.string().min(1, { message: 'Required' }),
-  forkBlockNumber: z.string().min(1, { message: 'Required' }),
+  forkBlockNumber: z.string(),
   forkUrl: z.string().min(1, { message: 'Required' }),
-  gasLimit: z.string().min(1, { message: 'Required' }),
-  gasPrice: z.string().min(1, { message: 'Required' }),
+  gasLimit: z.string(),
+  gasPrice: z.string(),
   port: z.string().min(1, { message: 'Required' }),
 });
 
 const OnboardingConfigure = () => {
-  // const { update: updateSelectedUrl } = useSelectedUrl();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       autoMine: true,
-      blockBaseFeePerGas: '1',
-      blockTime: '1',
+      blockBaseFeePerGas: '',
+      blockTime: '',
       chainId: '1',
       networkName: 'Ethereum',
-      forkBlockNumber: '1',
-      forkUrl: 'https://cloudflare-eth.com',
-      gasLimit: '30000000',
-      gasPrice: '20',
+      forkBlockNumber: '',
+      forkUrl: 'https://eth.merkle.io',
+      gasLimit: '',
+      gasPrice: '',
       port: '8545',
     },
   });
@@ -56,16 +54,13 @@ const OnboardingConfigure = () => {
     handleSubmit,
   } = form;
 
-  const onSubmit = async (values_: z.infer<typeof formSchema>) => {
+  const onSubmit = (values_: z.infer<typeof formSchema>) => {
     const values = {
       ...values_,
       autoMine: String(values_.autoMine),
     };
 
     try {
-      // const rpcUrl = `http://127.0.0.1:${values.port}`;
-
-      // await updateSelectedUrl(rpcUrl);
       const search = new URLSearchParams(values);
       navigate(`/onboarding/run?${search.toString()}`);
     } catch (error) {
@@ -82,9 +77,7 @@ const OnboardingConfigure = () => {
             fullWidth
             variant="outlined"
             type="button"
-            onClick={() => {
-              navigate('/onboarding');
-            }}
+            onClick={() => navigate('/onboarding')}
           >
             Back
           </Button>
