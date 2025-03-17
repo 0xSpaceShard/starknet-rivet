@@ -1,17 +1,21 @@
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Box, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Box, Button, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import OnboardingContainer from './container';
 import { useCopyTooltip } from '../../../components/hooks/hooks';
 import { handleCopyToClipboard } from '../../../components/utils/utils';
+import { useSharedState } from '../../../components/context/context';
 
 const OnboardingRun = () => {
+  const [error, setError] = React.useState('');
+
   const [params] = useSearchParams();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { setOnboarded } = useSharedState();
 
   const command = React.useMemo(() => {
     let tempCommand = 'anvil \\\n';
@@ -29,9 +33,42 @@ const OnboardingRun = () => {
     return tempCommand.replace(/ \\\n$/, '');
   }, [params]);
 
+  const checkIfAnvilInstalled = async () => {
+    const port = params.get('port');
+    if (port) {
+      const rpcUrl = `http://127.0.0.1:${port}`;
+      const data = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: 0,
+          jsonrpc: '2.0',
+          method: 'eth_blockNumber',
+          params: [],
+        }),
+      })
+        .then((res) => res.json())
+        .catch(() => setError('Anvil instance not detected'));
+
+      if (data && data.result) {
+        setOnboarded(true);
+        navigate('/');
+      }
+    }
+  };
+
   return (
-    <OnboardingContainer title="Run Anvil" footer={<></>}>
-      <Stack>
+    <OnboardingContainer
+      title="Run Anvil"
+      footer={
+        <Button fullWidth variant="outlined" type="button" onClick={checkIfAnvilInstalled}>
+          Continue
+        </Button>
+      }
+    >
+      <Stack gap={2}>
         <Typography>
           Run the following command in your CLI to start a local chain with your configuration:
         </Typography>
@@ -63,7 +100,7 @@ const OnboardingRun = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleCopyToClipboard('curl -L https://foundry.paradigm.xyz | bash');
+                  handleCopyToClipboard(command);
                   showTooltip();
                 }}
               >
@@ -72,6 +109,8 @@ const OnboardingRun = () => {
             </Tooltip>
           </Grid>
         </Box>
+
+        <Typography color="red">{error}</Typography>
       </Stack>
     </OnboardingContainer>
   );

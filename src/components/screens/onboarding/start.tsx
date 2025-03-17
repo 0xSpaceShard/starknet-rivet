@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { Box, Button, Grid, IconButton, Tooltip, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Button, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import OnboardingContainer from './container';
@@ -10,25 +10,23 @@ import { useCopyTooltip } from '../../../components/hooks/hooks';
 const OnboardingStart = () => {
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
 
+  const navigate = useNavigate();
+
   return (
     <OnboardingContainer
       title="Install"
       footer={
-        <Link to="/onboarding/configure">
-          <Button fullWidth variant="outlined">
-            Continue
-          </Button>
-        </Link>
+        <Button
+          fullWidth
+          variant="outlined"
+          type="button"
+          onClick={() => navigate('/onboarding/configure')}
+        >
+          Continue
+        </Button>
       }
     >
-      <Box
-        component="div"
-        display="flex"
-        justifyContent="center"
-        flexDirection="column"
-        gap={2}
-        width="100%"
-      >
+      <Stack gap={2}>
         <Typography>
           Rivet requires Foundry Anvil to run a local chain. Run the following command in your CLI
           to install Foundry:
@@ -70,7 +68,7 @@ const OnboardingStart = () => {
           </Grid>
         </Box>
         <Typography>When installed, you can continue.</Typography>
-      </Box>
+      </Stack>
     </OnboardingContainer>
   );
 };
