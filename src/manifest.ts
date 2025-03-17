@@ -48,7 +48,7 @@ export default defineManifest({
       matches: ['<all_urls>'],
     },
   ],
-  permissions: ['storage', 'activeTab', 'tabs', 'alarms'],
+  permissions: ['storage', 'alarms'],
   content_security_policy: {
     extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   },
