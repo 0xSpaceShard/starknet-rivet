@@ -31,6 +31,7 @@ import {
 } from '../../info';
 import { useSharedState } from '../context/context';
 import { Options } from '../context/interfaces';
+import { saveWalnutApiKey } from '../../background/syncStorage';
 
 const DockerCommandGenerator: React.FC = () => {
   const context = useSharedState();
@@ -55,6 +56,8 @@ const DockerCommandGenerator: React.FC = () => {
     forkBlock: 0,
     requestBodySizeLimit: 2000000,
     blockGenerationOn: 'transaction',
+    walnutApiKey: '',
+    walnutToken: '',
   };
 
   const [options, setOptions] = useState<Options>(defaultOptions);
@@ -201,6 +204,8 @@ const DockerCommandGenerator: React.FC = () => {
     });
 
     setGenerateCommand(true);
+    saveWalnutApiKey(options.walnutApiKey ?? '');
+
     return command;
   }, [options]);
 
@@ -581,6 +586,20 @@ const DockerCommandGenerator: React.FC = () => {
                     <InfoOutlined />
                   </IconButton>
                 </Tooltip>
+              </Stack>
+              <Stack direction={'row'}>
+                <Box flex={1}>
+                  <TextField
+                    fullWidth
+                    name="walnutApiKey"
+                    value={options.walnutApiKey}
+                    label={'Walnut API Key'}
+                    onChange={handleInputChange}
+                    variant={'outlined'}
+                    size={'small'}
+                  ></TextField>
+                </Box>
+                <Box width={'40px'} marginX={2} marginY={0} />
               </Stack>
             </Stack>
             <Box marginTop={3}>

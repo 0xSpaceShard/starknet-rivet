@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, Menu as MenuIcon, Send as SendIcon } from '@mui/icons-material';
+import {
+  ChevronLeft,
+  Menu as MenuIcon,
+  Send as SendIcon,
+  AccountTree as DebugIcon,
+} from '@mui/icons-material';
 import { num } from 'starknet-6';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -24,8 +29,8 @@ import 'react18-json-view/src/dark.css';
 import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
 import { useSharedState } from '../context/context';
-import { printAccountType } from '../../background/utils';
-import { AccountType } from '../../background/syncStorage';
+import { executeDebug, printAccountType } from '../../background/utils';
+import { AccountType, getWalnutApiKey } from '../../background/syncStorage';
 import { darkTheme } from '../..';
 import { useTokens } from '../hooks/useTokens';
 import { logError } from '../../background/analytics';
@@ -60,6 +65,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   const isMenuOpen = useMemo(() => Boolean(anchorEl), [anchorEl]);
   const [isLoading, setIsLoading] = useState(true);
   const [displayLimit, setDisplayLimit] = useState(15);
+  const [showReconnectPopup, setShowReconnectPopup] = useState(false);
   const TRANSACTIONS_PER_PAGE = 15;
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -223,6 +229,15 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
       ) as ExtendedTransaction[]) || [],
     [blocks]
   );
+
+  const debugTransaction = () => {
+    const walnutApiKey = getWalnutApiKey();
+    if (!walnutApiKey) {
+      setShowReconnectPopup(true);
+      return;
+    }
+    executeDebug();
+  };
 
   return (
     <section>
@@ -425,6 +440,14 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                         <Box textAlign="right" width="35%">
                           {t.amount.toFixed(2)}{' '}
                           {t.calldata && t.calldata[1] && getTokenSymbol(t.calldata[1])}
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={debugTransaction}
+                            aria-haspopup="true"
+                          >
+                            <DebugIcon fontSize="small" />
+                          </IconButton>
                         </Box>
                       </Stack>
                     </Button>
@@ -548,6 +571,11 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 </Button>
               </Stack>
             </Container>
+          </>
+        )}
+        {showReconnectPopup && (
+          <>
+            <Box>Popup</Box>
           </>
         )}
       </Box>
