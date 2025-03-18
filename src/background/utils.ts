@@ -6,6 +6,7 @@ import {
   getSelectedUrl,
   getUrlConfig,
   getUrlContextData,
+  getWalnutApiKey,
   saveUrlConfig,
   saveUrlContextData,
 } from './syncStorage';
@@ -277,5 +278,15 @@ export async function updateGasPrices(gasPrices: GasPrices): Promise<boolean> {
   } catch (error) {
     logError('Error setting gas prices:', error);
     return false;
+  }
+}
+
+export async function executeDebug(): Promise<string> {
+  try {
+    const apiKey = await getWalnutApiKey();
+    return apiKey;
+  } catch (error) {
+    logError('Error setting gas prices:', error);
+    return '';
   }
 }

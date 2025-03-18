@@ -31,6 +31,8 @@ export interface Options {
   forkBlock: number;
   requestBodySizeLimit: number;
   blockGenerationOn: string | number;
+  walnutApiKey: string;
+  walnutToken: string;
 }
 
 export interface TransactionInfo {

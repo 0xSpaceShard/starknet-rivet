@@ -199,6 +199,14 @@ export async function saveAccountContracts(
   return saveUrlContextData('accountContracts', accountContracts);
 }
 
+export async function getWalnutApiKey(): Promise<string> {
+  return getUrlContextData<string>('walnutApiKey', '');
+}
+
+export async function saveWalnutApiKey(walnutApiKey: string): Promise<string> {
+  return saveUrlContextData('walnutApiKey', walnutApiKey);
+}
+
 export enum AccountType {
   Predeployed,
   OpenZeppelin,
