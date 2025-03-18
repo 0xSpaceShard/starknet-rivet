@@ -63,9 +63,19 @@ const OnboardingRun = () => {
     <OnboardingContainer
       title="Run Anvil"
       footer={
-        <Button fullWidth variant="outlined" type="button" onClick={checkIfAnvilInstalled}>
-          Continue
-        </Button>
+        <Box component="div" width="100%" display="flex" gap={1}>
+          <Button
+            fullWidth
+            variant="outlined"
+            type="button"
+            onClick={() => navigate('/onboarding/configure')}
+          >
+            Back
+          </Button>
+          <Button fullWidth variant="outlined" type="button" onClick={checkIfAnvilInstalled}>
+            Continue
+          </Button>
+        </Box>
       }
     >
       <Stack gap={2}>
