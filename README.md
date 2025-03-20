@@ -17,6 +17,10 @@ It aims to streamline your development process, offering:
 
 > Take a look at our [Toni](https://github.com/tabaktoni), [presenting](https://www.youtube.com/watch?v=O5vvwZl1bso) Starknet Rivet on stage!
 
+## Download
+
+You can find the extension on the [Chrome Web Store](https://chromewebstore.google.com/detail/starknet-rivet/lhckpiocmbojfflgoncacebcdefcalpa).
+
 ## Features
 
 - Onboarding
@@ -49,6 +53,8 @@ It aims to streamline your development process, offering:
   - Send transactions, sign messages & typed data, etc
 
 > This feature list will expand as we add them to Rivet!
+
+Take a look at the Starknet Rivet [documentation](https://0xspaceshard.github.io/starknet-rivet/) for a more in-depth look at the features!
 
 ## Installing and running
 
