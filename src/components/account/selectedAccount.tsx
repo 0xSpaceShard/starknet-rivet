@@ -40,6 +40,7 @@ import { Transaction } from '../../api/starknet/types';
 interface ExtendedTransaction extends Transaction {
   time: Date;
   amount: number;
+  symbol: string;
 }
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
@@ -223,11 +224,12 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             return {
               amount: getNormalizedDecimalString(amountHex),
               time: new Date(t.timestamp * 1000),
+              symbol: getTokenSymbol(t.calldata[1]),
               ...t,
             };
           })
       ) as ExtendedTransaction[]) || [],
-    [blocks]
+    [blocks, selectedAccount, tokenBalances]
   );
 
   return (
@@ -429,7 +431,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                           <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
                         </Box>
                         <Box textAlign="right" width="35%">
-                          {t.amount} {t.calldata && t.calldata[1] && getTokenSymbol(t.calldata[1])}
+                          {t.amount} {t.symbol}
                         </Box>
                       </Stack>
                     </Button>
