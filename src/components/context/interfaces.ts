@@ -80,12 +80,6 @@ export interface MyContextValue {
 
   deployedContractAddress: string;
   setDeployedContractAddress: React.Dispatch<React.SetStateAction<string>>;
-
-  onboarded: boolean;
-  setOnboarded: React.Dispatch<React.SetStateAction<boolean>>;
-
-  l1NodePort: string;
-  setL1NodePort: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export interface UrlConfig {
