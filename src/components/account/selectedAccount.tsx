@@ -21,7 +21,12 @@ import {
 } from '@mui/material';
 import JsonView from 'react18-json-view';
 import 'react18-json-view/src/dark.css';
-import { getBalanceStr, handleCopyToClipboard, shortenAddress } from '../utils/utils';
+import {
+  getBalanceStr,
+  getNormalizedDecimalString,
+  handleCopyToClipboard,
+  shortenAddress,
+} from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
 import { useSharedState } from '../context/context';
 import { printAccountType } from '../../background/utils';
@@ -35,6 +40,7 @@ import { Transaction } from '../../api/starknet/types';
 interface ExtendedTransaction extends Transaction {
   time: Date;
   amount: number;
+  symbol: string;
 }
 
 export const SelectedAccountInfo: React.FC<{}> = () => {
@@ -210,18 +216,20 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             }))
           )
           .flat()
-          .filter((t) => t.sender_address === selectedAccount?.address)
+          .filter(
+            (t) => t.sender_address === selectedAccount?.address && getTokenSymbol(t.calldata?.[1])
+          )
           .map((t) => {
             const amountHex = t.calldata && t.calldata?.[5] ? t.calldata[5] : 0;
-            const amount = Number(BigInt(amountHex)) / 1e18;
             return {
-              amount,
+              amount: getNormalizedDecimalString(amountHex),
               time: new Date(t.timestamp * 1000),
+              symbol: getTokenSymbol(t.calldata[1]),
               ...t,
             };
           })
       ) as ExtendedTransaction[]) || [],
-    [blocks]
+    [blocks, selectedAccount, tokenBalances]
   );
 
   return (
@@ -423,8 +431,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                           <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
                         </Box>
                         <Box textAlign="right" width="35%">
-                          {t.amount.toFixed(2)}{' '}
-                          {t.calldata && t.calldata[1] && getTokenSymbol(t.calldata[1])}
+                          {t.amount} {t.symbol}
                         </Box>
                       </Stack>
                     </Button>

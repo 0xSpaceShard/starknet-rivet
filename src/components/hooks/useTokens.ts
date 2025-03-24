@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { validateAndParseAddress } from 'starknet-6';
 
@@ -53,8 +53,10 @@ export const useTokens = () => {
     });
   }, [contracts]);
 
-  const getTokenSymbol = (address: string) =>
-    tokenBalances?.find((token) => token.address === address)?.symbol;
+  const getTokenSymbol = useCallback(
+    (address: string) => tokenBalances?.find((token) => token.address === address)?.symbol,
+    [tokenBalances]
+  );
 
   const hasNonEthTokens: boolean = useMemo(
     () => tokenBalances?.some((t) => t.symbol !== ETH_SYMBOL) ?? false,
