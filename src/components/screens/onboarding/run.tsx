@@ -6,7 +6,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import OnboardingContainer from './container';
 import { useCopyTooltip } from '../../../components/hooks/hooks';
 import { handleCopyToClipboard } from '../../../components/utils/utils';
-import { useSharedState } from '../../../components/context/context';
+import { useOnboarded } from '../../hooks/useOnboarded';
+import { useL1Node } from '../../hooks/useL1Node';
 
 const OnboardingRun = () => {
   const [error, setError] = React.useState('');
@@ -15,7 +16,8 @@ const OnboardingRun = () => {
   const navigate = useNavigate();
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
-  const { setOnboarded, setL1NodePort } = useSharedState();
+  const { update: updateOnboarded } = useOnboarded();
+  const { update: updateL1NodePort } = useL1Node();
 
   const command = React.useMemo(() => {
     let tempCommand = 'anvil \\\n';
@@ -53,9 +55,10 @@ const OnboardingRun = () => {
         .catch(() => setError('Anvil instance not detected'));
 
       if (data && data.result) {
-        setOnboarded(true);
-        setL1NodePort(port);
-        navigate('/');
+        await updateOnboarded(true);
+        await updateL1NodePort(port);
+
+        navigate('/', { state: { fromOnboarding: true } });
       }
     }
   };

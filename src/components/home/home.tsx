@@ -10,6 +10,7 @@ import useLoad from '../../api/starknet/hooks/useLoad';
 import useSendMsgToL2 from '../../api/starknet/hooks/useSendMsgToL2';
 import useConsumeMsgFromL2 from '../../api/starknet/hooks/useConsumeMsgFromL2';
 import useFlush from '../../api/starknet/hooks/useFlush';
+import { useOnboarded } from '../hooks/useOnboarded';
 
 export enum HomeTab {
   Accounts,
@@ -30,7 +31,7 @@ const MyTabScrollButton = styled(TabScrollButton)({
 export const Home = () => {
   const { state } = useLocation();
   const context = useSharedState();
-  const { selectedUrl: url, onboarded } = context;
+  const { selectedUrl: url } = context;
   const [selectedTab, setSelectedTab] = useState(state?.selectedTab ?? HomeTab.Accounts);
   const navigate = useNavigate();
 
@@ -38,6 +39,7 @@ export const Home = () => {
   const { mutateAsync: sendMessageToL2 } = useSendMsgToL2();
   const { mutateAsync: consumeMessageFromL2 } = useConsumeMsgFromL2();
   const { mutateAsync: flush } = useFlush();
+  const { data: onboarded } = useOnboarded();
 
   React.useEffect(() => {
     if (!onboarded) navigate('/onboarding');

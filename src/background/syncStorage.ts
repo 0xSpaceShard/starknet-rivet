@@ -242,3 +242,19 @@ export async function saveDeployedContracts(deployedContract: Contract): Promise
   const deployedContracts = await getDeployedContracts();
   return saveUrlContextData('deployedContracts', [...deployedContracts, deployedContract]);
 }
+
+export async function saveOnboarded(onboarded: boolean) {
+  return saveUrlContextData('onboarded', onboarded);
+}
+
+export async function getOnboarded(): Promise<boolean> {
+  return getUrlContextData<boolean>('onboarded', false);
+}
+
+export async function saveL1NodePort(l1NodePort: string) {
+  return saveUrlContextData('l1NodePort', l1NodePort);
+}
+
+export async function getL1NodePort(): Promise<string> {
+  return getUrlContextData<string>('l1NodePort', '');
+}
