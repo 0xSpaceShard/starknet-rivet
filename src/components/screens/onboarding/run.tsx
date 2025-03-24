@@ -15,7 +15,7 @@ const OnboardingRun = () => {
   const navigate = useNavigate();
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
-  const { setOnboarded } = useSharedState();
+  const { setOnboarded, setL1NodePort } = useSharedState();
 
   const command = React.useMemo(() => {
     let tempCommand = 'anvil \\\n';
@@ -54,6 +54,7 @@ const OnboardingRun = () => {
 
       if (data && data.result) {
         setOnboarded(true);
+        setL1NodePort(port);
         navigate('/');
       }
     }

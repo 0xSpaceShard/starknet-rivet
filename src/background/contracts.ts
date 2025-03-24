@@ -25,6 +25,12 @@ export async function declareContract(
 
     let declareResponse;
     if (isDeclareContractMessage(message)) {
+      const data = await acc.declareAndDeploy({
+        contract: message.data.sierra,
+        compiledClassHash: '0x02548c46a426421b5156ebbdd9a1ee0a32ec4588af5c9a68d636725cfa11d300',
+      });
+
+      console.log(data);
       declareResponse = await acc.declareIfNot({
         contract: message.data.sierra,
         casm: message.data.casm,

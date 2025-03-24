@@ -6,6 +6,10 @@ import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
 import BlockList from '../block/BlockList';
 import TransactionList from '../transaction/TransactionList';
 import { ContractList } from '../contract/ContractList';
+import useLoad from '../../api/starknet/hooks/useLoad';
+import useSendMsgToL2 from '../../api/starknet/hooks/useSendMsgToL2';
+import useConsumeMsgFromL2 from '../../api/starknet/hooks/useConsumeMsgFromL2';
+import useFlush from '../../api/starknet/hooks/useFlush';
 
 export enum HomeTab {
   Accounts,
@@ -30,8 +34,39 @@ export const Home = () => {
   const [selectedTab, setSelectedTab] = useState(state?.selectedTab ?? HomeTab.Accounts);
   const navigate = useNavigate();
 
+  const { mutateAsync: load } = useLoad();
+  const { mutateAsync: sendMessageToL2 } = useSendMsgToL2();
+  const { mutateAsync: consumeMessageFromL2 } = useConsumeMsgFromL2();
+  const { mutateAsync: flush } = useFlush();
+
   React.useEffect(() => {
     if (!onboarded) navigate('/onboarding');
+    else {
+      (async () => {
+        // 1. Load the L1 messaging contract
+        const contractAddress = await load();
+
+        if (contractAddress) {
+          // 2. Send a message from L1 to L2
+          await sendMessageToL2({
+            l2ContractAddress: '0x5b6947dc313a13fe6a60fa1471aa3f41e8eb4aa2d172f7a03e6c7a76ddfb132',
+            entryPointSelector: '0xC73F681176FC7B3F9693986FD7B14581E8D540519E27400E88B8713932BE01',
+            l1ContractAddress: contractAddress,
+            payload: ['0x1', '0x2'],
+          });
+
+          // 3. Consume a message from L2 to L1
+          await consumeMessageFromL2({
+            fromAddress: '0x5b6947dc313a13fe6a60fa1471aa3f41e8eb4aa2d172f7a03e6c7a76ddfb132',
+            toAddress: contractAddress,
+            payload: ['0x0', '0x1', '0x2'],
+          });
+
+          // 4. Flush the message queue to process all messages
+          await flush();
+        }
+      })();
+    }
   }, [onboarded]);
 
   const a11yProps = (index: HomeTab) => ({
