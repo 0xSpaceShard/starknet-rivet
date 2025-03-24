@@ -54,7 +54,7 @@ export const useTokens = () => {
   }, [contracts]);
 
   const getTokenSymbol = (address: string) =>
-    tokenBalances?.find((token) => token.address === address)?.symbol;
+    tokenBalances?.find((token) => token.address === address)?.symbol ?? ETH_SYMBOL;
 
   const hasNonEthTokens: boolean = useMemo(
     () => tokenBalances?.some((t) => t.symbol !== ETH_SYMBOL) ?? false,
