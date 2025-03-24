@@ -215,7 +215,9 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             }))
           )
           .flat()
-          .filter((t) => t.sender_address === selectedAccount?.address)
+          .filter(
+            (t) => t.sender_address === selectedAccount?.address && getTokenSymbol(t.calldata?.[1])
+          )
           .map((t) => {
             const amountHex = t.calldata && t.calldata?.[5] ? t.calldata[5] : 0;
             return {
