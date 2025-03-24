@@ -1,3 +1,5 @@
+import { BigNumberish } from 'starknet-6';
+
 export function shortenAddress(address: string | null | undefined, length: number = 12): string {
   if (!address?.length) return '';
   if (address.length <= length * 2) return address;
@@ -12,4 +14,8 @@ export function handleCopyToClipboard(str: string | null | undefined) {
 export function getBalanceStr(balance: string | bigint): string {
   const balanceBigInt = BigInt(balance) / BigInt(10n ** 18n);
   return balanceBigInt.toString();
+}
+
+export function numericToHexString(numeric: BigNumberish): string {
+  return `0x${BigInt(numeric).toString(16)}`;
 }

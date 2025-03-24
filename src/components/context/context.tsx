@@ -33,6 +33,7 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
   const [declaredClassHash, setDeclaredClassHash] = useState('');
   const [deployedContractAddress, setDeployedContractAddress] = useState('');
   const [onboarded, setOnboarded] = useState(false);
+  const [l1NodePort, setL1NodePort] = useState('');
 
   useEffect(() => {
     chrome.storage.local.get(null, (data) => {
@@ -94,6 +95,8 @@ export function DataContextProvider({ children }: { children: React.ReactNode })
         setDeployedContractAddress,
         onboarded,
         setOnboarded,
+        l1NodePort,
+        setL1NodePort,
       }}
     >
       {children}
