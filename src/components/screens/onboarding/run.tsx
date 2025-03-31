@@ -58,7 +58,7 @@ const OnboardingRun = () => {
         await updateOnboarded(true);
         await updateL1NodePort(port);
 
-        navigate('/', { state: { fromOnboarding: true } });
+        navigate('/');
       }
     }
   };
@@ -72,7 +72,7 @@ const OnboardingRun = () => {
             fullWidth
             variant="outlined"
             type="button"
-            onClick={() => navigate('/onboarding/configure')}
+            onClick={() => navigate('/l1-l2-onboarding/configure')}
           >
             Back
           </Button>

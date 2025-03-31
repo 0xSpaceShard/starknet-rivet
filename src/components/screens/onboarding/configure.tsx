@@ -62,7 +62,7 @@ const OnboardingConfigure = () => {
 
     try {
       const search = new URLSearchParams(values);
-      navigate(`/onboarding/run?${search.toString()}`);
+      navigate(`/l1-l2-onboarding/run?${search.toString()}`);
     } catch (error) {
       logError('Error setting local anvil instance rpc url');
     }
@@ -77,7 +77,7 @@ const OnboardingConfigure = () => {
             fullWidth
             variant="outlined"
             type="button"
-            onClick={() => navigate('/onboarding')}
+            onClick={() => navigate('/l1-l2-onboarding')}
           >
             Back
           </Button>

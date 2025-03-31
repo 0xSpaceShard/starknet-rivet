@@ -20,6 +20,8 @@ const RpcProvider = ({ children }: IRpcProviderProps) => {
         payload: { isLoading: true },
       });
 
+      if (!url) return;
+
       const provider = new RpcConstructor({ nodeUrl: `${url}/rpc` });
 
       dispatch({
