@@ -1,5 +1,5 @@
 import React from 'react';
-import { RpcProvider as RpcConstructor } from 'starknet-6';
+import { RpcProvider as RpcConstructor } from 'starknet';
 
 import { providerReducer } from './reducer';
 import { initialState } from './state';
@@ -19,6 +19,8 @@ const RpcProvider = ({ children }: IRpcProviderProps) => {
         type: ActionType.IS_LOADING,
         payload: { isLoading: true },
       });
+
+      if (!url) return;
 
       const provider = new RpcConstructor({ nodeUrl: `${url}/rpc` });
 

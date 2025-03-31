@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Route, Routes, Outlet, useLocation } from 'react-router-dom';
+import { Route, Routes, Outlet } from 'react-router-dom';
 import { Divider } from '@mui/material';
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
@@ -31,11 +31,9 @@ import { BlockWithTxs } from '../api/starknet/types';
 import OnboardingStart from '../components/screens/onboarding/start';
 import OnboardingConfigure from '../components/screens/onboarding/configure';
 import OnboardingRun from '../components/screens/onboarding/run';
-import { useOnboarded } from '../components/hooks/useOnboarded';
 
 export const Popup = () => {
   const context = useSharedState();
-  const location = useLocation();
   const {
     selectedUrl: url,
     setTransactionData,
@@ -45,7 +43,6 @@ export const Popup = () => {
     setCurrentBlock,
   } = context;
   const { mutateAsync: getBlockWithTxs } = useGetBlockWithTxs();
-  const { data: onboarded } = useOnboarded();
 
   const updateCurrentBlockNumber = async () => {
     const blockNumber = await fetchCurrentBlockNumber();
@@ -142,17 +139,15 @@ export const Popup = () => {
 
   return (
     <main>
-      {(onboarded || location.state?.fromOnboarding) && (
-        <div className="status-header">
-          <StatusHeader />
-          <Divider variant="middle" sx={{ marginY: '0.1em' }} />
-        </div>
-      )}
+      <div className="status-header">
+        <StatusHeader />
+        <Divider variant="middle" sx={{ marginY: '0.1em' }} />
+      </div>
       <div className="content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
-            path="/onboarding"
+            path="/l1-l2-onboarding"
             element={<Outlet />}
             children={[
               <Route index element={<OnboardingStart />} key="start" />,

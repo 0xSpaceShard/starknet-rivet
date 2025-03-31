@@ -20,7 +20,7 @@ const OnboardingStart = () => {
           fullWidth
           variant="outlined"
           type="button"
-          onClick={() => navigate('/onboarding/configure')}
+          onClick={() => navigate('/l1-l2-onboarding/configure')}
         >
           Continue
         </Button>

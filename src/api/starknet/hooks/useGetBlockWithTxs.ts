@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { RpcProvider } from 'starknet-6';
+import { RpcProvider } from 'starknet';
 
 import starknetApi from '../service';
 import { useRpcProviderState } from '../../../context/rpcProvider/RpcProviderContext';

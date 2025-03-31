@@ -41,21 +41,25 @@ export const ContractList: React.FC = () => {
                 />
               </Stack>
 
-              <Typography variant="subtitle1">Deployed Contracts</Typography>
-              <Stack>
-                {isLoading ? (
-                  <Stack direction="row" justifyContent="center" paddingY={2}>
-                    <CircularProgress />
+              {deployedContracts && deployedContracts.length > 0 && (
+                <>
+                  <Typography variant="subtitle1">Deployed Contracts</Typography>
+                  <Stack>
+                    {isLoading ? (
+                      <Stack direction="row" justifyContent="center" paddingY={2}>
+                        <CircularProgress />
+                      </Stack>
+                    ) : (
+                      (deployedContracts as Contract[]).map((contract: Contract) => (
+                        <>
+                          <ContractItem address={contract.address} name={contract.name} />
+                          <ContractItem address={contract.classHash} name="Class hash" />
+                        </>
+                      ))
+                    )}
                   </Stack>
-                ) : (
-                  (deployedContracts as Contract[]).map((contract: Contract) => (
-                    <>
-                      <ContractItem address={contract.address} name={contract.name} />
-                      <ContractItem address={contract.classHash} name="Class hash" />
-                    </>
-                  ))
-                )}
-              </Stack>
+                </>
+              )}
             </Stack>
           </>
         )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { RpcProvider } from 'starknet-6';
+import { RpcProvider } from 'starknet';
 
 export enum ActionType {
   LOAD_RPC_PROVIDER,

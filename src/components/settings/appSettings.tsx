@@ -121,6 +121,25 @@ export const AppSettings = () => {
                 </Box>
               </Button>
             </Box>
+            <Box>
+              <Button
+                variant="text"
+                component={RouteLink}
+                to="/l1-l2-onboarding"
+                fullWidth
+                sx={{
+                  height: 48,
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                }}
+              >
+                L1 - L2 Messaging
+                <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
+                  <ChevronRight />
+                </Box>
+              </Button>
+            </Box>
+
             <Divider variant="middle" />
             <Box marginTop={2} marginBottom={1}>
               <Typography variant="body2">Account Creation</Typography>

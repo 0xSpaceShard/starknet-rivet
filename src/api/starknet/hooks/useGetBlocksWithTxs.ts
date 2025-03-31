@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { RpcProvider } from 'starknet-6';
+import { RpcProvider } from 'starknet';
 
 import starknetApi from '../service';
 import { useSharedState } from '../../../components/context/context';
@@ -12,12 +12,7 @@ const useGetBlocksWithTxs = (pageSize?: number) => {
   const { rpcProvider } = useRpcProviderState();
 
   return useInfiniteQuery({
-    queryKey: [
-      'BLOCKS_WITH_TXS',
-      currentBlock,
-      pageSize || PAGE_SIZE,
-      rpcProvider?.channel.nodeUrl,
-    ],
+    queryKey: ['BLOCKS_WITH_TXS', currentBlock, pageSize || PAGE_SIZE, rpcProvider?.nodeUrl],
     queryFn: ({ pageParam = 0 }) =>
       starknetApi.getBlocksWithTxs(
         rpcProvider as RpcProvider,

@@ -1,4 +1,4 @@
-import { RpcProvider } from 'starknet-6';
+import { RpcProvider } from 'starknet';
 
 import { logError } from '../../background/analytics';
 import {
@@ -42,7 +42,7 @@ const starknetApi = {
         indices.push(i);
       }
       const blockPromises = indices.map(
-        (i) => provider.getBlockWithTxs(i) as Promise<BlockWithTxs>
+        (i) => provider.getBlockWithTxs(i) as any as Promise<BlockWithTxs>
       );
 
       const blockData = await Promise.all(blockPromises);
