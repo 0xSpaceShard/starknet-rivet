@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouteLink } from 'react-router-dom';
-import { Stack, Box, Button, Typography, Divider, Grid, IconButton } from '@mui/material';
+import { Stack, Box, Button, Typography, Divider, Grid, IconButton, Tooltip } from '@mui/material';
 import { ChevronLeft, ChevronRight, CropSquare, ViewSidebar } from '@mui/icons-material';
 import { createArgentAccount, createOpenZeppelinAccount } from '../../background/utils';
 import { useSharedState } from '../context/dataContext';
@@ -91,31 +91,35 @@ export const AppSettings = () => {
             </Box>
             {mode === 'popup' ? (
               <Box>
-                <IconButton
-                  size="small"
-                  color="primary"
-                  onClick={onSidepanelOpen}
-                  aria-haspopup="true"
-                  sx={{
-                    marginRight: '1em',
-                  }}
-                >
-                  <ViewSidebar fontSize="small" />
-                </IconButton>
+                <Tooltip title={'Sidepanel view'} sx={{ marginX: 2 }}>
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={onSidepanelOpen}
+                    aria-haspopup="true"
+                    sx={{
+                      marginRight: '1em',
+                    }}
+                  >
+                    <ViewSidebar fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Box>
             ) : (
               <Box>
-                <IconButton
-                  size="small"
-                  color="primary"
-                  onClick={onPopupOpen}
-                  aria-haspopup="true"
-                  sx={{
-                    marginRight: '1em',
-                  }}
-                >
-                  <CropSquare fontSize="small" />
-                </IconButton>
+                <Tooltip title={'Popup view'} sx={{ marginX: 2 }}>
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={onPopupOpen}
+                    aria-haspopup="true"
+                    sx={{
+                      marginRight: '1em',
+                    }}
+                  >
+                    <CropSquare fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Box>
             )}
           </Stack>

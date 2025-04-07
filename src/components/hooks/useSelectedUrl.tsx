@@ -9,5 +9,11 @@ export const useSelectedUrl = () => {
     return response;
   };
 
+  const init = async () => {
+    const selectedUrl = await getSelectedUrl();
+    await initUrlConfig(selectedUrl);
+  };
+
+  init();
   return useFetchData<string>('', getSelectedUrl, updater);
 };
