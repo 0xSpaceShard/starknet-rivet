@@ -15,14 +15,6 @@ console.log('Background script is running');
 
 setupErrorTracking();
 
-// const setActionMode = async (viewMode: ViewMode) => {
-//   // const { viewMode } = await chrome.storage.sync.get(['viewMode']);
-//   console.log(viewMode);
-//   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
-// };
-
-// chrome.runtime.onInstalled.addListener(setActionMode);
-
 // Listener for incoming messages from the extension popup or content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {

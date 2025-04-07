@@ -28,16 +28,16 @@ export const AppSettings = () => {
   const onSidepanelOpen = async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      // chrome.runtime.sendMessage({ type: 'OPEN_SIDEPANEL', tab });
       await chrome.sidePanel.setOptions({
         tabId: tab.id,
         path: 'sidepanel.html',
         enabled: true,
       });
-
       // @ts-expect-error - open() not typed in current @types/chrome
       await chrome.sidePanel.open({ tabId: tab.id });
+
       chrome.extension.getViews({ type: 'popup' }).forEach((w) => w.close());
+
       await chrome.runtime.sendMessage({
         type: 'SET_VIEWMODE',
         data: 'sidepanel',
@@ -48,14 +48,11 @@ export const AppSettings = () => {
   const onPopupOpen = async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      // chrome.runtime.sendMessage({ type: 'OPEN_SIDEPANEL', tab });
       await chrome.sidePanel.setOptions({
         tabId: tab.id,
         path: 'sidepanel.html',
         enabled: false,
       });
-      // // @ts-expect-error - close() not typed in current @types/chrome
-      // await chrome.sidePanel.close({ tabId: tab.id });
 
       await chrome.runtime.sendMessage({
         type: 'SET_VIEWMODE',

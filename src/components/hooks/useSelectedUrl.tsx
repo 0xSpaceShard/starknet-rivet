@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { initUrlConfig } from '../../background/utils';
 import { getSelectedUrl, saveSelectedUrl } from '../../background/syncStorage';
 import { useFetchData } from './useFetchData';
@@ -14,6 +15,9 @@ export const useSelectedUrl = () => {
     await initUrlConfig(selectedUrl);
   };
 
-  init();
+  useEffect(() => {
+    init();
+  }, []);
+
   return useFetchData<string>('', getSelectedUrl, updater);
 };
