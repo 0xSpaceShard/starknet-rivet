@@ -77,9 +77,19 @@ export const TransactionDetails: React.FC = () => {
             <DisplayBlockInfo
               title="Max Fee"
               value={
-                getNormalizedDecimalString(transaction.resource_bounds?.l1_data_gas?.max_amount) +
-                  getNormalizedDecimalString(transaction.resource_bounds?.l1_gas?.max_amount) +
-                  getNormalizedDecimalString(transaction.resource_bounds?.l2_gas?.max_amount) || '0'
+                transaction.max_fee
+                  ? parseInt(transaction.max_fee, 16)
+                  : (transaction.resource_bounds.l1_data_gas
+                      ? getNormalizedDecimalString(
+                          transaction.resource_bounds?.l1_data_gas?.max_amount
+                        )
+                      : '') +
+                    (transaction.resource_bounds.l1_gas
+                      ? getNormalizedDecimalString(transaction.resource_bounds?.l1_gas?.max_amount)
+                      : '') +
+                    (transaction.resource_bounds.l2_gas
+                      ? getNormalizedDecimalString(transaction.resource_bounds?.l2_gas?.max_amount)
+                      : '')
               }
             ></DisplayBlockInfo>
             <DisplayBlockInfo

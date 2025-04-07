@@ -43,7 +43,7 @@ export async function getSelectedAccount(): Promise<Account> {
 // Utils functions to get provider from Chrome sync storage
 export async function getProvider(): Promise<RpcProvider> {
   const url = await getSelectedUrl();
-  return new RpcProvider({ nodeUrl: `${url}/rpc` });
+  return new RpcProvider({ nodeUrl: `${url}/rpc`, specVersion: '0.7.0' });
 }
 
 // Utils functions to check the type of the message.
