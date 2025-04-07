@@ -9,16 +9,27 @@ import {
   TransactionMessage,
 } from '../components/contractInteraction/messageActions';
 import { logError, setupErrorTracking } from './analytics';
+import { ViewMode } from '../components/context/viewContext';
 
 console.log('Background script is running');
 
 setupErrorTracking();
 
+// const setActionMode = async (viewMode: ViewMode) => {
+//   // const { viewMode } = await chrome.storage.sync.get(['viewMode']);
+//   console.log(viewMode);
+//   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+// };
+
+// chrome.runtime.onInstalled.addListener(setActionMode);
+
 // Listener for incoming messages from the extension popup or content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('Message received:', message);
-
   switch (message.type) {
+    case 'SET_VIEWMODE':
+      setViewMode(message.data);
+      break;
+
     case 'GET_EXTENSION_ID':
       sendResponse({ extensionId: chrome.runtime.id });
       break;
@@ -77,6 +88,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   return true;
 });
+
+async function setViewMode(viewMode: ViewMode) {
+  await chrome.storage.sync.set({ viewMode });
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: viewMode === 'sidepanel' });
+}
 
 // Function to connect Rivet Dapp
 async function connectRivetDapp(sendResponse: (response?: any) => void) {

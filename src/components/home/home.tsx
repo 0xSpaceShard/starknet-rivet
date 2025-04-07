@@ -1,7 +1,7 @@
 import { useState, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Box, Typography, Tabs, Tab, TabScrollButton, styled } from '@mui/material';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import PredeployedAccounts from '../predeployedAccounts/predeployedAccounts';
 import BlockList from '../block/BlockList';
 import TransactionList from '../transaction/TransactionList';

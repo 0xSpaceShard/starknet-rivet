@@ -12,7 +12,7 @@ import React, { useState, useCallback, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from '@mui/icons-material';
 import { fetchCurrentBlockNumber } from '../../background/utils';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { sendToAccount } from '../../background/contracts';
 import { TokenDropdown } from './tokenDropdown';
 import { ETH_ADDRESS } from '../../background/constants';

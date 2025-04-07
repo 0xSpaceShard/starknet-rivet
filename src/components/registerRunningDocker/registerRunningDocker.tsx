@@ -23,7 +23,7 @@ import {
   AddToQueueOutlined,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { sendMessageToRemoveBlockInterval } from '../utils/sendMessageBackground';
 import { DEFAULT_DEVNET_URL, LOCALHOST_DEVNET_URL } from '../../background/constants';

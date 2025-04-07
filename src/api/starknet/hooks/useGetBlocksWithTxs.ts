@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { RpcProvider } from 'starknet-6';
 
 import starknetApi from '../service';
-import { useSharedState } from '../../../components/context/context';
+import { useSharedState } from '../../../components/context/dataContext';
 import { useRpcProviderState } from '../../../context/rpcProvider/RpcProviderContext';
 
 const PAGE_SIZE = 15;

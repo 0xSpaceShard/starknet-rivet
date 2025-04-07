@@ -12,8 +12,8 @@
     'Helvetica Neue',
     sans-serif;
 
-  /* color-scheme: light dark; */
-  color-scheme: dark;
+  color-scheme: light dark;
+  /* color-scheme: dark; */
 }
 
 @media (prefers-color-scheme: light) {

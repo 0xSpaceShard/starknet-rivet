@@ -13,7 +13,7 @@ import {
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '../..';
 import { UrlItem } from '../context/interfaces';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { logError } from '../../background/analytics';
 
 export const SwitchStarknetChainMessage: React.FC = () => {

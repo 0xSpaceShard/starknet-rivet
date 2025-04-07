@@ -3,7 +3,7 @@ import { RpcProvider } from 'starknet-6';
 
 import starknetApi from '../service';
 import { useRpcProviderState } from '../../../context/rpcProvider/RpcProviderContext';
-import { useSharedState } from '../../../components/context/context';
+import { useSharedState } from '../../../components/context/dataContext';
 
 const useGetBlockWithTxs = () => {
   const { rpcProvider } = useRpcProviderState();

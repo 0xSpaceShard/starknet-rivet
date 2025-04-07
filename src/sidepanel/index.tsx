@@ -1,17 +1,16 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { HashRouter as Router } from 'react-router-dom';
 import { SidePanel } from './SidePanel';
 import './index.css';
-import { DataContextProvider } from '../components/context/context';
-import { StarknetProvider } from '../components/starknet/starknet-provider';
+import { SharedComponent } from '..';
+import { ViewContextProvider } from '../components/context/viewContext';
 
 ReactDOM.createRoot(document.getElementById('app') as HTMLElement).render(
-  <DataContextProvider>
-    <StarknetProvider>
-      <React.StrictMode>
+  <Router>
+    <SharedComponent>
+      <ViewContextProvider mode={'sidepanel'}>
         <SidePanel />
-      </React.StrictMode>
-      ,
-    </StarknetProvider>
-  </DataContextProvider>
+      </ViewContextProvider>
+    </SharedComponent>
+  </Router>
 );

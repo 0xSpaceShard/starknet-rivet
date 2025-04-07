@@ -29,7 +29,7 @@ import {
   REQUEST_BODY_SIZE_LIMIT,
   BLOCK_GENERATION_ON_INFO,
 } from '../../info';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { Options } from '../context/interfaces';
 
 const DockerCommandGenerator: React.FC = () => {

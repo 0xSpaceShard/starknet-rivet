@@ -3,7 +3,7 @@ import { RpcProvider as RpcConstructor } from 'starknet-6';
 
 import { providerReducer } from './reducer';
 import { initialState } from './state';
-import { useSharedState } from '../../components/context/context';
+import { useSharedState } from '../../components/context/dataContext';
 import { ActionType, IRpcProviderProps } from './types';
 import { logError } from '../../background/analytics';
 import { RpcProviderActionsContext, RpcProviderStateContext } from './RpcProviderContext';

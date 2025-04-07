@@ -4,7 +4,7 @@ import { Divider } from '@mui/material';
 import PredeployedAccounts from '../components/predeployedAccounts/predeployedAccounts';
 import DockerCommandGenerator from '../components/dockerCommand/dockerCommand';
 import RegisterRunningDocker from '../components/registerRunningDocker/registerRunningDocker';
-import { useSharedState } from '../components/context/context';
+import { useSharedState } from '../components/context/dataContext';
 import SelectedAccountInfo from '../components/account/selectedAccount';
 import { AccountSend } from '../components/account/accountSend';
 import { AccountSettings } from '../components/settings/accountSettings';
@@ -23,11 +23,11 @@ import { ModifyBalance } from '../components/settings/modifyBalance';
 import { fetchCurrentBlockNumber } from '../background/utils';
 import { TransactionDetails } from '../components/transaction/TransactionDetails';
 import { GasPriceModification } from '../components/settings/gasPriceModification';
-
-import './Popup.css';
 import { logError } from '../background/analytics';
 import useGetBlockWithTxs from '../api/starknet/hooks/useGetBlockWithTxs';
 import { BlockWithTxs } from '../api/starknet/types';
+
+import './Popup.css';
 
 export const Popup = () => {
   const context = useSharedState();

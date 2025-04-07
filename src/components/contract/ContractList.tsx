@@ -3,7 +3,7 @@ import { CircularProgress, Stack, Typography } from '@mui/material';
 
 import { ContractItem } from './ContractItem';
 import { darkTheme } from '../..';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { useDeployedContracts } from '../hooks/useDeployedContracts';
 import { Contract } from '../../background/interface';
 

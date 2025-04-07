@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { useAccountContracts } from '../hooks/useAccountContracts';
 import ConfirmationSection from '../confirmationSection/confirmationSection';
 

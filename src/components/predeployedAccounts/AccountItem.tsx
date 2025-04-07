@@ -5,7 +5,7 @@ import { useCopyTooltip } from '../hooks/hooks';
 import { darkTheme } from '../..';
 import { handleCopyToClipboard, getBalanceStr, shortenAddress } from '../utils/utils';
 import { AccountData } from '../context/interfaces';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 
 export const AccountItem: React.FC<{
   account: AccountData;

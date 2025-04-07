@@ -1,7 +1,7 @@
 import { Link as RouteLink } from 'react-router-dom';
 import { Box, Typography, Stack, IconButton } from '@mui/material';
 import { Settings as SettingsIcon } from '@mui/icons-material';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import CheckDevnetStatus from '../checkDevnetStatus/checkDevnetStatus';
 import { darkTheme } from '../..';
 import { MiningMode } from '../settings/blockConfiguration';

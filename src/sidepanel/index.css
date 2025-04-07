@@ -13,7 +13,6 @@
     sans-serif;
 
   color-scheme: light dark;
-  background-color: #242424;
 }
 
 @media (prefers-color-scheme: light) {
@@ -25,4 +24,10 @@
 body {
   min-width: 20rem;
   margin: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+#app {
+  height: 100%;
 }

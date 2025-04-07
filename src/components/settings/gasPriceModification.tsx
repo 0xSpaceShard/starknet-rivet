@@ -15,7 +15,7 @@ import {
   fetchCurrentGasPrices,
   updateGasPrices,
 } from '../../background/utils';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 
 export const GasPriceModification: React.FC = () => {
   const navigate = useNavigate();

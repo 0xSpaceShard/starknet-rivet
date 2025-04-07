@@ -12,7 +12,7 @@ import {
   Grid,
 } from '@mui/material';
 import { CheckBoxOutlined, ChevronLeft } from '@mui/icons-material';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { modifyEthBalance } from '../../background/contracts';
 import { Spinner } from '../utils/spinner';
 import { fetchCurrentBlockNumber } from '../../background/utils';

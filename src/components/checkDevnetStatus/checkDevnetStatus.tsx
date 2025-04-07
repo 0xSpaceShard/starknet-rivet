@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Typography } from '@mui/material';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 
 import './checkDevnetStatus.css';
 import { logError } from '../../background/analytics';
