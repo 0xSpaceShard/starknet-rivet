@@ -1,4 +1,4 @@
-import { Call, stark, TransactionType } from 'starknet-6';
+import { Call, stark, TransactionType } from 'starknet';
 import { getProvider, getSelectedAccount, parseErrorMessage } from './utils';
 import { removeUrlBlockInterval, setUrlBlockInterval } from './blockInterval';
 import { declareContract, deployContract } from './contracts';

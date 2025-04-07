@@ -1,4 +1,4 @@
-import { Account, RpcProvider, ec, stark, hash, CallData } from 'starknet-6';
+import { Account, RpcProvider, ec, stark, hash, CallData, constants } from 'starknet';
 import {
   AccountType,
   CustomAccount,
@@ -31,8 +31,13 @@ export async function getSelectedAccount(): Promise<Account> {
   const result = await chrome.storage.sync.get(['selectedAccount']);
   const { selectedAccount } = result;
   const provider = await getProvider();
-
-  return new Account(provider, selectedAccount.address, selectedAccount.private_key);
+  return new Account(
+    provider,
+    selectedAccount.address,
+    selectedAccount.private_key,
+    undefined,
+    constants.TRANSACTION_VERSION.V3
+  );
 }
 
 // Utils functions to get provider from Chrome sync storage

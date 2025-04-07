@@ -6,7 +6,7 @@ import {
   WalletAccount,
   TypedData,
   DeclareContractPayload,
-} from 'starknet-6';
+} from 'starknet';
 import { GetDeploymentDataResult, WatchAssetParameters } from 'starknet-types';
 import { AccountData } from '../context/interfaces';
 

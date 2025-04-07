@@ -12,8 +12,8 @@ import {
   Grid,
 } from '@mui/material';
 import { CheckBoxOutlined, ChevronLeft } from '@mui/icons-material';
-import { useSharedState } from '../context/dataContext';
-import { modifyEthBalance } from '../../background/contracts';
+import { useSharedState } from '../context/context';
+import { modifyBalance } from '../../background/contracts';
 import { Spinner } from '../utils/spinner';
 import { fetchCurrentBlockNumber } from '../../background/utils';
 import { logError } from '../../background/analytics';
@@ -56,7 +56,7 @@ export const ModifyBalance: React.FC = () => {
 
       const newBalance = BigInt(newBalanceFloat * 10 ** 18);
       if (!newBalance || !selectedAccount?.address) return;
-      const balance = await modifyEthBalance(newBalance);
+      const balance = await modifyBalance(newBalance);
       if (balance) {
         await updateCurrentBalance(balance);
         await updateCurrentBlockNumber();
@@ -124,7 +124,7 @@ export const ModifyBalance: React.FC = () => {
                     ></TextField>
                   </Box>
                   <Box flexBasis="60px" paddingY="8px">
-                    <Typography>ETH</Typography>
+                    <Typography>STRK</Typography>
                   </Box>
                   <Box>
                     <Tooltip title="Modify Balance">

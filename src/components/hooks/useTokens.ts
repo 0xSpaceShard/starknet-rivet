@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-import { validateAndParseAddress } from 'starknet-6';
+import { validateAndParseAddress } from 'starknet';
 
-import { ETH_ADDRESS, ETH_SYMBOL } from '../../background/constants';
+import { ETH_ADDRESS, ETH_SYMBOL, STRK_ADDRESS, STRK_SYMBOL } from '../../background/constants';
 import { getBalanceStr } from '../utils/utils';
 import { useAccountContracts } from './useAccountContracts';
 import { useSharedState } from '../context/dataContext';
@@ -14,14 +14,14 @@ export interface Token {
   symbol: string;
 }
 
-export const useTokens = () => {
+export const useTokens = (predeployedOnly: boolean = false) => {
   const { data: accountContracts } = useAccountContracts();
   const { selectedAccount, currentBalance } = useSharedState();
 
   const [tokenBalances, setTokenBalances] = useState<Array<Token>>([
     {
-      address: ETH_ADDRESS,
-      symbol: ETH_SYMBOL,
+      address: STRK_ADDRESS,
+      symbol: STRK_SYMBOL,
       balance: getBalanceStr(currentBalance || BigInt(0)),
     },
   ]);
@@ -32,7 +32,7 @@ export const useTokens = () => {
   );
 
   useEffect(() => {
-    if (!contracts?.length) return;
+    if (!contracts?.length || predeployedOnly) return;
 
     const balancePromises = contracts.map(async (address) => {
       const cleanAddress = validateAndParseAddress(address);
@@ -54,14 +54,17 @@ export const useTokens = () => {
   }, [contracts]);
 
   const getTokenSymbol = useCallback(
-    (address: string) => tokenBalances?.find((token) => token.address === address)?.symbol,
+    (address: string) =>
+      [...tokenBalances, { address: ETH_ADDRESS, symbol: ETH_SYMBOL, balance: BigInt(0) }]?.find(
+        (token) => token.address === address
+      )?.symbol,
     [tokenBalances]
   );
 
-  const hasNonEthTokens: boolean = useMemo(
-    () => tokenBalances?.some((t) => t.symbol !== ETH_SYMBOL) ?? false,
+  const hasNonPredeployedTokens: boolean = useMemo(
+    () => tokenBalances?.some((t) => t.symbol !== STRK_SYMBOL) ?? false,
     [tokenBalances]
   );
 
-  return { tokenBalances, getTokenSymbol, hasNonEthTokens };
+  return { tokenBalances, getTokenSymbol, hasNonPredeployedTokens };
 };

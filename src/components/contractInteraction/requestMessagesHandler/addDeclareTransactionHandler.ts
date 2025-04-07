@@ -1,4 +1,4 @@
-import { json } from 'starknet-6';
+import { json } from 'starknet';
 import { AddDeclareTransactionParameters, AddDeclareTransactionResult } from 'starknet-types';
 import { sendMessage, waitForMessage } from '../messageActions';
 

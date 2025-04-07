@@ -205,9 +205,13 @@ export const AppSettings = () => {
                   e.stopPropagation();
                   setIsCreatingAccount(true);
                   const account = await createOpenZeppelinAccount();
-                  const response = await fetch(`${url}/account_balance?address=${account.address}`);
-                  const accountBalance = await response?.json();
-                  await updateCurrentBalance(BigInt(accountBalance?.amount));
+                  const fetchUrl = `${url}/account_balance?address=${account.address}&unit=FRI`;
+
+                  const strkRes = await fetch(fetchUrl);
+
+                  const strk = await strkRes.json();
+
+                  await updateCurrentBalance(BigInt(strk.amount));
                   await updateSelectedAccount(account);
                   navigate(`/accounts/${account.address}`, { state: { type: account.type } });
                 }}
@@ -230,9 +234,13 @@ export const AppSettings = () => {
                   e.preventDefault();
                   e.stopPropagation();
                   const account = await createArgentAccount();
-                  const response = await fetch(`${url}/account_balance?address=${account.address}`);
-                  const accountBalance = await response?.json();
-                  await updateCurrentBalance(BigInt(accountBalance?.amount));
+                  const fetchUrl = `${url}/account_balance?address=${account.address}&unit=FRI`;
+
+                  const strkRes = await fetch(fetchUrl);
+
+                  const strk = await strkRes.json();
+
+                  await updateCurrentBalance(BigInt(strk.amount));
                   await updateSelectedAccount(account);
                   navigate(`/accounts/${account.address}`, { state: { type: account.type } });
                 }}

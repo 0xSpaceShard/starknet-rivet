@@ -5,6 +5,7 @@ import { ChevronLeft } from '@mui/icons-material';
 import { HomeTab } from '../home/home';
 import DisplayBlockInfo from '../block/displayBlockInfo';
 import { useTokens } from '../hooks/useTokens';
+import { getNormalizedDecimalString } from '../utils/utils';
 
 export const TransactionDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -75,13 +76,21 @@ export const TransactionDetails: React.FC = () => {
             ) : null}
             <DisplayBlockInfo
               title="Max Fee"
-              value={parseInt(transaction.max_fee || '', 16)}
+              value={
+                getNormalizedDecimalString(transaction.resource_bounds?.l1_data_gas?.max_amount) +
+                  getNormalizedDecimalString(transaction.resource_bounds?.l1_gas?.max_amount) +
+                  getNormalizedDecimalString(transaction.resource_bounds?.l2_gas?.max_amount) || '0'
+              }
             ></DisplayBlockInfo>
-            <DisplayBlockInfo title="Contract Address" value={transaction.calldata[1]} isCopyable />
+            <DisplayBlockInfo
+              title="Contract Address"
+              value={transaction.calldata?.[1]}
+              isCopyable
+            />
             {transaction.amount && (
               <DisplayBlockInfo
                 title="Amount"
-                value={`${transaction.amount} ${getTokenSymbol(transaction.calldata[1]) || ''}`}
+                value={`${transaction.amount} ${getTokenSymbol(transaction.calldata?.[1]) || ''}`}
               />
             )}
           </Stack>

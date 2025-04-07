@@ -1,8 +1,8 @@
 import { Box, Button, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Abi } from 'starknet-6';
-import { useSharedState } from '../context/dataContext';
+import { Abi } from 'starknet';
+import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 import { useDeployedContracts } from '../hooks/useDeployedContracts';

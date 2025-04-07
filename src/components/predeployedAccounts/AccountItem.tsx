@@ -39,7 +39,7 @@ export const AccountItem: React.FC<{
               </Grid>
               <Grid item xs={3}>
                 <Typography variant="caption">
-                  {getBalanceStr((account as any)?.balance?.eth?.amount)} ETH
+                  {getBalanceStr((account as any)?.balance?.strk?.amount)} STRK
                 </Typography>
               </Grid>
             </Grid>

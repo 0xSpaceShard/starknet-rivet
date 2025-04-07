@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { DeclareContractPayload } from 'starknet-6';
-import { useSharedState } from '../context/dataContext';
+import { DeclareContractPayload } from 'starknet';
+import { useSharedState } from '../context/context';
 import ConfirmationSection from '../confirmationSection/confirmationSection';
 
 export const DeclareContractMessage: React.FC = () => {

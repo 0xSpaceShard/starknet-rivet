@@ -15,7 +15,7 @@ import { fetchCurrentBlockNumber } from '../../background/utils';
 import { useSharedState } from '../context/dataContext';
 import { sendToAccount } from '../../background/contracts';
 import { TokenDropdown } from './tokenDropdown';
-import { ETH_ADDRESS } from '../../background/constants';
+import { STRK_ADDRESS } from '../../background/constants';
 
 export const AccountSend: React.FC = () => {
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ export const AccountSend: React.FC = () => {
       setIsSubmitting(true);
       const sendAmountWei = BigInt(formData.amount * 10 ** 18);
       const balance = await sendToAccount(formData.recipient, sendAmountWei, formData.tokenAddress);
-      if (balance && formData.tokenAddress === ETH_ADDRESS) {
+      if (balance && formData.tokenAddress === STRK_ADDRESS) {
         await updateCurrentBalance(balance);
         await updateCurrentBlockNumber();
       }

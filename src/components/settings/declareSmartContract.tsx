@@ -2,8 +2,8 @@ import { Box, Button, CircularProgress, Stack, styled, Typography } from '@mui/m
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { CompiledSierraCasm, isSierra } from 'starknet-6';
-import { useSharedState } from '../context/dataContext';
+import { CompiledSierraCasm, isSierra } from 'starknet';
+import { useSharedState } from '../context/context';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 import { logError } from '../../background/analytics';
