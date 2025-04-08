@@ -82,8 +82,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function setViewMode(viewMode: ViewMode) {
-  await chrome.storage.sync.set({ viewMode });
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: viewMode === 'sidepanel' });
+  try {
+    await chrome.storage.sync.set({ viewMode });
+  } catch (error) {
+    logError('Failed to set view mode', error);
+  }
 }
 
 // Function to connect Rivet Dapp
