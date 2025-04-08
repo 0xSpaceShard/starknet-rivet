@@ -50,11 +50,11 @@ export const ContractList: React.FC = () => {
                       <CircularProgress />
                     </Stack>
                   ) : (deployedContracts as Contract[])?.length ? (
-                    (deployedContracts as Contract[]).map((contract: Contract) => (
-                      <>
+                    (deployedContracts as Contract[]).map((contract: Contract, idx: number) => (
+                      <React.Fragment key={idx}>
                         <ContractItem address={contract.address} name={contract.name} />
                         <ContractItem address={contract.classHash} name="Class hash" />
-                      </>
+                      </React.Fragment>
                     ))
                   ) : (
                     <Typography variant="caption" marginTop={'1em'}>
