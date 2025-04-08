@@ -12,23 +12,18 @@ const INJECT_NAMES = ['starknet_rivet'];
 
 function attach(starknetWindowObject: any) {
   INJECT_NAMES.forEach((name) => {
-    // Check if the property exists and modify it if it's configurable
     const descriptor = Object.getOwnPropertyDescriptor(window, name);
     if (descriptor && !descriptor.writable) {
-      // Property exists and is read-only
       if (descriptor.configurable) {
-        // If it's configurable, we can change it to be writable
         Object.defineProperty(window, name, {
           value: starknetWindowObject,
-          writable: true, // Now making it writable
-          configurable: true, // Keep it configurable
+          writable: true,
+          configurable: true,
         });
       } else {
-        // If it's not configurable, log an error or handle it accordingly
         logError('Cannot modify read-only and non-configurable property:', name);
       }
     } else {
-      // If it doesn't exist or is already writable, assign directly
       (window as any)[name] = starknetWindowObject;
     }
   });
@@ -83,25 +78,20 @@ async function loadModules() {
             const provider = new RpcProvider({ nodeUrl: `${url}/rpc` });
 
             try {
-              // Get chainId as a string to avoid any enum reference issues
               const chainId = await provider.getChainId();
 
               userEventHandlers.forEach((userEvent) => {
                 if (userEvent.type === 'accountsChanged') {
                   userEvent.handler([address]);
                 } else if (userEvent.type === 'networkChanged') {
-                  // Pass the chainId string directly
                   userEvent.handler(chainId);
                 } else {
                   assertNever(userEvent);
                 }
               });
             } catch (error) {
-              console.error('Error handling chainId:', error);
-              // Provide a fallback chainId if needed
               userEventHandlers.forEach((userEvent) => {
                 if (userEvent.type === 'networkChanged') {
-                  // Use a fallback value or null
                   userEvent.handler(undefined);
                 }
               });
