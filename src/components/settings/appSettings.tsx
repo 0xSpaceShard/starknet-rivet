@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouteLink } from 'react-router-dom';
-import { Stack, Box, Button, Typography, Divider, Grid } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { Stack, Box, Button, Typography, Divider, Grid, IconButton, Tooltip } from '@mui/material';
+import { ChevronLeft, ChevronRight, CropSquare, ViewSidebar } from '@mui/icons-material';
 import { createArgentAccount, createOpenZeppelinAccount } from '../../background/utils';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { Spinner } from '../utils/spinner';
 import { getUrlConfig } from '../../background/syncStorage';
 import { UrlConfig } from '../context/interfaces';
+import { useViewMode } from '../context/viewContext';
 
 export const AppSettings = () => {
   const navigate = useNavigate();
@@ -22,6 +23,44 @@ export const AppSettings = () => {
     getConfig();
   }, [url]);
 
+  const mode = useViewMode();
+
+  const onSidepanelOpen = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id) {
+      await chrome.sidePanel.setOptions({
+        tabId: tab.id,
+        path: 'sidepanel.html',
+        enabled: true,
+      });
+      // @ts-expect-error - open() not typed in current @types/chrome
+      await chrome.sidePanel.open({ tabId: tab.id });
+
+      chrome.extension.getViews({ type: 'popup' }).forEach((w) => w.close());
+
+      await chrome.runtime.sendMessage({
+        type: 'SET_VIEWMODE',
+        data: 'sidepanel',
+      });
+    }
+  };
+
+  const onPopupOpen = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id) {
+      await chrome.sidePanel.setOptions({
+        tabId: tab.id,
+        path: 'sidepanel.html',
+        enabled: false,
+      });
+
+      await chrome.runtime.sendMessage({
+        type: 'SET_VIEWMODE',
+        data: 'popup',
+      });
+    }
+  };
+
   return (
     <section>
       {isCreatingAccount ? (
@@ -33,7 +72,7 @@ export const AppSettings = () => {
         </Grid>
       ) : (
         <>
-          <Stack direction={'row'} justifyContent={'flex-start'}>
+          <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
             <Box>
               <Button
                 size="small"
@@ -47,6 +86,39 @@ export const AppSettings = () => {
                 Back
               </Button>
             </Box>
+            {mode === 'popup' ? (
+              <Box>
+                <Tooltip title={'Sidepanel view'} sx={{ marginX: 2 }}>
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={onSidepanelOpen}
+                    aria-haspopup="true"
+                    sx={{
+                      marginRight: '1em',
+                    }}
+                  >
+                    <ViewSidebar fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            ) : (
+              <Box>
+                <Tooltip title={'Popup view'} sx={{ marginX: 2 }}>
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={onPopupOpen}
+                    aria-haspopup="true"
+                    sx={{
+                      marginRight: '1em',
+                    }}
+                  >
+                    <CropSquare fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            )}
           </Stack>
           <Stack spacing={0}>
             <Box>

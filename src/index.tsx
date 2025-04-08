@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { DataContextProvider } from './components/context/context';
+import { DataContextProvider } from './components/context/dataContext';
 import { StarknetProvider } from './components/starknet/starknet-provider';
 import RpcProvider from './context/rpcProvider/RpcProvider';
 

@@ -5,7 +5,7 @@ import { validateAndParseAddress } from 'starknet-6';
 import { ETH_ADDRESS, ETH_SYMBOL } from '../../background/constants';
 import { getBalanceStr } from '../utils/utils';
 import { useAccountContracts } from './useAccountContracts';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { getTokenBalance } from '../../background/contracts';
 
 export interface Token {

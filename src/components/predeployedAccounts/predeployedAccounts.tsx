@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Stack } from '@mui/material';
 import { AccountData } from '../context/interfaces';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { CustomAccount, getCustomAccounts } from '../../background/syncStorage';
 import { AccountItem } from './AccountItem';
 import { logError } from '../../background/analytics';

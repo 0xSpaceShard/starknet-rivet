@@ -28,7 +28,7 @@ import {
   shortenAddress,
 } from '../utils/utils';
 import { useCopyTooltip } from '../hooks/hooks';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { printAccountType } from '../../background/utils';
 import { AccountType } from '../../background/syncStorage';
 import { darkTheme } from '../..';

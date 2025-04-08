@@ -1,7 +1,7 @@
 import { Button, Stack } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import PageHeader from './pageHeader';
 
 export const AccountSettings: React.FC = () => {

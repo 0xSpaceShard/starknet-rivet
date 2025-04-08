@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { useAccountContracts } from '../hooks/useAccountContracts';
 import ConfirmationSection from '../confirmationSection/confirmationSection';
 
@@ -12,6 +12,7 @@ export const WatchAssetMessage: React.FC = () => {
   const [newAddress, setNewAddress] = useState('');
 
   const handleConfirm = useCallback(async () => {
+    // eslint-disable-next-line no-console
     console.log('START');
     if (!newAddress?.trim() || !selectedAccount?.address) return;
 

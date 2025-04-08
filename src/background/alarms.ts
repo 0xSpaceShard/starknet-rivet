@@ -63,7 +63,7 @@ export async function mintBlock(url: string): Promise<void> {
     });
 
     if (response.ok) {
-      console.log(`Minted block for ${url}`);
+      console.info(`Minted block for ${url}`);
     } else {
       logError('Error creating block:', response.statusText);
     }

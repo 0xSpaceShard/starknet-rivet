@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { AddBoxOutlined, ChevronLeft, Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { shortenAddress } from '../utils/utils';
 import { useAccountContracts } from '../hooks/useAccountContracts';
 

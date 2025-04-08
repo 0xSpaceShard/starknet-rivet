@@ -2,7 +2,7 @@ import { Box, Button, Divider, Stack, TextField, Typography, Container } from '@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from '@mui/icons-material';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import {
   sendMessageToRemoveBlockInterval,
   sendMessageToSetBlockInterval,

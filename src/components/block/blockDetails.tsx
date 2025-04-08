@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import { darkTheme } from '../..';
 import DisplayBlockInfo from './displayBlockInfo';
 import { HomeTab } from '../home/home';
