@@ -39,6 +39,7 @@ export async function sendAnalyticsEvent(eventName: string, params: Record<strin
       }
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to send analytics event:', error);
   }
 }

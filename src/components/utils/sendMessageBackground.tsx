@@ -13,7 +13,7 @@ export async function sendAccountUpdatedMessage(selectedAccount: AccountData | n
       },
       (response) => {
         if (!chrome.runtime.lastError) {
-          console.log(`Message sent to tab ${tab.id}:`, response);
+          console.info(`Message sent to tab ${tab.id}:`, response);
         }
       }
     );

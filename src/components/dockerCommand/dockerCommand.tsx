@@ -589,6 +589,7 @@ const DockerCommandGenerator: React.FC = () => {
                   <Button
                     variant="outlined"
                     color="primary"
+                    // eslint-disable-next-line no-alert
                     onClick={() => alert(generateDockerCommand())}
                     disabled={generalError}
                   >

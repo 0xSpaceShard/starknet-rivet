@@ -12,6 +12,7 @@ export const WatchAssetMessage: React.FC = () => {
   const [newAddress, setNewAddress] = useState('');
 
   const handleConfirm = useCallback(async () => {
+    // eslint-disable-next-line no-console
     console.log('START');
     if (!newAddress?.trim() || !selectedAccount?.address) return;
 

@@ -11,6 +11,7 @@ import {
 import { logError, setupErrorTracking } from './analytics';
 import { ViewMode } from '../components/context/viewContext';
 
+// eslint-disable-next-line no-console
 console.log('Background script is running');
 
 setupErrorTracking();
@@ -178,7 +179,7 @@ async function simulateRivetTransaction(
         },
       });
     } else {
-      console.log('No selected account found in storage.');
+      console.info('No selected account found in storage.');
       sendResponse({
         type: 'SIMULATE_RIVET_TRANSACTION_RES',
         data: {
