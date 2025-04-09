@@ -46,7 +46,7 @@ export interface SendMessageToL2Params {
 export interface ConsumeMessageFromL2Params {
   fromAddress: string;
   toAddress: string;
-  payload: string[];
+  payload: any[];
 }
 
 export interface PostmanResponse {

@@ -8,11 +8,11 @@ import BlockList from '../block/BlockList';
 import TransactionList from '../transaction/TransactionList';
 import { ContractList } from '../contract/ContractList';
 import useLoad from '../../api/starknet/hooks/useLoad';
-// import useSendMsgToL2 from '../../api/starknet/hooks/useSendMsgToL2';
-// import useConsumeMsgFromL2 from '../../api/starknet/hooks/useConsumeMsgFromL2';
+import useConsumeMsgFromL2 from '../../api/starknet/hooks/useConsumeMsgFromL2';
 import useFlush from '../../api/starknet/hooks/useFlush';
 import l1_l2Contract from '../../l1_l2.json';
 import { useRpcProviderState } from '../../context/rpcProvider/RpcProviderContext';
+import { numericToHexString } from '../utils/utils';
 
 export enum HomeTab {
   Accounts,
@@ -39,34 +39,27 @@ export const Home = () => {
 
   const { mutateAsync: load } = useLoad();
   // const { mutateAsync: sendMessageToL2 } = useSendMsgToL2();
-  // const { mutateAsync: consumeMessageFromL2 } = useConsumeMsgFromL2();
+  const { mutateAsync: consumeMessageFromL2 } = useConsumeMsgFromL2();
   const { mutateAsync: flush } = useFlush();
 
   React.useEffect(() => {
     (async () => {
-      // 1. Load the L1 messaging contract
       const contractAddress = await load();
 
+      // NOTE: example taken from https://github.com/0xSpaceShard/starknet-devnet-js/blob/master/test/l1-l2-postman.test.ts
       if (contractAddress && selectedAccount && rpcProvider) {
-        // 2. Send a message from L1 to L2
-        // await sendMessageToL2({
-        //   entryPointSelector: '0xC73F681176FC7B3F9693986FD7B14581E8D540519E27400E88B8713932BE01',
-        //   l2ContractAddress: '0x66502d7c4655de7fc12b98d2cde1a74a88c1462ba56018d84b6a2fa0dc4bdd9',
-        //   l1ContractAddress: contractAddress,
-        //   payload: ['0x1', '0x2'],
-        // });
-
-        // 3. Initiate message from L2 to L1
         try {
           const l2Account = new starknet.Account(
             rpcProvider as any,
             selectedAccount.address,
-            selectedAccount.private_key
+            selectedAccount.private_key,
+            undefined,
+            starknet.constants.TRANSACTION_VERSION.V3
           );
 
           const l2Contract = new starknet.Contract(
             l1_l2Contract.abi,
-            '0x18875170bf14bef4650670471ad0d647ee29e7bf303736660b3d0f4dc0084a0',
+            '0x7edd24723923e6518b8f84c1599be0dca57b3f1c6b1ee95148761fa625ae66d',
             rpcProvider as any
           );
           l2Contract.connect(l2Account);
@@ -74,28 +67,23 @@ export const Home = () => {
           const user = 1n;
           const incrementAmount = 10_000_000n;
           await l2Contract.increase_balance(user, incrementAmount);
-          console.log('Increased Balance!');
 
           const withdrawAmount = 10n;
-          const withdrawTx = await l2Contract.withdraw(user, withdrawAmount);
-          console.log('Withdrawn!', { withdrawTx });
+          const withdrawTx = await l2Contract.withdraw(user, withdrawAmount, contractAddress);
           await rpcProvider?.waitForTransaction(withdrawTx.transaction_hash);
+
+          const { message_hash } = await consumeMessageFromL2({
+            fromAddress: l2Contract.address,
+            toAddress: contractAddress,
+            payload: ['0x0', numericToHexString(user), numericToHexString(withdrawAmount)],
+          });
+
+          console.log('Success!', message_hash);
+
+          await flush();
         } catch (error) {
           console.log(error);
-          return;
         }
-
-        // 4. Consume a message from L2 to L1
-        // console.log('Consuming...');
-        // await consumeMessageFromL2({
-        //   fromAddress: '0x66502d7c4655de7fc12b98d2cde1a74a88c1462ba56018d84b6a2fa0dc4bdd9',
-        //   toAddress: contractAddress,
-        //   payload: ['0x0', '0x1', '0x3e8'],
-        // });
-
-        // 5. Flush the message queue to process all messages
-        console.log('Flushing...');
-        await flush();
       }
     })();
   }, [selectedAccount, rpcProvider]);
