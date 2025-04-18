@@ -5,11 +5,12 @@ import { useNavigate } from 'react-router-dom';
 
 interface IOnboardingContainerProps {
   title: string;
+  subtitle: string;
   children: React.ReactNode;
   footer: React.ReactNode;
 }
 
-const OnboardingContainer = ({ title, children, footer }: IOnboardingContainerProps) => {
+const OnboardingContainer = ({ title, subtitle, children, footer }: IOnboardingContainerProps) => {
   const navigate = useNavigate();
 
   return (
@@ -24,9 +25,9 @@ const OnboardingContainer = ({ title, children, footer }: IOnboardingContainerPr
     >
       <Box component="div" display="flex" justifyContent="space-between">
         <Box component="div" display="flex" flexDirection="column" gap="2px">
-          <Typography variant="h6">Setup</Typography>
+          <Typography variant="h6">{title}</Typography>
           <Typography variant="subtitle1" color="grey">
-            {title}
+            {subtitle}
           </Typography>
         </Box>
 
@@ -45,7 +46,7 @@ const OnboardingContainer = ({ title, children, footer }: IOnboardingContainerPr
         flexDirection="column"
         justifyContent="space-between"
       >
-        <Box component="div" display="flex">
+        <Box component="div" display="flex" width="100%">
           {children}
         </Box>
 

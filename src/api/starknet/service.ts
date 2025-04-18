@@ -5,6 +5,7 @@ import { logError } from '../../background/analytics';
 import {
   BlockWithTxs,
   ConsumeMessageFromL2Params,
+  FlushMessages,
   LoadL1MessagingContractParams,
   SendMessageToL2Params,
 } from './types';
@@ -59,6 +60,7 @@ const starknetApi = {
     l2ProviderUrl: string,
     params: LoadL1MessagingContractParams
   ): Promise<string | null> => {
+    if (!l2ProviderUrl) return null;
     try {
       const response = await fetch(`${l2ProviderUrl}/postman/load_l1_messaging_contract`, {
         method: 'POST',
@@ -84,13 +86,16 @@ const starknetApi = {
     }
   },
 
-  flush: async (l2ProviderUrl: string): Promise<void> => {
+  flush: async (l2ProviderUrl: string): Promise<FlushMessages | null> => {
     try {
-      await fetch(`${l2ProviderUrl}/postman/flush`, {
+      const response = await fetch(`${l2ProviderUrl}/postman/flush`, {
         method: 'POST',
       });
+
+      return await response.json();
     } catch (error) {
       logError('flush error:', error);
+      return null;
     }
   },
 
@@ -140,12 +145,9 @@ const starknetApi = {
         }),
       });
 
-      console.log('consume response', response);
-
       return await response.json();
     } catch (error) {
       logError('consume message from L2 error:', error);
-      console.log('consume message from L2 error:', error);
       return null;
     }
   },

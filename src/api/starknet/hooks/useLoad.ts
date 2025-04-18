@@ -7,8 +7,11 @@ const useLoad = () => {
   const { selectedUrl } = useSharedState();
   const { data: l1NodePort } = useL1Node();
   return useMutation({
-    mutationFn: () =>
-      starknetApi.load(selectedUrl, { networkUrl: `http://host.docker.internal:${l1NodePort}` }),
+    mutationFn: (address?: string) =>
+      starknetApi.load(selectedUrl, {
+        address,
+        networkUrl: `http://host.docker.internal:${l1NodePort}`,
+      }),
   });
 };
 

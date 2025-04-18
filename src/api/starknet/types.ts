@@ -34,6 +34,19 @@ export interface LoadL1MessagingContractParams {
   address?: string; // Optional existing contract address
 }
 
+export interface FlushMessages {
+  generated_l2_transactions: Message[];
+  l1_provider: string;
+  messages_to_l1: Message[];
+  messages_to_l2: Message[];
+}
+
+export interface Message {
+  from_address: string;
+  payload: string[];
+  to_address: string;
+}
+
 export interface SendMessageToL2Params {
   l2ContractAddress: string;
   entryPointSelector: string;

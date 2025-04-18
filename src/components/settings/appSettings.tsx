@@ -8,6 +8,7 @@ import { Spinner } from '../utils/spinner';
 import { getUrlConfig } from '../../background/syncStorage';
 import { UrlConfig } from '../context/interfaces';
 import { useViewMode } from '../context/viewContext';
+import { useL1Node } from '../hooks/useL1Node';
 
 export const AppSettings = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ export const AppSettings = () => {
   const { selectedUrl: url, updateSelectedAccount, updateCurrentBalance } = context;
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [config, setConfig] = useState<UrlConfig | null>(null);
+  const { data: l1NodePort } = useL1Node();
+
   const getConfig = async () => {
     const urlConfig = await getUrlConfig();
     setConfig(urlConfig);
@@ -197,7 +200,7 @@ export const AppSettings = () => {
               <Button
                 variant="text"
                 component={RouteLink}
-                to="/l1-l2-onboarding"
+                to={l1NodePort ? '/l1-l2-data' : '/l1-l2-onboarding'}
                 fullWidth
                 sx={{
                   height: 48,

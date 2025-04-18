@@ -26,9 +26,10 @@ import { GasPriceModification } from '../components/settings/gasPriceModificatio
 import { logError } from '../background/analytics';
 import useGetBlockWithTxs from '../api/starknet/hooks/useGetBlockWithTxs';
 import { BlockWithTxs } from '../api/starknet/types';
-import OnboardingStart from '../components/screens/onboarding/start';
-import OnboardingConfigure from '../components/screens/onboarding/configure';
-import OnboardingRun from '../components/screens/onboarding/run';
+import OnboardingStart from '../components/settings/l1-l2Messaging/start';
+import OnboardingConfigure from '../components/settings/l1-l2Messaging/configure';
+import OnboardingRun from '../components/settings/l1-l2Messaging/run';
+import OnboardingData from '../components/settings/l1-l2Messaging/data';
 
 import './Popup.css';
 
@@ -155,6 +156,7 @@ export const Popup = () => {
               <Route path="run" element={<OnboardingRun />} key="run" />,
             ]}
           />
+          <Route path="/l1-l2-data" element={<OnboardingData />} />
           <Route path="/app-settings" element={<AppSettings />} />
           <Route path="/command-generator" element={<DockerCommandGenerator />} />
           <Route path="/docker-register" element={<RegisterRunningDocker />} />

@@ -4,8 +4,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import OnboardingContainer from './container';
 
-import { handleCopyToClipboard } from '../../../components/utils/utils';
-import { useCopyTooltip } from '../../../components/hooks/hooks';
+import { handleCopyToClipboard } from '../../utils/utils';
+import { useCopyTooltip } from '../../hooks/hooks';
 
 const OnboardingStart = () => {
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
@@ -14,7 +14,8 @@ const OnboardingStart = () => {
 
   return (
     <OnboardingContainer
-      title="Install"
+      title="Setup"
+      subtitle="Install"
       footer={
         <Button
           fullWidth

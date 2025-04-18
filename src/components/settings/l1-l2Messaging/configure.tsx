@@ -70,7 +70,8 @@ const OnboardingConfigure = () => {
 
   return (
     <OnboardingContainer
-      title="Configure"
+      title="Setup"
+      subtitle="Configure"
       footer={
         <Box component="div" width="100%" display="flex" gap={1} paddingY={2}>
           <Button
@@ -87,7 +88,13 @@ const OnboardingConfigure = () => {
         </Box>
       }
     >
-      <form id="configure-form" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        id="configure-form"
+        onSubmit={handleSubmit(onSubmit)}
+        style={{
+          width: '100%',
+        }}
+      >
         <Stack gap={3} paddingTop={1}>
           <Stack gap={2}>
             <Box display="flex" alignItems="center">

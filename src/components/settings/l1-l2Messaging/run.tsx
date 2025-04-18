@@ -4,9 +4,8 @@ import { Box, Button, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import OnboardingContainer from './container';
-import { useCopyTooltip } from '../../../components/hooks/hooks';
-import { handleCopyToClipboard } from '../../../components/utils/utils';
-import { useOnboarded } from '../../hooks/useOnboarded';
+import { useCopyTooltip } from '../../hooks/hooks';
+import { handleCopyToClipboard } from '../../utils/utils';
 import { useL1Node } from '../../hooks/useL1Node';
 
 const OnboardingRun = () => {
@@ -16,7 +15,6 @@ const OnboardingRun = () => {
   const navigate = useNavigate();
 
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
-  const { update: updateOnboarded } = useOnboarded();
   const { update: updateL1NodePort } = useL1Node();
 
   const command = React.useMemo(() => {
@@ -55,17 +53,17 @@ const OnboardingRun = () => {
         .catch(() => setError('Anvil instance not detected'));
 
       if (data && data.result) {
-        await updateOnboarded(true);
         await updateL1NodePort(port);
 
-        navigate('/');
+        navigate('/l1-l2-data');
       }
     }
   };
 
   return (
     <OnboardingContainer
-      title="Run Anvil"
+      title="Setup"
+      subtitle="Run Anvil"
       footer={
         <Box component="div" width="100%" display="flex" gap={1}>
           <Button
@@ -82,7 +80,7 @@ const OnboardingRun = () => {
         </Box>
       }
     >
-      <Stack gap={2}>
+      <Stack gap={2} flexDirection="column">
         <Typography>
           Run the following command in your CLI to start a local chain with your configuration:
         </Typography>
