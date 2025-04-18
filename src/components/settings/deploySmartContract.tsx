@@ -2,7 +2,7 @@ import { Box, Button, CircularProgress, Stack, TextField, Typography } from '@mu
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Abi } from 'starknet';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 import { useDeployedContracts } from '../hooks/useDeployedContracts';

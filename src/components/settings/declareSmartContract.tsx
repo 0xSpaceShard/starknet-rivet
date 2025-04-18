@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { CompiledSierraCasm, isSierra } from 'starknet';
-import { useSharedState } from '../context/context';
+import { useSharedState } from '../context/dataContext';
 import PageHeader from './pageHeader';
 import AddressTooltip from '../addressTooltip/addressTooltip';
 import { logError } from '../../background/analytics';
