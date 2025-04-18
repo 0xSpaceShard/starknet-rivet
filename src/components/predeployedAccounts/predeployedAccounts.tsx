@@ -38,7 +38,7 @@ export const PredeployedAccounts: React.FC = () => {
       const data = await response?.json();
       return {
         ...acc,
-        balance: { eth: { amount: data?.amount } },
+        balance: { strk: { amount: data?.amount } },
       };
     });
     const accountsWithBalance = await Promise.all(fetchBalancePromises);
