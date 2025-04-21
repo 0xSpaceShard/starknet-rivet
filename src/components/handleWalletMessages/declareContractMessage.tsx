@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { DeclareContractPayload } from 'starknet-6';
+import { DeclareContractPayload } from 'starknet';
 import { useSharedState } from '../context/dataContext';
 import ConfirmationSection from '../confirmationSection/confirmationSection';
 

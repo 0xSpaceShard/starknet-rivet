@@ -14,10 +14,17 @@ import { useTokens } from '../hooks/useTokens';
 interface ITokenDropdownProps {
   value: string;
   onChange: (e: SelectChangeEvent) => void;
+  predeployedOnly?: boolean;
+  showBalance?: boolean;
 }
 
-export const TokenDropdown: React.FC<ITokenDropdownProps> = ({ value, onChange }) => {
-  const { tokenBalances } = useTokens();
+export const TokenDropdown: React.FC<ITokenDropdownProps> = ({
+  value,
+  onChange,
+  predeployedOnly,
+  showBalance = true,
+}) => {
+  const { tokenBalances } = useTokens(predeployedOnly);
 
   return (
     <FormControl fullWidth>
@@ -26,8 +33,9 @@ export const TokenDropdown: React.FC<ITokenDropdownProps> = ({ value, onChange }
         {tokenBalances.map((token) => (
           <MenuItem key={token.address} value={token.address} disabled={token.balance === '0'}>
             <Box display="flex" alignItems="center" gap={1}>
-              <Typography variant="subtitle1">{token.symbol}</Typography>-
-              <Typography variant="subtitle2">{token.balance}</Typography>
+              <Typography variant="subtitle1">{token.symbol}</Typography>
+              <Typography>-</Typography>
+              {showBalance && <Typography variant="subtitle2"> {token.balance}</Typography>}
             </Box>
           </MenuItem>
         ))}

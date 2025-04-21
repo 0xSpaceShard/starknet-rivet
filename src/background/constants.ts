@@ -2,6 +2,8 @@ export const DEFAULT_DEVNET_URL = 'https://devnet.spaceshard.io';
 export const LOCALHOST_DEVNET_URL = 'http://127.0.0.1:5050';
 export const ETH_SYMBOL = 'ETH';
 export const ETH_ADDRESS = '0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
+export const STRK_SYMBOL = 'STRK';
+export const STRK_ADDRESS = '0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d';
 export const MAX_AMOUNT_TO_MINT = 100000000000000000000n;
 
 export const ARGENTX_ACCOUNT_CLASS_HASH =

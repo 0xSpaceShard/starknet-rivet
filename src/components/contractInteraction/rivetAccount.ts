@@ -9,7 +9,7 @@ import {
   TypedData,
   UniversalDetails,
   defaultProvider,
-} from 'starknet-6';
+} from 'starknet';
 
 import { sendMessage, SignMessageOptions, waitForMessage } from './messageActions';
 

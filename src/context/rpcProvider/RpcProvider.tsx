@@ -1,5 +1,5 @@
 import React from 'react';
-import { RpcProvider as RpcConstructor } from 'starknet-6';
+import { RpcProvider as RpcConstructor } from 'starknet';
 
 import { providerReducer } from './reducer';
 import { initialState } from './state';

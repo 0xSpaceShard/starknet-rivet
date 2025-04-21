@@ -1,4 +1,4 @@
-import { TypedData } from 'starknet-6';
+import { TypedData } from 'starknet';
 import { signTypedDataHandler } from './signTypedData';
 import { sendMessage, waitForMessage } from '../messageActions';
 

@@ -38,7 +38,7 @@ export const PredeployedAccounts: React.FC = () => {
       const data = await response?.json();
       return {
         ...acc,
-        balance: { eth: { amount: data?.amount } },
+        balance: { strk: { amount: data?.amount } },
       };
     });
     const accountsWithBalance = await Promise.all(fetchBalancePromises);
@@ -106,7 +106,7 @@ export const PredeployedAccounts: React.FC = () => {
 
   const handleCustomAccountClick = async (account: CustomAccount) => {
     if (!account) return;
-    await updateCurrentBalance(BigInt(account?.balance?.eth?.amount ?? 0));
+    await updateCurrentBalance(BigInt(account?.balance?.strk?.amount ?? 0));
     await updateSelectedAccount(account);
     navigate(`/accounts/${account.address}`, { state: { type: account.type } });
   };

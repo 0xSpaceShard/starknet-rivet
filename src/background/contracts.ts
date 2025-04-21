@@ -1,4 +1,4 @@
-import { Calldata, CallData, Contract, uint256, DeclareContractPayload } from 'starknet-6';
+import { Calldata, CallData, Contract, uint256, DeclareContractPayload } from 'starknet';
 import {
   getProvider,
   getSelectedAccount,
@@ -6,7 +6,7 @@ import {
   parseErrorMessage,
 } from './utils';
 import { DeclareContractMessage, DeployContractMessage } from './interface';
-import { ETH_ADDRESS, MAX_AMOUNT_TO_MINT } from './constants';
+import { MAX_AMOUNT_TO_MINT, STRK_ADDRESS } from './constants';
 import { getSelectedUrl } from './syncStorage';
 import { logError } from './analytics';
 
@@ -95,14 +95,14 @@ export async function getTokenBalance(contractAddr: string) {
   }
 }
 
-export async function modifyEthBalance(amount: bigint) {
+export async function modifyBalance(amount: bigint) {
   try {
     const provider = await getProvider();
     const acc = await getSelectedAccount();
     const url = await getSelectedUrl();
 
-    const contract = await provider.getClassAt(ETH_ADDRESS);
-    const erc20 = new Contract(contract.abi, ETH_ADDRESS, provider);
+    const contract = await provider.getClassAt(STRK_ADDRESS);
+    const erc20 = new Contract(contract.abi, STRK_ADDRESS, provider);
 
     erc20.connect(acc);
     const balance = await erc20.balanceOf(acc.address);
@@ -110,6 +110,7 @@ export async function modifyEthBalance(amount: bigint) {
       const data = {
         address: acc.address,
         amount: Number(BigInt(amount - balance).toString()),
+        unit: 'FRI',
       };
       for (let index = BigInt(amount - balance); index > 0; ) {
         let res = index;
@@ -152,7 +153,7 @@ export async function modifyEthBalance(amount: bigint) {
 export async function sendToAccount(
   recipientAddr: string,
   amount: bigint,
-  tokenAddress: string = ETH_ADDRESS
+  tokenAddress: string = STRK_ADDRESS
 ) {
   try {
     const provider = await getProvider();

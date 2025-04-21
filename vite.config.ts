@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => {
           __dirname,
           'node_modules/webextension-polyfill/dist/browser-polyfill.min.js'
         ),
+        // Add an alias for starknet to ensure the correct version is used
+        starknet: path.resolve(__dirname, 'node_modules/starknet/dist/index.js'),
       },
     },
     build: {

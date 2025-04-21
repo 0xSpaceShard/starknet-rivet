@@ -1,4 +1,4 @@
-import { CairoAssembly, CompiledContract } from 'starknet-6';
+import { CairoAssembly, CompiledContract } from 'starknet';
 import { AccountData } from '../components/context/interfaces';
 
 // Type

@@ -1,4 +1,4 @@
-import { AllowArray, Call, InvokeFunctionResponse } from 'starknet-6';
+import { AllowArray, Call, InvokeFunctionResponse } from 'starknet';
 import { sendMessage, waitForMessage } from '../messageActions';
 
 export async function addInvokeTransactionHandler(params: {

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, Menu as MenuIcon, Send as SendIcon } from '@mui/icons-material';
-import { num } from 'starknet-6';
+import { num } from 'starknet';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -71,7 +71,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     setAnchorEl(null);
   };
 
-  const { tokenBalances, getTokenSymbol, hasNonEthTokens } = useTokens();
+  const { tokenBalances, getTokenSymbol, hasNonPredeployedTokens } = useTokens();
   const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
   const {
     data: blocks,
@@ -172,13 +172,16 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
 
   const fetchAndUpdateBalance = async (address: string | undefined) => {
     try {
-      let fetchUrl = `${url}/account_balance?address=${address}`;
+      let fetchUrl = `${url}/account_balance?address=${address}&unit=FRI`;
       if (configData?.block_generation_on === 'demand') {
         fetchUrl += '&block_tag=pending';
       }
-      const response = await fetch(fetchUrl);
-      const data = await response.json();
-      await updateCurrentBalance(BigInt(data.amount));
+
+      const strkRes = await fetch(fetchUrl);
+
+      const strk = await strkRes.json();
+
+      await updateCurrentBalance(BigInt(strk.amount));
     } catch (error) {
       logError('Error fetching balance:', error);
     }
@@ -198,10 +201,11 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     fetchAccountData();
   }, []);
 
-  const balanceString = useMemo(
+  const strkBalanceString = useMemo(
     () => (!isLoading ? getBalanceStr(currentBalance) : ''),
     [currentBalance, isLoading]
   );
+
   const shortAddress = useMemo(() => shortenAddress(selectedAccount?.address), [selectedAccount]);
   const typeStr = useMemo(() => printAccountType(type), [type]);
   const transactions = useMemo(
@@ -318,7 +322,9 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             <MenuItem
               onClick={() =>
                 navigate(`/accounts/${selectedAccount?.address}/modify-balance`, {
-                  state: { initialBalance: balanceString },
+                  state: {
+                    initialBalance: strkBalanceString,
+                  },
                 })
               }
             >
@@ -333,7 +339,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 <Box padding={4} paddingLeft={7} display="flex" justifyContent="center">
                   {!isLoading ? (
                     <Typography variant="h5" display="inline-block" paddingRight={1}>
-                      {balanceString} ETH
+                      {strkBalanceString} STRK
                     </Typography>
                   ) : (
                     <Stack direction="row" justifyContent="center" paddingY={2}>
@@ -379,7 +385,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             )}
           </>
         )}
-        {hasNonEthTokens ? (
+        {hasNonPredeployedTokens ? (
           <>
             <Divider sx={{ marginY: 2 }} variant="middle" />
             <Box>

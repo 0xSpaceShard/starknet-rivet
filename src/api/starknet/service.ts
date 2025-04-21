@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { RpcProvider } from 'starknet-6';
+import { RpcProvider } from 'starknet';
 
 import { logError } from '../../background/analytics';
 import { BlockWithTxs } from './types';
