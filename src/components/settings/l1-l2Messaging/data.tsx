@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import OnboardingContainer from './container';
-import { useSharedState } from '../../context/context';
+import { useSharedState } from '../../context/dataContext';
 import useLoad from '../../../api/starknet/hooks/useLoad';
 import useFlush from '../../../api/starknet/hooks/useFlush';
 import { logError } from '../../../background/analytics';
@@ -53,12 +53,11 @@ const l1L2Data = () => {
   const { mutateAsync: load } = useLoad();
   const { mutateAsync: flush } = useFlush();
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async () => {
     try {
-      const flushRes = await flush();
-      console.log({ flushRes, values });
+      await flush();
     } catch (error) {
-      logError('l1 l2 messaging error:', error);
+      logError('l1 l2 messaging flush error:', error);
     }
   };
 

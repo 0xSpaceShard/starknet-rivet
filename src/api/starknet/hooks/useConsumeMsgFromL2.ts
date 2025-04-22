@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import starknetApi from '../service';
-import { useSharedState } from '../../../components/context/context';
+import { useSharedState } from '../../../components/context/dataContext';
 import { ConsumeMessageFromL2Params } from '../types';
 
 const useConsumeMsgFromL2 = () => {

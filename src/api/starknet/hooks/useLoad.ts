@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import starknetApi from '../service';
-import { useSharedState } from '../../../components/context/context';
+import { useSharedState } from '../../../components/context/dataContext';
 import { useL1Node } from '../../../components/hooks/useL1Node';
 
 const useLoad = () => {

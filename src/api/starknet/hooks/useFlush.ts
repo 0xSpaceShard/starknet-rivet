@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useSharedState } from '../../../components/context/context';
+import { useSharedState } from '../../../components/context/dataContext';
 import starknetApi from '../service';
 
 const useFlush = () => {
