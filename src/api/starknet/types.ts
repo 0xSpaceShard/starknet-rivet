@@ -28,3 +28,43 @@ export interface Transaction {
   sender_address: string;
   calldata: string[];
 }
+
+export interface LoadL1MessagingContractParams {
+  networkUrl: string;
+  address?: string; // Optional existing contract address
+}
+
+export interface FlushMessages {
+  generated_l2_transactions: Message[];
+  l1_provider: string;
+  messages_to_l1: Message[];
+  messages_to_l2: Message[];
+}
+
+export interface Message {
+  from_address: string;
+  payload: string[];
+  to_address: string;
+}
+
+export interface SendMessageToL2Params {
+  l2ContractAddress: string;
+  entryPointSelector: string;
+  l1ContractAddress: string;
+  payload: string[];
+  paidFeeOnL1?: string;
+  nonce?: string;
+}
+
+export interface ConsumeMessageFromL2Params {
+  fromAddress: string;
+  toAddress: string;
+  payload: any[];
+}
+
+export interface PostmanResponse {
+  status: string;
+  message?: string;
+  address?: string;
+  transaction_hash?: string;
+}

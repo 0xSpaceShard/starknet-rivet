@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import { BigNumberish } from 'starknet';
 
 export function shortenAddress(address: string | null | undefined, length: number = 12): string {
   if (!address?.length) return '';
@@ -25,4 +26,8 @@ export function getNormalizedDecimalString(amountHex: string): string {
 
   const scaled = amountDecimal.div(new Decimal(10).pow(amountDecimal.e));
   return scaled.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toString();
+}
+
+export function numericToHexString(numeric: BigNumberish): string {
+  return `0x${BigInt(numeric).toString(16)}`;
 }

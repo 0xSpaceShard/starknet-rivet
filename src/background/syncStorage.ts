@@ -30,6 +30,27 @@ export async function saveUrlContextData<T>(key: string, data: T): Promise<T> {
   return data;
 }
 
+export async function saveContextData<T>(key: string, data: T): Promise<T> {
+  await chrome.storage.sync.set({ [key]: data });
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return data;
+}
+
+export async function getContextData<T>(key: string, defaultValue: T): Promise<T> {
+  const dataSet = (await chrome.storage.sync.get([key])) ?? {};
+  const storedData = dataSet[key];
+
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
+  }
+
+  return storedData || defaultValue;
+}
+
 // Function to save block interval object to Chrome sync storage
 export async function saveBlockIntervalToSyncStorage(
   blockInterval: Map<string, number>
@@ -241,4 +262,12 @@ export async function getDeployedContracts(): Promise<Contract[]> {
 export async function saveDeployedContracts(deployedContract: Contract): Promise<Contract[]> {
   const deployedContracts = await getDeployedContracts();
   return saveUrlContextData('deployedContracts', [...deployedContracts, deployedContract]);
+}
+
+export async function saveL1NodePort(l1NodePort: string) {
+  return saveContextData('l1NodePort', l1NodePort);
+}
+
+export async function getL1NodePort(): Promise<string> {
+  return getContextData<string>('l1NodePort', '');
 }

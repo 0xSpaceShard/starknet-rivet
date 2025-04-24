@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Box, Typography, Tabs, Tab, TabScrollButton, styled } from '@mui/material';
 import { useSharedState } from '../context/dataContext';
