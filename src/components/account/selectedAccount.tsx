@@ -3,7 +3,7 @@ import {
   ChevronLeft,
   Menu as MenuIcon,
   Send as SendIcon,
-  AccountTree as DebugIcon,
+  // AccountTree as DebugIcon,
 } from '@mui/icons-material';
 import { num } from 'starknet';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -36,7 +36,7 @@ import {
 import { useTooltip } from '../hooks/useTooltip';
 import { useSharedState } from '../context/dataContext';
 import { printAccountType } from '../../background/utils';
-import { AccountType, getWalnutOptions } from '../../background/syncStorage';
+import { AccountType } from '../../background/syncStorage';
 import { darkTheme } from '../..';
 import { useTokens } from '../hooks/useTokens';
 import { logError } from '../../background/analytics';
@@ -236,19 +236,6 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     [blocks, selectedAccount, tokenBalances]
   );
 
-  const debugTransaction = async (e: any) => {
-    const walnutOptions = await getWalnutOptions();
-    console.log('!', walnutOptions, e);
-    if (!walnutOptions) {
-      // setShowReconnectPopup(true);
-      // return;
-    }
-    // executeDebug();
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-  };
-
   return (
     <section>
       <Box paddingBottom={transactionData || signatureData || tokenBalances?.length ? 3 : 6}>
@@ -441,7 +428,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                           </Stack>
                         </Button>
                       </Grid>
-                      <Grid item flexBasis={'50px'} flexGrow={0} padding={'0 10px'}>
+                      {/* <Grid item flexBasis={'50px'} flexGrow={0} padding={'0 10px'}>
                         <Tooltip title="Debug transaction">
                           <IconButton
                             size="small"
@@ -452,7 +439,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                             <DebugIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                      </Grid>
+                      </Grid> */}
                     </Grid>
                   ))}
                 </Box>

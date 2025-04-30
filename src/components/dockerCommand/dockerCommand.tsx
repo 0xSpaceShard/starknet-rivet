@@ -180,7 +180,7 @@ const DockerCommandGenerator: React.FC = () => {
       updateUrlList(urlList);
     }
 
-    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
+    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:0.3.0-rc.1`;
 
     const kebabCaseOptions = convertCamelToKebab(options);
     const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
@@ -590,7 +590,7 @@ const DockerCommandGenerator: React.FC = () => {
                   </IconButton>
                 </Tooltip>
               </Stack>
-              <Stack direction={'row'}>
+              {/* <Stack direction={'row'}>
                 <Box flex={1}>
                   <TextField
                     fullWidth
@@ -617,7 +617,7 @@ const DockerCommandGenerator: React.FC = () => {
                   ></TextField>
                 </Box>
                 <Box width={'40px'} marginX={2} marginY={0} />
-              </Stack>
+              </Stack> */}
             </Stack>
             <Box marginTop={3}>
               <Container>
