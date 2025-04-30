@@ -220,6 +220,23 @@ export async function saveAccountContracts(
   return saveUrlContextData('accountContracts', accountContracts);
 }
 
+export async function getWalnutOptions(): Promise<{
+  walnutApiKey: string;
+  ngrokAuthToken: string;
+}> {
+  return getUrlContextData<{ walnutApiKey: string; ngrokAuthToken: string }>('walnutOptions', {
+    walnutApiKey: '',
+    ngrokAuthToken: '',
+  });
+}
+
+export async function saveWalnutOptions(walnutOptions: {
+  walnutApiKey: string;
+  ngrokAuthToken: string;
+}): Promise<{ walnutApiKey: string; ngrokAuthToken: string }> {
+  return saveUrlContextData('walnutOptions', walnutOptions);
+}
+
 export enum AccountType {
   Predeployed,
   OpenZeppelin,

@@ -31,6 +31,9 @@ import {
 } from '../../info';
 import { useSharedState } from '../context/dataContext';
 import { Options } from '../context/interfaces';
+import { saveWalnutOptions } from '../../background/syncStorage';
+import { handleCopyToClipboard } from '../utils/utils';
+import { useTooltip } from '../hooks/useTooltip';
 
 const DockerCommandGenerator: React.FC = () => {
   const context = useSharedState();
@@ -55,6 +58,8 @@ const DockerCommandGenerator: React.FC = () => {
     forkBlock: 0,
     requestBodySizeLimit: 2000000,
     blockGenerationOn: 'transaction',
+    walnutApiKey: '',
+    ngrokAuthToken: '',
   };
 
   const [options, setOptions] = useState<Options>(defaultOptions);
@@ -64,7 +69,8 @@ const DockerCommandGenerator: React.FC = () => {
   const [timeoutError, setTimeOutError] = useState('');
   const [blockGenerationOnError, setBlockGenerationOnError] = useState('');
   const [generalError, setGeneralError] = useState(false);
-  const [generateCommand, setGenerateCommand] = useState(false);
+  const [dockerCommand, setDockerCommand] = useState('');
+  const { isTooltipShown, showTooltip } = useTooltip();
   const navigate = useNavigate();
 
   const { urlList, updateUrlList, setCommandOptions } = context;
@@ -78,10 +84,7 @@ const DockerCommandGenerator: React.FC = () => {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | SelectChangeEvent
   ) => {
     const { name, value } = e.target;
-    setOptions((prevOptions) => ({
-      ...prevOptions,
-      [name]: value,
-    }));
+    setOptions((prevOptions) => ({ ...prevOptions, [name]: value }));
     if (name === 'initialBalance' && !Number.isNaN(Number(value))) {
       if (!isValidInitialBalance(value)) {
         setInitialBalanceError('Invalid initial balance');
@@ -177,7 +180,7 @@ const DockerCommandGenerator: React.FC = () => {
       updateUrlList(urlList);
     }
 
-    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs`;
+    command += `${options.host}:${options.port}:${options.port} shardlabs/starknet-devnet-rs:0.3.0-rc.1`;
 
     const kebabCaseOptions = convertCamelToKebab(options);
     const kebabCaseDefaultOptions = convertCamelToKebab(defaultOptions);
@@ -200,7 +203,14 @@ const DockerCommandGenerator: React.FC = () => {
       }
     });
 
-    setGenerateCommand(true);
+    saveWalnutOptions({
+      walnutApiKey: options.walnutApiKey ?? '',
+      ngrokAuthToken: options.ngrokAuthToken ?? '',
+    });
+    handleCopyToClipboard(command);
+    setDockerCommand(command);
+    showTooltip();
+
     return command;
   }, [options]);
 
@@ -218,9 +228,7 @@ const DockerCommandGenerator: React.FC = () => {
               variant={'text'}
               startIcon={<ChevronLeft />}
               onClick={handleBack}
-              sx={{
-                padding: '8px 10px',
-              }}
+              sx={{ padding: '8px 10px' }}
             >
               Back
             </Button>
@@ -582,25 +590,67 @@ const DockerCommandGenerator: React.FC = () => {
                   </IconButton>
                 </Tooltip>
               </Stack>
+              {/* <Stack direction={'row'}>
+                <Box flex={1}>
+                  <TextField
+                    fullWidth
+                    name="walnutApiKey"
+                    value={options.walnutApiKey}
+                    label={'Walnut API Key'}
+                    onChange={handleInputChange}
+                    variant={'outlined'}
+                    size={'small'}
+                  ></TextField>
+                </Box>
+                <Box width={'40px'} marginX={2} marginY={0} />
+              </Stack>
+              <Stack direction={'row'}>
+                <Box flex={1}>
+                  <TextField
+                    fullWidth
+                    name="ngrokAuthToken"
+                    value={options.ngrokAuthToken}
+                    label={'ngrok Auth Token'}
+                    onChange={handleInputChange}
+                    variant={'outlined'}
+                    size={'small'}
+                  ></TextField>
+                </Box>
+                <Box width={'40px'} marginX={2} marginY={0} />
+              </Stack> */}
             </Stack>
             <Box marginTop={3}>
               <Container>
-                {!generateCommand && (
+                {!dockerCommand && (
                   <Button
                     variant="outlined"
                     color="primary"
                     // eslint-disable-next-line no-alert
-                    onClick={() => alert(generateDockerCommand())}
+                    onClick={generateDockerCommand}
                     disabled={generalError}
                   >
                     Generate Docker Command
                   </Button>
                 )}
-                {generateCommand && (
-                  <Box>
-                    <Button variant="outlined" color="primary" onClick={handleBack}>
-                      Continue
-                    </Button>
+                {!!dockerCommand && (
+                  <Box margin={0} marginTop="1em">
+                    <Tooltip
+                      PopperProps={{ disablePortal: true }}
+                      open={isTooltipShown}
+                      disableFocusListener
+                      disableHoverListener
+                      disableTouchListener
+                      title="Command copied to clipboard"
+                    >
+                      <TextField
+                        fullWidth
+                        label="Docker command"
+                        value={dockerCommand}
+                        multiline
+                        InputProps={{ readOnly: true }}
+                        variant="outlined"
+                      />
+                    </Tooltip>
                   </Box>
                 )}
               </Container>

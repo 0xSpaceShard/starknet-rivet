@@ -5,10 +5,10 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import OnboardingContainer from './container';
 
 import { handleCopyToClipboard } from '../../utils/utils';
-import { useCopyTooltip } from '../../hooks/hooks';
+import { useTooltip } from '../../hooks/useTooltip';
 
 const OnboardingStart = () => {
-  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { isTooltipShown, showTooltip } = useTooltip();
 
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ const OnboardingStart = () => {
               PopperProps={{
                 disablePortal: true,
               }}
-              open={isCopyTooltipShown}
+              open={isTooltipShown}
               disableFocusListener
               disableHoverListener
               disableTouchListener

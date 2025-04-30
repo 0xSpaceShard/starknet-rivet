@@ -20,8 +20,8 @@ install_docker() {
 start_starknet_container() {
     echo "Starting Starknet container..."
 
-    docker pull shardlabs/starknet-devnet-rs:latest
-    docker run -p 127.0.0.1:5050:5050 shardlabs/starknet-devnet-rs:latest $docker_args
+    docker pull shardlabs/starknet-devnet-rs:0.3.0-rc.1
+    docker run -p 127.0.0.1:5050:5050 shardlabs/starknet-devnet-rs:0.3.0-rc.1 $docker_args
 }
 
 while [[ -n $1 ]]; do

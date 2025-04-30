@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Stack, Tooltip, Typography } from '@mui/material';
 import { darkTheme } from '../..';
 import { handleCopyToClipboard, shortenAddress } from '../utils/utils';
-import { useCopyTooltip } from '../hooks/hooks';
+import { useTooltip } from '../hooks/useTooltip';
 
 interface BlockInfoProps {
   title: string;
@@ -11,7 +11,7 @@ interface BlockInfoProps {
 }
 
 const DisplayBlockInfo: React.FC<BlockInfoProps> = ({ title, value, isCopyable = false }) => {
-  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { isTooltipShown, showTooltip } = useTooltip();
 
   return (
     <Stack alignItems={'flex-start'}>
@@ -24,7 +24,7 @@ const DisplayBlockInfo: React.FC<BlockInfoProps> = ({ title, value, isCopyable =
             PopperProps={{
               disablePortal: true,
             }}
-            open={isCopyTooltipShown}
+            open={isTooltipShown}
             disableFocusListener
             disableHoverListener
             disableTouchListener

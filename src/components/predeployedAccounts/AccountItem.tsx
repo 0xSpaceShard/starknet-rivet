@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, IconButton, Button, Typography, Grid, Tooltip } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { useCopyTooltip } from '../hooks/hooks';
+import { useTooltip } from '../hooks/useTooltip';
 import { darkTheme } from '../..';
 import { handleCopyToClipboard, getBalanceStr, shortenAddress } from '../utils/utils';
 import { AccountData } from '../context/interfaces';
@@ -11,7 +11,7 @@ export const AccountItem: React.FC<{
   account: AccountData;
   handleAccountClick: (account: any) => void;
 }> = ({ account, handleAccountClick }) => {
-  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { isTooltipShown, showTooltip } = useTooltip();
   const { selectedAccount } = useSharedState();
 
   const isSelected = selectedAccount?.address === account?.address;
@@ -50,7 +50,7 @@ export const AccountItem: React.FC<{
             PopperProps={{
               disablePortal: true,
             }}
-            open={isCopyTooltipShown}
+            open={isTooltipShown}
             disableFocusListener
             disableHoverListener
             disableTouchListener

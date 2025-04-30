@@ -1,6 +1,6 @@
 import { Box, Link, Tooltip } from '@mui/material';
 import React from 'react';
-import { useCopyTooltip } from '../hooks/hooks';
+import { useTooltip } from '../hooks/useTooltip';
 import { shortenAddress } from '../utils/utils';
 
 interface AddressTooltipProps {
@@ -8,7 +8,7 @@ interface AddressTooltipProps {
 }
 
 const AddressTooltip: React.FC<AddressTooltipProps> = ({ address }) => {
-  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { isTooltipShown, showTooltip } = useTooltip();
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(address);
@@ -19,7 +19,7 @@ const AddressTooltip: React.FC<AddressTooltipProps> = ({ address }) => {
     <Box paddingY={1}>
       <Tooltip
         PopperProps={{ disablePortal: true }}
-        open={isCopyTooltipShown}
+        open={isTooltipShown}
         disableFocusListener
         disableHoverListener
         disableTouchListener

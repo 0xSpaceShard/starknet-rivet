@@ -132,16 +132,11 @@ export async function createOpenZeppelinAccount() {
   console.info('Precalculated account address: ', OZContractAddress);
   console.info('Funding...');
 
-  const data = {
-    address: OZContractAddress,
-    amount: 1000000000000000000000,
-  };
+  const data = { address: OZContractAddress, amount: 1000000000000000000000 };
 
   await fetch(`${url}/mint`, {
     method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
 
@@ -178,10 +173,7 @@ export async function createArgentAccount() {
   const privateKey = stark.randomAddress();
   const starkKeyPub = ec.starkCurve.getStarkKey(privateKey);
 
-  const AXConstructorCallData = CallData.compile({
-    owner: starkKeyPub,
-    guardian: '0',
-  });
+  const AXConstructorCallData = CallData.compile({ owner: starkKeyPub, guardian: '0' });
   const AXcontractAddress = hash.calculateContractAddressFromHash(
     starkKeyPub,
     ARGENTX_ACCOUNT_CLASS_HASH,
@@ -191,16 +183,11 @@ export async function createArgentAccount() {
   console.info('Precalculated account address:', AXcontractAddress);
   console.info('Funding...');
 
-  const data = {
-    address: AXcontractAddress,
-    amount: 1000000000000000000000,
-  };
+  const data = { address: AXcontractAddress, amount: 1000000000000000000000 };
 
   await fetch(`${url}/mint`, {
     method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
 
@@ -283,4 +270,15 @@ export async function updateGasPrices(gasPrices: GasPrices): Promise<boolean> {
     logError('Error setting gas prices:', error);
     return false;
   }
+}
+
+export async function restartDevnet(): Promise<boolean> {
+  const url = await getSelectedUrl();
+
+  await fetch(`${url}/restart `, {
+    method: 'post',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  return true;
 }
