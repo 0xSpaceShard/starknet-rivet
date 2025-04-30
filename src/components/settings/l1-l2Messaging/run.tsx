@@ -4,7 +4,7 @@ import { Box, Button, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import OnboardingContainer from './container';
-import { useCopyTooltip } from '../../hooks/hooks';
+import { useTooltip } from '../../hooks/useTooltip';
 import { handleCopyToClipboard } from '../../utils/utils';
 import { useL1Node } from '../../hooks/useL1Node';
 
@@ -14,7 +14,7 @@ const OnboardingRun = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
 
-  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { isTooltipShown, showTooltip } = useTooltip();
   const { update: updateL1NodePort } = useL1Node();
 
   const command = React.useMemo(() => {
@@ -100,7 +100,7 @@ const OnboardingRun = () => {
               PopperProps={{
                 disablePortal: true,
               }}
-              open={isCopyTooltipShown}
+              open={isTooltipShown}
               disableFocusListener
               disableHoverListener
               disableTouchListener

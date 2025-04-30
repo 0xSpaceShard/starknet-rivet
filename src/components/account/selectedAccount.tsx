@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, Menu as MenuIcon, Send as SendIcon } from '@mui/icons-material';
+import {
+  ChevronLeft,
+  Menu as MenuIcon,
+  Send as SendIcon,
+  AccountTree as DebugIcon,
+} from '@mui/icons-material';
 import { num } from 'starknet';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -18,6 +23,7 @@ import {
   Tooltip,
   Typography,
   CircularProgress,
+  Grid,
 } from '@mui/material';
 import JsonView from 'react18-json-view';
 import 'react18-json-view/src/dark.css';
@@ -27,10 +33,10 @@ import {
   handleCopyToClipboard,
   shortenAddress,
 } from '../utils/utils';
-import { useCopyTooltip } from '../hooks/hooks';
+import { useTooltip } from '../hooks/useTooltip';
 import { useSharedState } from '../context/dataContext';
 import { printAccountType } from '../../background/utils';
-import { AccountType } from '../../background/syncStorage';
+import { AccountType, getWalnutOptions } from '../../background/syncStorage';
 import { darkTheme } from '../..';
 import { useTokens } from '../hooks/useTokens';
 import { logError } from '../../background/analytics';
@@ -72,7 +78,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
   };
 
   const { tokenBalances, getTokenSymbol, hasNonPredeployedTokens } = useTokens();
-  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { isTooltipShown, showTooltip } = useTooltip();
   const {
     data: blocks,
     isFetching,
@@ -125,10 +131,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
         ? 'EXECUTE_RIVET_TRANSACTION_RES'
         : 'SIGN_RIVET_MESSAGE_RES';
 
-      chrome.runtime.sendMessage({
-        type: messageType,
-        data: message,
-      });
+      chrome.runtime.sendMessage({ type: messageType, data: message });
 
       setTransactionData(null);
       setSignatureData(null);
@@ -149,10 +152,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
           ? 'RIVET_TRANSACTION_FAILED'
           : 'SIGNATURE_RIVET_FAILURE';
 
-        chrome.runtime.sendMessage({
-          type: messageType,
-          data: message,
-        });
+        chrome.runtime.sendMessage({ type: messageType, data: message });
         setTransactionData(null);
         setSignatureData(null);
 
@@ -236,6 +236,19 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
     [blocks, selectedAccount, tokenBalances]
   );
 
+  const debugTransaction = async (e: any) => {
+    const walnutOptions = await getWalnutOptions();
+    console.log('!', walnutOptions, e);
+    if (!walnutOptions) {
+      // setShowReconnectPopup(true);
+      // return;
+    }
+    // executeDebug();
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  };
+
   return (
     <section>
       <Box paddingBottom={transactionData || signatureData || tokenBalances?.length ? 3 : 6}>
@@ -246,12 +259,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
               variant={'text'}
               startIcon={<ChevronLeft />}
               onClick={handleBack}
-              sx={{
-                padding: '8px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                marginTop: '1px',
-              }}
+              sx={{ padding: '8px 10px', display: 'flex', alignItems: 'center', marginTop: '1px' }}
             >
               <Typography marginTop={'1px'} fontSize={'0.8125rem'} lineHeight={'1.5'}>
                 Back
@@ -297,14 +305,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             onClick={handleMenuClose}
             slotProps={{
               paper: {
-                sx: {
-                  width: 250,
-                  maxWidth: '100%',
-                  padding: 0,
-                  '& .MuiMenu-list': {
-                    padding: 0,
-                  },
-                },
+                sx: { width: 250, maxWidth: '100%', padding: 0, '& .MuiMenu-list': { padding: 0 } },
               },
             }}
           >
@@ -322,9 +323,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
             <MenuItem
               onClick={() =>
                 navigate(`/accounts/${selectedAccount?.address}/modify-balance`, {
-                  state: {
-                    initialBalance: strkBalanceString,
-                  },
+                  state: { initialBalance: strkBalanceString },
                 })
               }
             >
@@ -359,10 +358,8 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 </Box>
                 <Box paddingY={1}>
                   <Tooltip
-                    PopperProps={{
-                      disablePortal: true,
-                    }}
-                    open={isCopyTooltipShown}
+                    PopperProps={{ disablePortal: true }}
+                    open={isTooltipShown}
                     disableFocusListener
                     disableHoverListener
                     disableTouchListener
@@ -417,30 +414,46 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 </Typography>
                 <Box>
                   {transactions.slice(0, displayLimit).map((t, i) => (
-                    <Button
-                      key={i}
-                      fullWidth
-                      variant="text"
-                      sx={{
-                        textTransform: 'none',
-                        color: darkTheme.palette.text.secondary,
-                        paddingY: '4px',
-                      }}
-                      onClick={() =>
-                        navigate(`/transaction/${t.transaction_hash}`, {
-                          state: { transaction: t },
-                        })
-                      }
-                    >
-                      <Stack paddingY={0.5} direction="row" alignItems="center" width="100%">
-                        <Box textAlign="left" flexGrow={1}>
-                          <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
-                        </Box>
-                        <Box textAlign="right" width="35%">
-                          {t.amount} {t.symbol}
-                        </Box>
-                      </Stack>
-                    </Button>
+                    <Grid container direction={'row'} alignItems={'center'}>
+                      <Grid item flexGrow={1}>
+                        <Button
+                          key={i}
+                          fullWidth
+                          variant="text"
+                          sx={{
+                            textTransform: 'none',
+                            color: darkTheme.palette.text.secondary,
+                            paddingY: '4px',
+                          }}
+                          onClick={() =>
+                            navigate(`/transaction/${t.transaction_hash}`, {
+                              state: { transaction: t },
+                            })
+                          }
+                        >
+                          <Stack paddingY={0.5} direction="row" alignItems="center" width="100%">
+                            <Box textAlign="left" flexGrow={1}>
+                              <Typography variant="subtitle2">{t.time.toLocaleString()}</Typography>
+                            </Box>
+                            <Box textAlign="right" width="35%">
+                              {t.amount} {t.symbol}
+                            </Box>
+                          </Stack>
+                        </Button>
+                      </Grid>
+                      <Grid item flexBasis={'50px'} flexGrow={0} padding={'0 10px'}>
+                        <Tooltip title="Debug transaction">
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={debugTransaction}
+                            aria-haspopup="true"
+                          >
+                            <DebugIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Grid>
+                    </Grid>
                   ))}
                 </Box>
                 {hasNextPage ? (
@@ -478,10 +491,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 textAlign={'left'}
                 borderRadius={'5px'}
                 whiteSpace={'pre-wrap'}
-                sx={{
-                  wordBreak: 'break-word',
-                  color: transactionData.error ? 'red' : 'inherit',
-                }}
+                sx={{ wordBreak: 'break-word', color: transactionData.error ? 'red' : 'inherit' }}
               >
                 {transactionData.error ? (
                   <JsonView src={transactionData.error} />
@@ -499,10 +509,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                   border={'1px solid grey'}
                   borderRadius={'5px'}
                   display={'inline-block'}
-                  sx={{
-                    wordBreak: 'break-word',
-                    backgroundColor: 'darkgrey',
-                  }}
+                  sx={{ wordBreak: 'break-word', backgroundColor: 'darkgrey' }}
                 >
                   <strong>Estimate Fee:</strong> {weiToEth(transactionData.gas_fee)} ETH
                 </Box>
@@ -538,9 +545,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 textAlign={'left'}
                 borderRadius={'5px'}
                 whiteSpace={'pre-wrap'}
-                sx={{
-                  wordBreak: 'break-word',
-                }}
+                sx={{ wordBreak: 'break-word' }}
               >
                 <JsonView src={signatureData} />
               </Box>

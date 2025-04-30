@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link as RouteLink } from 'react-router-dom';
 import { Stack, Box, Button, Typography, Divider, Grid, IconButton, Tooltip } from '@mui/material';
-import { ChevronLeft, ChevronRight, CropSquare, ViewSidebar } from '@mui/icons-material';
-import { createArgentAccount, createOpenZeppelinAccount } from '../../background/utils';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CropSquare,
+  ViewSidebar,
+  RestartAlt,
+} from '@mui/icons-material';
+import {
+  createArgentAccount,
+  createOpenZeppelinAccount,
+  restartDevnet,
+} from '../../background/utils';
 import { useSharedState } from '../context/dataContext';
 import { Spinner } from '../utils/spinner';
 import { getUrlConfig } from '../../background/syncStorage';
@@ -31,37 +41,27 @@ export const AppSettings = () => {
   const onSidepanelOpen = async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      await chrome.sidePanel.setOptions({
-        tabId: tab.id,
-        path: 'sidepanel.html',
-        enabled: true,
-      });
+      await chrome.sidePanel.setOptions({ tabId: tab.id, path: 'sidepanel.html', enabled: true });
       // @ts-expect-error - open() not typed in current @types/chrome
       await chrome.sidePanel.open({ tabId: tab.id });
 
       chrome.extension.getViews({ type: 'popup' }).forEach((w) => w.close());
 
-      await chrome.runtime.sendMessage({
-        type: 'SET_VIEWMODE',
-        data: 'sidepanel',
-      });
+      await chrome.runtime.sendMessage({ type: 'SET_VIEWMODE', data: 'sidepanel' });
     }
   };
 
   const onPopupOpen = async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      await chrome.sidePanel.setOptions({
-        tabId: tab.id,
-        path: 'sidepanel.html',
-        enabled: false,
-      });
+      await chrome.sidePanel.setOptions({ tabId: tab.id, path: 'sidepanel.html', enabled: false });
 
-      await chrome.runtime.sendMessage({
-        type: 'SET_VIEWMODE',
-        data: 'popup',
-      });
+      await chrome.runtime.sendMessage({ type: 'SET_VIEWMODE', data: 'popup' });
     }
+  };
+
+  const onRestartDevnet = async () => {
+    await restartDevnet();
   };
 
   return (
@@ -82,46 +82,52 @@ export const AppSettings = () => {
                 variant={'text'}
                 startIcon={<ChevronLeft />}
                 onClick={() => navigate('/')}
-                sx={{
-                  padding: '8px 10px',
-                }}
+                sx={{ padding: '8px 10px' }}
               >
                 Back
               </Button>
             </Box>
-            {mode === 'popup' ? (
-              <Box>
-                <Tooltip title={'Sidepanel view'} sx={{ marginX: 2 }}>
-                  <IconButton
-                    size="small"
-                    color="primary"
-                    onClick={onSidepanelOpen}
-                    aria-haspopup="true"
-                    sx={{
-                      marginRight: '1em',
-                    }}
-                  >
-                    <ViewSidebar fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            ) : (
-              <Box>
-                <Tooltip title={'Popup view'} sx={{ marginX: 2 }}>
-                  <IconButton
-                    size="small"
-                    color="primary"
-                    onClick={onPopupOpen}
-                    aria-haspopup="true"
-                    sx={{
-                      marginRight: '1em',
-                    }}
-                  >
-                    <CropSquare fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            )}
+            <Box display="inline-block">
+              <Tooltip title={'Restart devnet'} sx={{ marginRight: 1 }}>
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={onRestartDevnet}
+                  aria-haspopup="true"
+                >
+                  <RestartAlt fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              {mode === 'popup' ? (
+                <Box display="inline-block">
+                  <Tooltip title={'Sidepanel view'} sx={{ marginRight: 2 }}>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={onSidepanelOpen}
+                      aria-haspopup="true"
+                      sx={{ marginRight: '1em' }}
+                    >
+                      <ViewSidebar fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              ) : (
+                <Box display="inline-block">
+                  <Tooltip title={'Popup view'} sx={{ marginRight: 2 }}>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={onPopupOpen}
+                      aria-haspopup="true"
+                      sx={{ marginRight: '1em' }}
+                    >
+                      <CropSquare fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
+            </Box>
           </Stack>
           <Stack spacing={0}>
             <Box>
@@ -130,11 +136,7 @@ export const AppSettings = () => {
                 component={RouteLink}
                 to="/command-generator"
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Docker Command Generator
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -148,11 +150,7 @@ export const AppSettings = () => {
                 component={RouteLink}
                 to="/docker-register"
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Register Running Docker
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -166,11 +164,7 @@ export const AppSettings = () => {
                 component={RouteLink}
                 to="/block-configuration"
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Block Configuration
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -184,11 +178,7 @@ export const AppSettings = () => {
                 component={RouteLink}
                 to="/gas-price-modification"
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Modify Gas Price
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -202,11 +192,7 @@ export const AppSettings = () => {
                 component={RouteLink}
                 to={l1NodePort ? '/l1-l2-data' : '/l1-l2-onboarding'}
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 L1 - L2 Messaging
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -238,11 +224,7 @@ export const AppSettings = () => {
                   navigate(`/accounts/${account.address}`, { state: { type: account.type } });
                 }}
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Open Zeppelin
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -267,11 +249,7 @@ export const AppSettings = () => {
                   navigate(`/accounts/${account.address}`, { state: { type: account.type } });
                 }}
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Argent
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -286,11 +264,7 @@ export const AppSettings = () => {
                   e.stopPropagation();
                 }}
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Braavos
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>
@@ -305,11 +279,7 @@ export const AppSettings = () => {
                   e.stopPropagation();
                 }}
                 fullWidth
-                sx={{
-                  height: 48,
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                }}
+                sx={{ height: 48, justifyContent: 'flex-end', alignItems: 'center' }}
               >
                 Ethereum
                 <Box display={'flex'} alignItems={'center'} paddingRight={2} paddingLeft={4}>

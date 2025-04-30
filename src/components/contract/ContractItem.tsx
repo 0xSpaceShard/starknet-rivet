@@ -2,7 +2,7 @@ import { Box, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import { handleCopyToClipboard, shortenAddress } from '../utils/utils';
-import { useCopyTooltip } from '../hooks/hooks';
+import { useTooltip } from '../hooks/useTooltip';
 
 interface StackItemProps {
   address: string;
@@ -10,7 +10,7 @@ interface StackItemProps {
 }
 
 export const ContractItem: React.FC<StackItemProps> = ({ address, name }) => {
-  const { isCopyTooltipShown, showTooltip } = useCopyTooltip();
+  const { isTooltipShown, showTooltip } = useTooltip();
 
   return (
     <Box>
@@ -30,7 +30,7 @@ export const ContractItem: React.FC<StackItemProps> = ({ address, name }) => {
             PopperProps={{
               disablePortal: true,
             }}
-            open={isCopyTooltipShown}
+            open={isTooltipShown}
             disableFocusListener
             disableHoverListener
             disableTouchListener

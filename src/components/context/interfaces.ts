@@ -31,6 +31,8 @@ export interface Options {
   forkBlock: number;
   requestBodySizeLimit: number;
   blockGenerationOn: string | number;
+  walnutApiKey: string;
+  ngrokAuthToken: string;
 }
 
 export interface TransactionInfo {
