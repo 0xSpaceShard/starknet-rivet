@@ -401,7 +401,7 @@ export const SelectedAccountInfo: React.FC<{}> = () => {
                 </Typography>
                 <Box>
                   {transactions.slice(0, displayLimit).map((t, i) => (
-                    <Grid container direction={'row'} alignItems={'center'}>
+                    <Grid container direction={'row'} alignItems={'center'} key={i}>
                       <Grid item flexGrow={1}>
                         <Button
                           key={i}
